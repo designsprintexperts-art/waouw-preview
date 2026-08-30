@@ -139,7 +139,13 @@ section{padding-block:clamp(72px,10vw,var(--s10))}
   transition:filter var(--t-ui) var(--ease)}
 .nav.on-paper .nav__logo img{filter:none}      /* sur papier */
 @media (max-width:600px){.nav__logo img{height:36px}}
+/* nowrap : sans lui, un libellé de deux mots se casse en deux lignes au lieu
+   de déborder — la barre grandit en hauteur, et un contrôle de largeur ne voit
+   rien. L'écart se resserre sous 1180px, là où sept entrées et le bouton se
+   disputent la place. */
 .nav__links{display:flex; gap:var(--s6); margin-inline:auto}
+.nav__links a{white-space:nowrap}
+@media (min-width:900px) and (max-width:1180px){ .nav__links{gap:var(--s4)} }
 .nav a:not(.btn):not(.nav__logo){
   color:var(--on-night); text-decoration:none; font-size:14.5px; letter-spacing:.005em;
   opacity:.72; transition:opacity var(--t-micro) var(--ease);
@@ -1252,7 +1258,8 @@ input[type=range]:focus-visible{outline:2px solid var(--accent); outline-offset:
          Ordre = ordre de la page, pour que le menu et le scroll racontent la
          même chose. « Aides » entre parce que c'est un facteur de décision
          qu'on va chercher ; « L'histoire » reste, elle porte la crédibilité. -->
-    <a href="#gestes">Le boîtier</a>
+    <a href="#produit">Le coût</a>
+    <a href="#boitier">Le boîtier</a>
     <a href="#histoire">L'histoire</a>
     <a href="#pour-qui">Pour qui</a>
     <a href="#offres">Offres</a>
@@ -1271,7 +1278,8 @@ input[type=range]:focus-visible{outline:2px solid var(--accent); outline-offset:
          Ordre = ordre de la page, pour que le menu et le scroll racontent la
          même chose. « Aides » entre parce que c'est un facteur de décision
          qu'on va chercher ; « L'histoire » reste, elle porte la crédibilité. -->
-    <a href="#gestes">Le boîtier</a>
+    <a href="#produit">Le coût</a>
+    <a href="#boitier">Le boîtier</a>
     <a href="#histoire">L'histoire</a>
     <a href="#pour-qui">Pour qui</a>
     <a href="#offres">Offres</a>
@@ -1328,7 +1336,7 @@ input[type=range]:focus-visible{outline:2px solid var(--accent); outline-offset:
     <div class="hero__actions">
       <div class="hero__cta" data-reveal>
         <a href="#offres" class="btn" data-press-target>Commander — <span class="num">755&nbsp;€</span> livré</a>
-        <a href="#gestes" class="btn btn--ghost" data-press-target>Voir les 3 gestes</a>
+        <a href="#boitier" class="btn btn--ghost" data-press-target>Voir les 3 gestes</a>
       </div>
       <p class="hero__price" data-reveal>
         <span><b class="num">615&nbsp;€ HT</b><span style="opacity:.45; margin:0 8px">/</span><span class="num">738&nbsp;€ TTC</span></span>
@@ -1385,7 +1393,7 @@ input[type=range]:focus-visible{outline:2px solid var(--accent); outline-offset:
 <!-- ============ 3 · LE PROBLÈME ============ -->
 <section id="produit">
   <div class="wrap">
-    <p class="eyebrow" data-reveal>Le problème</p>
+    <p class="eyebrow" data-reveal>Le vrai coût</p>
     <h2 class="claim" data-reveal>Vos données sont chez quelqu'un d'autre.<span class="soft"> Et vous payez pour ça, tous les mois.</span></h2>
     <p class="lede" style="margin-top:var(--s6)" data-reveal>Un hébergeur peut lire vos fichiers, les perdre, augmenter ses prix ou fermer votre compte. Vous ne possédez rien : vous louez un emplacement dans un bâtiment que vous ne verrez jamais. WaouW renverse la question — le serveur est à vous, il est chez vous, et vous ne payez qu'une fois.</p>
 
@@ -1447,37 +1455,10 @@ input[type=range]:focus-visible{outline:2px solid var(--accent); outline-offset:
 </section>
 
 
-<!-- ============ LE FONDATEUR ============ -->
-<section id="histoire">
-  <div class="wrap">
-    <p class="eyebrow" data-reveal>D'où vient cette box</p>
-    <h2 data-reveal style="max-width:15ch">Il a hébergé le web d'une région.<span class="dim"> Il veut vous rendre le vôtre.</span></h2>
-
-    <div class="founder" style="margin-top:var(--s8)">
-      <div data-reveal>
-        <p class="founder__quote">« NFrance Conseil héberge actuellement <span style="color:var(--accent)">65 %</span> du marché midi-pyrénéen des sites web, et s'attaque aux USA. »</p>
-        <p class="founder__src">La Dépêche du Midi, 18 septembre 2001 — sur l'entreprise fondée quatre ans plus tôt par Éric-Lionel Perez.</p>
-
-        <p class="lede" style="margin-top:var(--s6)">Vingt-cinq ans plus tard, le même homme construit l'inverse de ce qu'il a bâti : au lieu de concentrer les sites de milliers de clients dans ses machines, il met une machine chez chaque client. <strong>Ce n'est pas une start-up qui découvre l'hébergement — c'est un hébergeur qui a changé d'avis.</strong></p>
-      </div>
-
-      <ul class="tl" data-reveal><span class="tl__rail" aria-hidden="true"><i id="tlFill"></i></span>
-        <li><b>1997</b><span>Fondation de <em>NFrance Conseil</em> à Toulouse, l'un des premiers hébergeurs français.</span></li>
-        <li><b>2001</b><span><em>65 %</em> des sites web de Midi-Pyrénées hébergés. 6<sup>e</sup> enregistreur de noms de domaine de France, environ 500 revendeurs.</span></li>
-        <li><b>2022</b><span>Le prototype de la <em>WaouW Box</em> sort des cartons. Un serveur de la taille d'une main.</span></li>
-        <li><b>2023</b><span>Lauréate finaliste du concours <em>Tech for Future</em> (La Tribune), catégorie Start, à Toulouse.</span></li>
-        <li><b>2026</b><span>La box est en vente. <em>Vous</em> devenez l'hébergeur.</span></li>
-      </ul>
-    </div>
-
-    <p class="note" data-reveal><b>Note de production —</b> chiffres repris de la presse citée. À faire relire par le client avant mise en ligne, et à compléter d'une photographie du fondateur : sans visage, cette section perd la moitié de sa force.</p>
-  </div>
-</section>
-
 <!-- ============ 4 · TROIS GESTES ============ -->
-<section class="night steps" id="gestes">
+<section class="night steps" id="boitier">
   <div class="wrap">
-    <p class="eyebrow" data-reveal>La démonstration</p>
+    <p class="eyebrow" data-reveal>Le boîtier</p>
     <h2 data-reveal style="max-width:15ch">Trois gestes,<span style="color:var(--on-night-2)"> et c'est en ligne.</span></h2>
 
     <div class="steps__inner" style="margin-top:var(--s8)">
@@ -1508,6 +1489,33 @@ input[type=range]:focus-visible{outline:2px solid var(--accent); outline-offset:
   </div>
 </section>
 
+
+<!-- ============ LE FONDATEUR ============ -->
+<section id="histoire">
+  <div class="wrap">
+    <p class="eyebrow" data-reveal>D'où vient cette box</p>
+    <h2 data-reveal style="max-width:15ch">Il a hébergé le web d'une région.<span class="dim"> Il veut vous rendre le vôtre.</span></h2>
+
+    <div class="founder" style="margin-top:var(--s8)">
+      <div data-reveal>
+        <p class="founder__quote">« NFrance Conseil héberge actuellement <span style="color:var(--accent)">65 %</span> du marché midi-pyrénéen des sites web, et s'attaque aux USA. »</p>
+        <p class="founder__src">La Dépêche du Midi, 18 septembre 2001 — sur l'entreprise fondée quatre ans plus tôt par Éric-Lionel Perez.</p>
+
+        <p class="lede" style="margin-top:var(--s6)">Vingt-cinq ans plus tard, le même homme construit l'inverse de ce qu'il a bâti : au lieu de concentrer les sites de milliers de clients dans ses machines, il met une machine chez chaque client. <strong>Ce n'est pas une start-up qui découvre l'hébergement — c'est un hébergeur qui a changé d'avis.</strong></p>
+      </div>
+
+      <ul class="tl" data-reveal><span class="tl__rail" aria-hidden="true"><i id="tlFill"></i></span>
+        <li><b>1997</b><span>Fondation de <em>NFrance Conseil</em> à Toulouse, l'un des premiers hébergeurs français.</span></li>
+        <li><b>2001</b><span><em>65 %</em> des sites web de Midi-Pyrénées hébergés. 6<sup>e</sup> enregistreur de noms de domaine de France, environ 500 revendeurs.</span></li>
+        <li><b>2022</b><span>Le prototype de la <em>WaouW Box</em> sort des cartons. Un serveur de la taille d'une main.</span></li>
+        <li><b>2023</b><span>Lauréate finaliste du concours <em>Tech for Future</em> (La Tribune), catégorie Start, à Toulouse.</span></li>
+        <li><b>2026</b><span>La box est en vente. <em>Vous</em> devenez l'hébergeur.</span></li>
+      </ul>
+    </div>
+
+    <p class="note" data-reveal><b>Note de production —</b> chiffres repris de la presse citée. À faire relire par le client avant mise en ligne, et à compléter d'une photographie du fondateur : sans visage, cette section perd la moitié de sa force.</p>
+  </div>
+</section>
 
 <!-- ============ POUR QUI ============ -->
 <section class="night" id="pour-qui">
@@ -1860,7 +1868,7 @@ input[type=range]:focus-visible{outline:2px solid var(--accent); outline-offset:
         <h4>Produit</h4>
         <ul>
           <li><a href="#produit">Le boîtier</a></li>
-          <li><a href="#gestes">Comment ça marche</a></li>
+          <li><a href="#boitier">Le boîtier</a></li>
           <li><a href="#offres">Offres et prix</a></li>
           <li><a href="#">Caractéristiques techniques</a></li>
         </ul>
