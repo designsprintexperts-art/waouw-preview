@@ -567,7 +567,20 @@ section{padding-block:clamp(72px,10vw,var(--s10))}
 .step p{color:var(--on-night-2); max-width:46ch; margin-bottom:0; margin-top:var(--s3)}
 .step[data-active="1"] .step__n{color:var(--accent-night)}
 .step{transition:opacity 420ms var(--ease)}
-@media (min-width:960px){.step{opacity:.42} .step[data-active="1"]{opacity:1}}
+/* Chaque étape occupe une course de scroll, pas seulement sa hauteur de texte.
+   Sans ça les trois se suivaient à 161px — moins qu'un cran de molette : une
+   seule impulsion franchissait deux lignes de mire et l'étape du milieu était
+   sautée. Ce n'était pas un défaut de calcul mais de rythme : une séquence
+   pilotée au scroll a besoin qu'un geste de la main vaille un pas, pas trois.
+   Le texte reste centré dans sa course, le visuel collé en face. */
+@media (min-width:960px){
+  .step{
+    opacity:.42;
+    min-height:64vh; display:flex; flex-direction:column; justify-content:center;
+    padding-block:var(--s6);
+  }
+  .step[data-active="1"]{opacity:1}
+}
 
 /* ============================================================
    5 — CONFIGURATEUR & PRIX HONNÊTE
@@ -2104,25 +2117,56 @@ if (!REDUCED.matches && 'IntersectionObserver' in window) {
    un très léger zoom sur la photo — le mouvement pointe vers
    le résultat sans jamais déformer une scène réelle.
    ============================================================ */
-const steps = [...document.querySelectorAll('.step')];
+/* Portée limitée à #stepList : la classe .step sert aussi aux deux fieldsets
+   du formulaire de chat. Le sélecteur global en ramenait cinq, et la séquence
+   se calait sur des éléments qui n'ont rien à voir avec la démonstration —
+   c'est la cause profonde des sauts, l'observateur en était le symptôme. */
+const steps = [...document.querySelectorAll('#stepList .step')];
 const stepPhoto = document.getElementById('stepPhoto');
-if (steps.length && 'IntersectionObserver' in window) {
+if (steps.length) {
   let sProg = null;
   if (!REDUCED.matches && stepPhoto) {
     sProg = spring({ from: 0, to: 0, response: 0.65, damping: 0.85,
       onUpdate: v => { stepPhoto.style.setProperty('--step', v.toFixed(3)); } });
   }
-  const io2 = new IntersectionObserver((entries) => {
-    entries.forEach(e => {
-      if (!e.isIntersecting) return;
-      steps.forEach(s => s.removeAttribute('data-active'));
-      e.target.setAttribute('data-active', '1');
-      const n = +e.target.dataset.step;
-      if (sProg) sProg.retarget(n / 3);
+
+  /* L'étape active se DÉDUIT de la position ; elle n'est plus notifiée par un
+     IntersectionObserver.
+
+     L'ancienne version observait une bande de 16 % au centre de l'écran et ne
+     traitait que les entrées « qui entrent ». Trois défauts, tous visibles à
+     l'usage : une étape traversée rapidement pouvait ne jamais croiser la bande
+     — on sautait de 01 à 03 ; une étape plus haute que la bande la contenait
+     sans jamais la recroiser ; et quand deux frontières la traversaient dans la
+     même image, c'était l'ordre du DOM et non celui du scroll qui tranchait,
+     d'où des retours en arrière à la remontée.
+
+     Ici : l'étape active est la dernière dont le haut a franchi la ligne de
+     mire. C'est monotone par construction — un pas à la fois, la même règle
+     dans les deux sens, aucun saut possible quelle que soit la vitesse. */
+  const LIGNE = 0.52;                    // ligne de mire, en fraction de hauteur d'écran
+  let actif = -1, raf = 0;
+
+  const relire = () => {
+    raf = 0;
+    const y = innerHeight * LIGNE;
+    let i = 0;
+    for (let k = 0; k < steps.length; k++) {
+      if (steps[k].getBoundingClientRect().top <= y) i = k;
+    }
+    if (i === actif) return;
+    actif = i;
+    steps.forEach((s, k) => {
+      if (k === i) s.setAttribute('data-active', '1');
+      else s.removeAttribute('data-active');
     });
-  }, { rootMargin: '-42% 0px -42% 0px', threshold: 0 });
-  steps.forEach(s => io2.observe(s));
-  steps[0].setAttribute('data-active', '1');
+    if (sProg) sProg.retarget((i + 1) / steps.length);
+  };
+
+  const planifier = () => { if (!raf) raf = requestAnimationFrame(relire); };
+  addEventListener('scroll', planifier, { passive: true });
+  addEventListener('resize', planifier, { passive: true });
+  relire();
 }
 
 /* ============================================================
