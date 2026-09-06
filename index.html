@@ -554,15 +554,6 @@ section{padding-block:clamp(72px,10vw,var(--s10))}
   .box-stack{width:calc(112% + 7.8vw); max-width:none; margin-inline-end:-7.8vw}
 }
 @media (min-width:1500px){ .box-stack{width:calc(112% + 5.6vw); margin-inline-end:-5.6vw} }
-/* Mobile : même principe qu'au-dessus de 960px — le film déborde du
-   conteneur pour occuper l'écran — mais sur les deux bords à la fois,
-   puisqu'il n'y a plus de deuxième colonne pour justifier un décalage
-   d'un seul côté. .hero__stick est en overflow:clip, rien ne fuit hors
-   de la section. */
-@media (max-width:959.98px){
-  .stage{margin-inline:calc(-1 * var(--gut))}
-  .box-stack{width:calc(100% + 9vw); max-width:none}
-}
 .stage__glow{opacity:calc(.35 + var(--lights) * .65)}
 /* La cote et la liste de ports ont quitté le hero : deux lignes posées en
    absolu sous le film, sans bord commun avec quoi que ce soit — et l'une des
@@ -890,11 +881,8 @@ legend{
 .ticket__big{font-family:"Urbanist",system-ui,sans-serif; font-weight:300; font-size:clamp(46px,6vw,64px); letter-spacing:-.032em; line-height:1; margin:var(--s5) 0 var(--s2)}
 .ticket__sub{font-size:14px; color:var(--ink-3); margin-bottom:var(--s5)}
 .ticket__lines{border-top:1px solid var(--line-soft); padding-top:var(--s4); margin-bottom:var(--s5)}
-.tline{display:flex; align-items:baseline; justify-content:space-between; gap:var(--s4); font-size:14.5px; padding:7px 0; color:var(--ink-2)}
-/* Le montant ne doit jamais se réduire ni casser sa ligne : mêmes
-   nowrap/flex-shrink:0 que .aid__src, pour la même raison — c'est
-   l'intitulé qui cède de la place, jamais le prix. */
-.tline b{color:var(--ink); font-weight:500; white-space:nowrap; flex-shrink:0}
+.tline{display:flex; justify-content:space-between; gap:var(--s4); font-size:14.5px; padding:7px 0; color:var(--ink-2)}
+.tline b{color:var(--ink); font-weight:500}
 /* l'intitulé du détail était en style en dur dans le HTML : passé en classe,
    il suit le thème au lieu de le contredire si la carte change de fond. */
 .tline--h{font-size:11.5px; letter-spacing:.14em; text-transform:uppercase; color:var(--ink-3); padding-top:0}
@@ -1165,17 +1153,18 @@ a.press__i:focus-visible{outline:2px solid var(--accent-night); outline-offset:-
 .partners__viewport:hover .partners__rail{animation-play-state:paused}
 .partners__track{display:flex; align-items:center; gap:var(--s7); padding-inline-end:var(--s7)}
 /* Cadre au plus près du logo (padding réduit au minimum lisible), puis
-   cadre + logo agrandis ensemble de 30% : 76px→99px, marge 14/24→8/16
-   (×1,3 aussi, sinon le cadre grandirait mais le logo resterait petit
-   dedans), largeur max de l'image 190→248. Même logique en mobile. */
+   cadre + logo agrandis ensemble de 30% : 76px→99px, marge 14/24→8/16,
+   largeur max de l'image 190→248. Puis nouvel agrandissement de 20%
+   (06/09/2026) : 99px→119px, marge 8/16→10/19, image 248→298. Même
+   logique en mobile : 73→88, marge 7/13→8/16, image 182→218. */
 .partners__logo{
   flex:none; display:flex; align-items:center; justify-content:center;
-  height:99px; padding:8px 16px; background:#FFF; border-radius:13px;
+  height:119px; padding:10px 19px; background:#FFF; border-radius:13px;
   box-shadow:0 0 0 1px var(--line-night);
   filter:grayscale(1); opacity:.6; transition:filter var(--t-ui) var(--ease), opacity var(--t-ui) var(--ease);
 }
 .partners__logo:hover{filter:grayscale(0); opacity:1}
-.partners__logo img{display:block; height:100%; width:auto; max-width:248px; object-fit:contain}
+.partners__logo img{display:block; height:100%; width:auto; max-width:298px; object-fit:contain}
 @keyframes partners-scroll{ from{transform:translate3d(0,0,0)} to{transform:translate3d(-50%,0,0)} }
 @media (prefers-reduced-motion: reduce){
   .partners__rail{animation:none; width:auto; flex-wrap:wrap; gap:var(--s5) var(--s7)}
@@ -1184,7 +1173,7 @@ a.press__i:focus-visible{outline:2px solid var(--accent-night); outline-offset:-
   .partners__viewport{overflow:visible; -webkit-mask-image:none; mask-image:none}
   .partners__logo{filter:none; opacity:1}
 }
-@media (max-width:600px){.partners__logo{height:73px; padding:7px 13px} .partners__logo img{max-width:182px}}
+@media (max-width:600px){.partners__logo{height:88px; padding:8px 16px} .partners__logo img{max-width:218px}}
 
 /* ============================================================
    LE FONDATEUR — l'actif le plus fort du dossier, et le seul
@@ -1532,7 +1521,7 @@ input[type=range]:focus-visible{outline:2px solid var(--accent); outline-offset:
 .calc__out{border-top:1px solid var(--line-soft); padding-top:var(--s5); margin-top:var(--s5)}
 @media (min-width:900px){.calc__out{border-top:0; border-inline-start:1px solid var(--line-soft); padding:0 0 0 var(--s8); margin:0}}
 .calc__row{display:flex; justify-content:space-between; align-items:baseline; gap:var(--s4); padding:9px 0; font-size:15px; color:var(--ink-2)}
-.calc__row b{color:var(--ink); font-weight:500; font-size:16px; white-space:nowrap; flex-shrink:0}
+.calc__row b{color:var(--ink); font-weight:500; font-size:16px}
 .calc__big{font-size:clamp(30px,3.4vw,42px); font-weight:300; font-family:"Urbanist",system-ui,sans-serif; letter-spacing:-.03em; color:var(--accent)}
 .calc__note{font-size:12.5px; color:var(--ink-3); margin:var(--s4) 0 0; line-height:1.5}
 
@@ -2888,7 +2877,7 @@ document.querySelectorAll('[data-press-target], .btn').forEach(b => {
    Tout est annoncé — base, port, TVA, total.
    ============================================================ */
 const SHIP = 14.5, VAT = 0.2, DUO = 625;
-const eur = n => n.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
+const eur = n => n.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
 let showTTC = true, priceSpring = null, shownTotal = 755.40;
 
 const $ = id => document.getElementById(id);
@@ -4464,25 +4453,6 @@ function cacheOriginals() {
   });
 }
 
-/* Un titre passé par le découpage « mot à mot » (module 11, h1/h2) porte
-   dataset.split et ses mots sont des <span class="w">. Cet observateur ne
-   se déclenche qu'une fois, au premier passage dans le viewport, puis se
-   désabonne pour de bon. Le HTML mis en cache par cacheOriginals() a été
-   capturé juste après ce découpage initial mais avant que l'observateur
-   n'anime les mots — il contient donc des <span class="w"> à opacity:0
-   (règle CSS [data-split] .w). Le restituer tel quel (retour au français
-   après un passage par une autre langue) réinjecte des mots jamais animés,
-   sans plus aucun observateur pour les révéler : le titre reste invisible
-   en permanence. On rend ces mots visibles immédiatement à chaque
-   changement de langue plutôt que de rejouer l'entrée en scène, qui n'a de
-   sens qu'au tout premier affichage de la page. */
-function fixSplitVisibility(el) {
-  if (!el.dataset.split) return;
-  el.querySelectorAll('.w').forEach(w => {
-    w.style.opacity = '1'; w.style.transform = 'none'; w.style.willChange = 'auto';
-  });
-}
-
 function applyDict(lang) {
   ALL_SELECTORS.forEach(sel => {
     const els = queryAll(sel);
@@ -4490,15 +4460,15 @@ function applyDict(lang) {
     if (lang === 'fr') {
       const orig = CACHE[sel];
       if (!orig) return;
-      els.forEach((el, i) => { if (orig[i] != null) { el.innerHTML = orig[i]; fixSplitVisibility(el); } });
+      els.forEach((el, i) => { if (orig[i] != null) el.innerHTML = orig[i]; });
       return;
     }
     const val = I18N[lang] && I18N[lang][sel];
     if (val == null) return;
     if (Array.isArray(val)) {
-      els.forEach((el, i) => { if (val[i] != null) { el.innerHTML = val[i]; fixSplitVisibility(el); } });
+      els.forEach((el, i) => { if (val[i] != null) el.innerHTML = val[i]; });
     } else {
-      els.forEach(el => { el.innerHTML = val; fixSplitVisibility(el); });
+      els.forEach(el => { el.innerHTML = val; });
     }
   });
 }
