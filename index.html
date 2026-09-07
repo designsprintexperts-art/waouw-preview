@@ -4521,6 +4521,23 @@ function cacheOriginals() {
   });
 }
 
+/* Un changement de langue remplace innerHTML sur un element deja marque
+   data-split (module 11 : les h1/h2 sont decoupes en mots .w pour une
+   revelation au scroll qui ne se joue qu'une fois). La regle CSS
+   [data-split] .w{opacity:0} s'applique alors a des mots tout neufs que
+   plus rien ne revele jamais -- l'IntersectionObserver d'origine s'est
+   deja desabonne. Bug observe : le h1 du hero devient vide en repassant
+   de EN a FR. Un changement de langue n'est pas une revelation au scroll :
+   on affiche directement les mots restaures, sans rejouer l'animation. */
+function unsplitGuard(el) {
+  if (el.dataset.split !== '1') return;
+  el.querySelectorAll('.w').forEach(w => {
+    w.style.opacity = '1';
+    w.style.transform = '';
+    w.style.willChange = 'auto';
+  });
+}
+
 function applyDict(lang) {
   ALL_SELECTORS.forEach(sel => {
     const els = queryAll(sel);
@@ -4528,15 +4545,15 @@ function applyDict(lang) {
     if (lang === 'fr') {
       const orig = CACHE[sel];
       if (!orig) return;
-      els.forEach((el, i) => { if (orig[i] != null) el.innerHTML = orig[i]; });
+      els.forEach((el, i) => { if (orig[i] != null) { el.innerHTML = orig[i]; unsplitGuard(el); } });
       return;
     }
     const val = I18N[lang] && I18N[lang][sel];
     if (val == null) return;
     if (Array.isArray(val)) {
-      els.forEach((el, i) => { if (val[i] != null) el.innerHTML = val[i]; });
+      els.forEach((el, i) => { if (val[i] != null) { el.innerHTML = val[i]; unsplitGuard(el); } });
     } else {
-      els.forEach(el => { el.innerHTML = val; });
+      els.forEach(el => { el.innerHTML = val; unsplitGuard(el); });
     }
   });
 }
