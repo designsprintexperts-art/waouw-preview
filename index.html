@@ -2449,7 +2449,7 @@ input[type=range]:focus-visible{outline:2px solid var(--accent); outline-offset:
     <div class="hero__actions">
       <div class="hero__cta" data-reveal>
         <a href="#offres" class="btn" data-press-target>Commander — <span class="num">755&nbsp;€</span> livré</a>
-        <a href="#boitier" class="btn btn--ghost" data-press-target>Voir les 3 gestes</a>
+        <a href="#boitier" class="btn btn--ghost" data-press-target>Comment ça marche</a>
       </div>
       <p class="hero__price" data-reveal>
         <span><b class="num">615&nbsp;€ HT</b><span style="opacity:.45; margin:0 8px">/</span><span class="num">738&nbsp;€ TTC</span></span>
@@ -2663,8 +2663,8 @@ input[type=range]:focus-visible{outline:2px solid var(--accent); outline-offset:
     <h2 data-reveal style="max-width:16ch">On vous montre tout,<span style="color:var(--on-night-2)"> à vous de choisir.</span></h2>
 
     <div class="chapters__intro" data-reveal style="margin-top:var(--s8)">
-      <p class="eyebrow">Vidéo de démonstration complète</p>
-      <h3 style="max-width:46ch; margin-bottom:0">17 min 54 — une rubrique vous intéresse ? Cliquez, la vidéo saute directement au bon moment.</h3>
+      <p class="eyebrow">Vidéo de démonstration complète &middot; 17 min 54</p>
+      <h3 style="max-width:46ch; margin-bottom:0">Ce que votre hébergeur ne vous a jamais montré : l&rsquo;installation entière, du carton branché au VPN.</h3>
     </div>
 
     <div class="steps__inner" style="margin-top:var(--s6)">
@@ -5531,7 +5531,9 @@ set('.hero__copy .lede', `Discover the self-contained, plug-and-play hosting tec
 set('.hero__claim', `Become the owner of your data again.`, `Werden Sie wieder Eigentümer Ihrer Daten.`, `Vuelva a ser propietario de sus datos.`);
 set('.marks__n', `Designed and assembled in France. Our <b>Activateur France&nbsp;Num</b> status opens access to <a href="#faq">public grants that can help fund the purchase</a>.`, `Entworfen und montiert in Frankreich. Unser Status als <b>Activateur France&nbsp;Num</b> öffnet den Zugang zu <a href="#faq">öffentlichen Förderungen, die den Kauf mitfinanzieren können</a>.`, `Diseñado y ensamblado en Francia. Nuestro estatus de <b>Activateur France&nbsp;Num</b> da acceso a <a href="#faq">ayudas públicas que pueden financiar la compra</a>.`);
 set('.hero__cta a.btn:not(.btn--ghost)', ORDER_BTN.en, ORDER_BTN.de, ORDER_BTN.es);
-set('.hero__cta a.btn--ghost', `See the 3 steps`, `Die 3 Schritte ansehen`, `Ver los 3 pasos`);
+/* Meme libelle que l'entree de menu qui mene au meme endroit : deux mots
+   differents pour une seule destination obligent le visiteur a verifier. */
+set('.hero__cta a.btn--ghost', `How it works`, `So funktioniert's`, `Cómo funciona`);
 set('.hero__price', `<span><b class="num">615&nbsp;€ excl. VAT</b><span style="opacity:.45; margin:0 8px">/</span><span class="num">738&nbsp;€ incl. VAT</span></span><span>+ <span class="num">14,50&nbsp;€</span> shipping</span><span><b class="num">755,40&nbsp;€</b> all-inclusive, one time only</span>`,
   `<span><b class="num">615&nbsp;€ netto</b><span style="opacity:.45; margin:0 8px">/</span><span class="num">738&nbsp;€ brutto</span></span><span>+ <span class="num">14,50&nbsp;€</span> Versand</span><span><b class="num">755,40&nbsp;€</b> alles inklusive, einmalig</span>`,
   `<span><b class="num">615&nbsp;€ sin IVA</b><span style="opacity:.45; margin:0 8px">/</span><span class="num">738&nbsp;€ con IVA</span></span><span>+ <span class="num">14,50&nbsp;€</span> de envío</span><span><b class="num">755,40&nbsp;€</b> todo incluido, pago único</span>`);
@@ -5598,10 +5600,19 @@ set('#boitier .eyebrow', `The box`, `Die Box`, `La caja`);
 set('#boitier h2', `We show you everything,<span style="color:var(--on-night-2)"> you choose what to watch.</span>`, `Wir zeigen Ihnen alles,<span style="color:var(--on-night-2)"> Sie wählen, was Sie sehen.</span>`, `Le mostramos todo,<span style="color:var(--on-night-2)"> usted elige qué ver.</span>`);
 
 /* ---- vidéo de démonstration chapitrée ---- */
-set('.chapters__intro .eyebrow', `Full walkthrough video`, `Vollständiges Video-Tutorial`, `Vídeo completo del tutorial`);
-set('.chapters__intro h3', `17 min 54 — click a topic to jump straight to that moment.`,
-  `17 Min. 54 — Thema anklicken und direkt zu diesem Moment springen.`,
-  `17 min 54 — haga clic en un tema para saltar directamente a ese momento.`);
+set('.chapters__intro .eyebrow', `Full walkthrough video &middot; 17 min 54`,
+  `Vollständiges Video-Tutorial &middot; 17 min 54`,
+  `Vídeo completo del tutorial &middot; 17 min 54`);
+/* La video ne travaille pas pour elle-meme, elle travaille pour la these
+   de la page : vos donnees sont chez quelqu'un d'autre, et vous n'avez
+   jamais vu ce qui s'y passe. Le titre rattache les 17 minutes a ce
+   manque-la, au lieu d'expliquer comment cliquer sur un chapitre — ce
+   que la liste juste en dessous demontre deja d'elle-meme. La duree
+   totale reste dans le surtitre : information, pas objection. */
+set('.chapters__intro h3',
+  `What your hosting provider has never shown you: the whole install, from the box you plug in to the VPN.`,
+  `Was Ihr Hoster Ihnen nie gezeigt hat: die gesamte Installation, vom Anschließen des Gehäuses bis zum VPN.`,
+  `Lo que su proveedor de alojamiento nunca le ha enseñado: la instalación entera, desde la caja enchufada hasta la VPN.`);
 set('.chapters__t',
   [`Introduction and physical setup`, `First access and SSL certificate`, `Setup wizard and network`, `Authentication and device registration`, `Connecting to the admin dashboard`, `Dashboard and system settings`, `Updates and display mode`, `Creating and deploying a WordPress site`, `Site administration and databases`, `Cloud, mail, sync, backup`, `Security, VPN and wrap-up`],
   [`Einführung und physischer Anschluss`, `Erster Zugriff und SSL-Zertifikat`, `Einrichtungsassistent und Netzwerk`, `Authentifizierung und Geräteregistrierung`, `Verbindung zum Admin-Dashboard`, `Dashboard und Systemeinstellungen`, `Updates und Anzeigemodus`, `Eine WordPress-Website erstellen und veröffentlichen`, `Website-Verwaltung und Datenbanken`, `Cloud, E-Mail, Synchronisierung, Backup`, `Sicherheit, VPN und Fazit`],
