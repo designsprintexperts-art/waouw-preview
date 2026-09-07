@@ -1,0 +1,220 @@
+/* ============================================================
+   WaouW — feuille partagée des pages secondaires (légal + article)
+   Reprend telle quelle la palette de tokens et les composants de base
+   d'index.html (:root, typographie, .wrap, .btn, focus-visible) pour
+   rester visuellement identique au site principal. Externalisée ici
+   (au lieu d'être réinjectée dans chacune des 4 pages) parce que ces
+   pages ne sont pas critiques pour le First Paint comme la landing :
+   un fichier mis en cache par le navigateur après la 1re page vaut
+   mieux que ~18 Ko de CSS dupliqués x4.
+   ============================================================ */
+:root{
+  --paper:#F6F5F2;
+  --paper-hi:#FCFBF9;
+  --ink:#0B0B0A;
+  --ink-2:#55554E;
+  --ink-3:#6E6E66;
+  --line:rgba(11,11,10,.13);
+  --line-soft:rgba(11,11,10,.07);
+
+  --night:#0C0C0B;
+  --night-2:#141412;
+  --on-night:#F3F2EE;
+  --on-night-2:rgba(243,242,238,.60);
+  --on-night-3:rgba(243,242,238,.56);
+  --line-night:rgba(243,242,238,.14);
+
+  --accent:#007A38;
+  --accent-night:#5AD98A;
+
+  --s1:4px; --s2:8px; --s3:12px; --s4:16px; --s5:24px;
+  --s6:32px; --s7:48px; --s8:64px; --s9:96px; --s10:128px;
+  --gut:clamp(20px,5vw,56px);
+  --max:1200px;
+  --max-read:64ch;
+
+  --ease:cubic-bezier(.2,.7,.3,1);
+  --t-micro:140ms;
+  --t-ui:240ms;
+
+  --r:10px;
+  --r-pill:999px;
+}
+
+*,*::before,*::after{box-sizing:border-box}
+[hidden]{display:none !important}
+html{-webkit-text-size-adjust:100%; scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+
+body{
+  margin:0; background:var(--paper); color:var(--ink);
+  font:400 17px/1.6 "Instrument Sans",system-ui,-apple-system,sans-serif;
+  -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+}
+
+.display,h1,h2,h3{
+  font-family:"Urbanist",system-ui,sans-serif;
+  font-weight:300; font-synthesis:none; margin:0;
+}
+h1{font-size:clamp(38px,4.6vw,58px); line-height:1.08; letter-spacing:-.03em}
+h2{font-size:clamp(24px,2.6vw,32px); line-height:1.18; letter-spacing:-.02em; font-weight:400}
+h3{font-size:clamp(18px,1.8vw,21px); line-height:1.3; letter-spacing:-.01em; font-weight:500}
+p{margin:0 0 var(--s4)}
+.lede{font-size:clamp(17px,1.35vw,19px); line-height:1.6; color:var(--ink-2); max-width:var(--max-read)}
+.dim{color:var(--ink-3)}
+.night .lede{color:var(--on-night-2)}
+
+.eyebrow{
+  font-size:11.5px; font-weight:500; letter-spacing:.16em; text-transform:uppercase;
+  color:var(--ink-3); font-family:"Instrument Sans",sans-serif; margin:0 0 var(--s4);
+  display:flex; align-items:center; gap:var(--s3);
+}
+.eyebrow::before{content:""; width:22px; height:1px; background:currentColor; opacity:.5; flex:none}
+.night .eyebrow{color:var(--on-night-3)}
+
+.num{font-family:"JetBrains Mono",ui-monospace,monospace; font-variant-numeric:tabular-nums}
+
+.wrap{max-width:var(--max); margin-inline:auto; padding-inline:var(--gut)}
+.rule{height:1px; background:var(--line); border:0; margin:0}
+.night{background:var(--night); color:var(--on-night)}
+.night h1,.night h2,.night h3{color:var(--on-night)}
+.night .rule{background:var(--line-night)}
+
+:focus-visible{outline:2px solid var(--accent); outline-offset:3px; border-radius:4px}
+.night :focus-visible{outline-color:var(--accent-night)}
+
+a{color:inherit}
+
+.btn{
+  --bg:var(--ink); --fg:var(--paper-hi); --bd:transparent;
+  display:inline-flex; align-items:center; justify-content:center; gap:var(--s2);
+  min-height:44px; padding:0 20px; border-radius:var(--r-pill);
+  background:var(--bg); color:var(--fg); border:1px solid var(--bd);
+  font:500 15px/1 "Instrument Sans",sans-serif; letter-spacing:.005em;
+  text-decoration:none; cursor:pointer; white-space:nowrap;
+  transition:opacity var(--t-micro) var(--ease), border-color var(--t-micro) var(--ease);
+}
+.btn:hover{opacity:.88}
+.btn--ghost{--bg:transparent; --fg:var(--ink); --bd:var(--line)}
+.btn--ghost:hover{--bd:rgba(11,11,10,.34); opacity:1}
+.btn--sm{min-height:38px; padding:0 15px; font-size:13.5px}
+
+/* ============================================================
+   En-tête des pages secondaires : volontairement plus léger que
+   le mega-menu de la landing. Une page légale n'a rien à faire
+   d'ancres vers #offres ou #faq qui n'existent que sur l'accueil —
+   un lien mort dans une nav, ça casse la confiance sur la page
+   même où on l'attend le moins. Deux liens, un logo : l'accueil,
+   et « retour ». (HIG — hiérarchie de navigation claire, pas
+   d'ancres orphelines hors contexte.)
+   ============================================================ */
+.subnav{
+  position:sticky; top:0; z-index:100;
+  display:flex; align-items:center; justify-content:space-between; gap:var(--s5);
+  padding:14px var(--gut);
+  background:rgba(246,245,242,.86);
+  backdrop-filter:blur(18px) saturate(160%); -webkit-backdrop-filter:blur(18px) saturate(160%);
+  border-bottom:1px solid var(--line);
+}
+.subnav__logo{display:flex; align-items:center; gap:10px; text-decoration:none; min-height:44px}
+.subnav__logo img{height:30px; width:auto; display:block}
+.subnav__back{
+  display:inline-flex; align-items:center; gap:7px; text-decoration:none; color:var(--ink-2);
+  font-size:14.5px; font-weight:500; min-height:44px; padding:10px 2px;
+  transition:color var(--t-micro) var(--ease);
+}
+.subnav__back:hover{color:var(--ink)}
+.subnav__back svg{flex:none}
+
+/* ---- fil d'ariane ---- */
+.crumbs{display:flex; flex-wrap:wrap; align-items:center; gap:7px; font-size:13.5px; color:var(--ink-3); margin:0 0 var(--s6)}
+.crumbs a{text-decoration:none; color:var(--ink-3); transition:color var(--t-micro) var(--ease)}
+.crumbs a:hover{color:var(--ink)}
+.crumbs span[aria-current]{color:var(--ink-2)}
+
+/* ---- en-tête de contenu (légal + article) ---- */
+.pagehead{padding-block:clamp(48px,7vw,var(--s8)) var(--s7); border-bottom:1px solid var(--line)}
+.pagehead h1{max-width:22ch}
+.pagehead .lede{margin-top:var(--s4)}
+.meta-row{display:flex; flex-wrap:wrap; gap:var(--s5); margin-top:var(--s6); font-size:13.5px; color:var(--ink-3)}
+.meta-row b{color:var(--ink-2); font-weight:500}
+
+/* ---- mise en page à deux colonnes : sommaire + contenu ---- */
+.legal-grid{
+  display:grid; grid-template-columns:240px minmax(0,1fr); gap:var(--s9);
+  align-items:start; padding-block:var(--s8);
+}
+@media (max-width:900px){.legal-grid{grid-template-columns:1fr; gap:var(--s6)}}
+
+.toc{position:sticky; top:84px}
+.toc__label{font-size:11.5px; font-weight:500; letter-spacing:.14em; text-transform:uppercase; color:var(--ink-3); margin-bottom:var(--s4)}
+.toc ol{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px; counter-reset:toc}
+.toc a{
+  counter-increment:toc;
+  display:flex; gap:9px; text-decoration:none; color:var(--ink-2); font-size:14px; line-height:1.4;
+  padding:7px 0; border-inline-start:2px solid transparent; padding-inline-start:12px;
+  transition:color var(--t-micro) var(--ease), border-color var(--t-micro) var(--ease);
+}
+.toc a::before{content:counter(toc,decimal-leading-zero); font:500 12px "JetBrains Mono",monospace; color:var(--ink-3); flex:none}
+.toc a:hover,.toc a:focus-visible{color:var(--ink); border-inline-start-color:var(--line)}
+.toc__toggle{
+  display:none; width:100%; align-items:center; justify-content:space-between;
+  cursor:pointer; border:0; background:transparent; padding:0;
+  font:500 14px "Instrument Sans",sans-serif; color:var(--ink);
+}
+.toc__toggle::after{content:"↓"; color:var(--ink-3)}
+.toc.is-open .toc__toggle::after{content:"↑"}
+@media (max-width:900px){
+  .toc{position:static; border:1px solid var(--line); border-radius:var(--r); padding:var(--s4) var(--s5)}
+  .toc__toggle{display:flex}
+  .toc ol{display:none; margin-top:var(--s4)}
+  .toc.is-open ol{display:flex}
+}
+
+/* ---- corps légal ---- */
+.legal-body{max-width:var(--max-read)}
+.legal-body section{padding-block:0 var(--s7); scroll-margin-top:84px}
+.legal-body section:last-child{padding-bottom:0}
+.legal-body h2{margin-bottom:var(--s4); display:flex; align-items:baseline; gap:11px}
+.legal-body h2 .num{font-size:16px; color:var(--ink-3); font-weight:400}
+.legal-body p{color:var(--ink-2); line-height:1.7}
+.legal-body ul,.legal-body ol{margin:0 0 var(--s4); padding-inline-start:1.25em; color:var(--ink-2); line-height:1.7}
+.legal-body li{margin-bottom:6px}
+.legal-body strong{color:var(--ink); font-weight:600}
+.legal-body a{color:var(--accent); text-decoration-thickness:1px; text-underline-offset:2px}
+
+/* callout : sépare visuellement les infos non confirmées par WaouW Tech
+   elle-même (champs absents de la page publique source) des faits établis —
+   éviter qu'un doute légal se noie dans le reste du texte. */
+.callout{
+  border:1px solid var(--line); border-inline-start:3px solid var(--ink-3);
+  border-radius:calc(var(--r) - 3px); padding:var(--s4) var(--s5); margin:0 0 var(--s6);
+  background:var(--paper-hi); font-size:14.5px; line-height:1.6; color:var(--ink-2);
+}
+.callout b{color:var(--ink); font-weight:600}
+
+/* article (page éco-hébergement) */
+.article-body{max-width:var(--max-read); padding-block:var(--s8)}
+.article-body p{color:var(--ink-2); line-height:1.75; font-size:17px}
+.article-body h2{margin:var(--s7) 0 var(--s4)}
+.article-body h3{margin:var(--s6) 0 var(--s3); font-weight:500}
+.article-body blockquote{
+  margin:var(--s6) 0; padding:var(--s5) var(--s6); border-inline-start:3px solid var(--accent);
+  background:var(--paper-hi); border-radius:0 calc(var(--r) - 3px) calc(var(--r) - 3px) 0;
+  font-family:"Urbanist",sans-serif; font-weight:300; font-size:19px; line-height:1.5; color:var(--ink);
+}
+.article-body blockquote p:last-child{margin-bottom:0}
+
+/* ---- pied de page (repris tel quel de l'accueil) ---- */
+footer.night{margin-top:var(--s9)}
+.foot{display:grid; grid-template-columns:1.4fr 1fr 1fr 1fr; gap:var(--s7); padding-block:var(--s8) var(--s6)}
+@media (max-width:860px){.foot{grid-template-columns:1fr 1fr; row-gap:var(--s7)}}
+@media (max-width:520px){.foot{grid-template-columns:1fr}}
+.foot h4{font:500 13px "Instrument Sans",sans-serif; color:var(--on-night); margin:0 0 var(--s4); letter-spacing:.01em}
+.foot ul{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:10px}
+.foot a{color:var(--on-night-2); text-decoration:none; font-size:14.5px; transition:color var(--t-micro) var(--ease)}
+.foot a:hover,.foot a:focus-visible{color:var(--on-night)}
+.foot__logo{height:42px; width:auto; margin-bottom:var(--s5); filter:brightness(0) invert(1)}
+.foot__legal{margin-top:var(--s7); padding-top:var(--s5); border-top:1px solid var(--line-night); font-size:12.5px; color:var(--on-night-3); line-height:1.7}
+.foot__legal a{color:var(--on-night-2); text-decoration:underline; text-underline-offset:2px}
+.foot__legal a:hover{color:var(--on-night)}
