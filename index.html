@@ -1311,24 +1311,81 @@ a.press__i:focus-visible{outline:2px solid var(--accent-night); outline-offset:-
 }
 @media (min-width:760px){.iabox{grid-template-columns:1fr 1fr}}
 .iabox__c{background:var(--night); padding:var(--s7) var(--s6); display:flex; flex-direction:column; gap:var(--s3)}
+
+/* Les deux cartes se comparent ligne a ligne : il faut donc que leurs lignes
+   soient les MEMES, pas deux suites de hauteurs qui se ressemblent. Caler des
+   min-height ne tient pas — un libelle allemand ou espagnol passe sur deux
+   lignes la ou le francais en fait une, et tout se decale. Avec subgrid, les
+   six rangees (surtitre, titre, texte, chiffre, specs, pied) appartiennent a
+   la grille parente : chaque rangee prend la hauteur de la plus haute des
+   deux cartes, dans toutes les langues et a toutes les largeurs.
+   L'ecart d'1 px entre colonnes reste le filet vertical ; l'ecart entre
+   rangees devient l'espacement interne des cartes, qui les recouvre.
+   Sans @supports, les navigateurs sans subgrid gardent le flex d'origine. */
+@supports (grid-template-rows: subgrid){
+  @media (min-width:760px){
+    .iabox{column-gap:1px; row-gap:var(--s3); grid-template-rows:repeat(6, auto)}
+    .iabox__c{display:grid; grid-row:1 / -1; grid-template-rows:subgrid}
+  }
+}
 .iabox__k{font-size:11.5px; letter-spacing:.14em; text-transform:uppercase; color:var(--accent-night)}
 .iabox__c h3{font-size:22px; max-width:24ch; margin:0}
 .iabox__d{font-size:14.5px; line-height:1.55; color:var(--on-night-2); margin:0}
-.iabox__tags{display:flex; flex-wrap:wrap; gap:8px; margin:2px 0 0; padding:0; list-style:none}
-.iabox__tags span{
-  padding:7px 11px; border:1px solid var(--line-night); border-radius:var(--r);
-  background:rgba(243,242,238,.03); color:var(--on-night-2);
-  font:500 12.5px/1 "Instrument Sans",sans-serif;
+/* Le chiffre qui porte la section ne se lit pas dans une phrase : il se
+   voit. Chasse fixe et chiffres tabulaires, comme les prix du site — les
+   deux cartes s'alignent donc au chiffre pres, et ALPHA/OMEGA se
+   comparent d'un coup d'oeil au lieu de se lire l'une apres l'autre. */
+.iabox__hero{
+  margin:var(--s4) 0 0; padding:var(--s4) 0 var(--s5);
+  border-block:1px solid var(--line-night);
 }
-.iabox__specs{
-  margin:var(--s4) 0 0; padding-top:var(--s4); border-top:1px solid var(--line-night);
-  display:grid; gap:var(--s3);
+.iabox__fig{
+  margin:0; color:var(--on-night); line-height:.92; letter-spacing:-.03em;
+  font-weight:500; font-size:clamp(38px,4.6vw,54px);
 }
+.iabox__fig span{
+  font-size:.42em; letter-spacing:.02em; color:var(--on-night-2);
+  margin-inline-start:.28em; font-weight:400;
+}
+.iabox__figk{
+  margin:10px 0 0; font:500 11px/1.45 "Instrument Sans",sans-serif;
+  letter-spacing:.09em; text-transform:uppercase; color:var(--on-night-3);
+}
+/* Le rapport de puissance se lit contre le chiffre, pas dans le libelle :
+   place la, il tenait sur deux ou trois lignes selon la largeur et la
+   langue, et les deux grilles de specs ne partaient plus du meme y.
+   Sur sa propre ligne il ne se bat plus pour la place. word-spacing est
+   remis a zero : .num impose -.28em pour la chasse fixe des chiffres, et
+   le raccourci `font` ne reinitialise ni word-spacing ni letter-spacing,
+   donc les mots du badge se collaient les uns aux autres. */
+.iabox__figx{
+  display:table; margin:12px 0 0; word-spacing:normal;
+  padding:5px 10px; border:1px solid currentColor; border-radius:var(--r);
+  font:500 11.5px/1.3 "Instrument Sans",sans-serif; letter-spacing:.02em;
+  color:var(--accent-night);
+}
+/* Une ligne = une caracteristique. Le libelle tient une colonne fixe pour
+   que les valeurs partent toutes du meme x, y compris d'une carte a
+   l'autre ; le complement passe dessous, en retrait, pour que la valeur
+   qui compte reste seule sur sa ligne. */
+.iabox__specs{margin:0; display:grid}
+.iabox__specs > div{
+  display:grid; grid-template-columns:minmax(84px,30%) 1fr; gap:var(--s4);
+  align-items:baseline; padding:11px 0; border-bottom:1px solid var(--line-night);
+}
+.iabox__specs > div:last-child{border-bottom:0; padding-bottom:0}
 .iabox__specs dt{
-  font:500 11px/1 "Instrument Sans",sans-serif; letter-spacing:.09em;
-  text-transform:uppercase; color:var(--on-night-3); margin-bottom:4px;
+  font:500 11px/1.4 "Instrument Sans",sans-serif; letter-spacing:.09em;
+  text-transform:uppercase; color:var(--on-night-3);
 }
-.iabox__specs dd{margin:0; font-size:13.5px; line-height:1.5; color:var(--on-night-2)}
+.iabox__specs dd{margin:0; font-size:14.5px; line-height:1.4; color:var(--on-night)}
+.iabox__specs dd span{
+  display:block; margin-top:3px; font-size:12.5px; line-height:1.45;
+  color:var(--on-night-3);
+}
+@media (max-width:460px){
+  .iabox__specs > div{grid-template-columns:1fr; gap:3px}
+}
 .iabox__foot{
   display:flex; align-items:center; justify-content:space-between; gap:var(--s4);
   margin-top:auto; padding-top:var(--s5); border-top:1px solid var(--line-night);
@@ -2210,7 +2267,6 @@ input[type=range]:focus-visible{outline:2px solid var(--accent); outline-offset:
       </ul>
     </div>
 
-    <p class="note" data-reveal><b>Note de production —</b> chiffres repris de la presse citée. À faire relire par le client avant mise en ligne, et à compléter d'une photographie du fondateur : sans visage, cette section perd la moitié de sa force.</p>
   </div>
 </section>
 
@@ -2226,15 +2282,16 @@ input[type=range]:focus-visible{outline:2px solid var(--accent); outline-offset:
         <p class="iabox__k">ALPHA · Le garde-fou</p>
         <h3>Vos données sensibles ne sortent jamais</h3>
         <p class="iabox__d">Avant qu'une question parte vers un service d'IA en ligne, ALPHA la lit d'abord. Une donnée sensible détectée — numéro de carte, dossier client — et la requête ne quitte pas votre réseau.</p>
-        <p class="iabox__tags">
-          <span>2 lignes SSD M.2 · 2× 10 To</span>
-          <span>NVIDIA Jetson Orin Nano *</span>
-          <span>7–15 W *</span>
-        </p>
+        <div class="iabox__hero">
+          <p class="iabox__fig num">275<span>TOPS</span></p>
+          <p class="iabox__figk">Puissance de calcul IA · INT8</p>
+        </div>
         <dl class="iabox__specs">
-          <div><dt>Architecture GPU</dt><dd>NVIDIA Ampere avec 2 048 cœurs CUDA et 64 cœurs Tensor</dd></div>
-          <div><dt>Mémoire (RAM)</dt><dd>32 Go / 64 Go LPDDR5 (jusqu’à 204,8 Go/s de bande passante)</dd></div>
-          <div><dt>Puissance de calcul IA</dt><dd>Jusqu’à 275 TOPS (INT8)</dd></div>
+          <div><dt>Plateforme</dt><dd>NVIDIA Jetson Orin Nano</dd></div>
+          <div><dt>GPU</dt><dd>NVIDIA Ampere<span>2 048 cœurs CUDA · 64 cœurs Tensor</span></dd></div>
+          <div><dt>Mémoire</dt><dd>32 / 64 Go LPDDR5<span>jusqu’à 204,8 Go/s de bande passante</span></dd></div>
+          <div><dt>Stockage</dt><dd>2× 10 To<span>2 lignes SSD M.2</span></dd></div>
+          <div><dt>Consommation</dt><dd>7–15 W</dd></div>
         </dl>
         <div class="iabox__foot">
           <span class="iabox__price">Prix <b>sur devis</b></span>
@@ -2245,15 +2302,16 @@ input[type=range]:focus-visible{outline:2px solid var(--accent); outline-offset:
         <p class="iabox__k">OMEGA · L'autonomie totale</p>
         <h3>De gros modèles, sans jamais dépendre du cloud</h3>
         <p class="iabox__d">Assez de puissance pour faire tourner vos modèles et vos agents d'IA à pleine échelle, en local — sans abonnement, sans API externe, sans donnée qui sort de chez vous.</p>
-        <p class="iabox__tags">
-          <span>4 lignes SSD M.2 · 4× 10 To</span>
-          <span>NVIDIA Jetson AGX Thor T5000 *</span>
-          <span>40–130 W *</span>
-        </p>
+        <div class="iabox__hero">
+          <p class="iabox__fig num">2 070<span>TOPS</span><span class="iabox__figx">~7,5× la génération Orin</span></p>
+          <p class="iabox__figk">Puissance de calcul IA · FP4</p>
+        </div>
         <dl class="iabox__specs">
-          <div><dt>Architecture GPU</dt><dd>NVIDIA Blackwell (2 560 cœurs CUDA, 96 cœurs Tensor)</dd></div>
-          <div><dt>Mémoire (RAM)</dt><dd>128 Go LPDDR5X (bande passante jusqu’à 275 Go/s, correction d’erreur ECC inline 1 bit)</dd></div>
-          <div><dt>Puissance de calcul IA</dt><dd>Jusqu’à 2 070 TOPS FP4 (~7,5× les performances IA de la génération Orin)</dd></div>
+          <div><dt>Plateforme</dt><dd>NVIDIA Jetson AGX Thor T5000</dd></div>
+          <div><dt>GPU</dt><dd>NVIDIA Blackwell<span>2 560 cœurs CUDA · 96 cœurs Tensor</span></dd></div>
+          <div><dt>Mémoire</dt><dd>128 Go LPDDR5X<span>jusqu’à 275 Go/s · ECC inline 1 bit</span></dd></div>
+          <div><dt>Stockage</dt><dd>4× 10 To<span>4 lignes SSD M.2</span></dd></div>
+          <div><dt>Consommation</dt><dd>40–130 W</dd></div>
         </dl>
         <div class="iabox__foot">
           <span class="iabox__price">Prix <b>sur devis</b></span>
@@ -2275,7 +2333,6 @@ input[type=range]:focus-visible{outline:2px solid var(--accent); outline-offset:
       </a>
     </div>
 
-    <p class="note" data-reveal style="border-color:var(--line-night); color:var(--on-night-2)"><b>Note de production —</b> * puce et consommation observées sur les kits de développement présentés dans les vidéos sources, pas encore confirmées sur le produit fini WaouW. Le kit OMEGA testé est un kit robotique (bus CAN, entrées caméra) : à confirmer si ces éléments sont conservés ou retirés sur le produit vendu. Prix, disponibilité et logiciel préinstallé (ou non) restent à définir avec le client avant mise en ligne définitive.</p>
   </div>
 </section>
 
@@ -2321,7 +2378,7 @@ input[type=range]:focus-visible{outline:2px solid var(--accent); outline-offset:
       </button>
     </div>
 
-    <p style="margin-top:var(--s6); font-size:14px; color:var(--on-night-3); max-width:60ch">Les durées de rentabilisation supposent un hébergement concurrent à 20 € HT par mois. <span style="color:var(--on-night-2)">À ajuster sur les tarifs réellement constatés chez vos clients.</span></p>
+    <p style="margin-top:var(--s6); font-size:14px; color:var(--on-night-3); max-width:60ch">Les durées de rentabilisation supposent un hébergement concurrent à 20 € HT par mois.</p>
   </div>
 </section>
 
@@ -2450,7 +2507,6 @@ input[type=range]:focus-visible{outline:2px solid var(--accent); outline-offset:
                   <dd>Processeur quad-core 64 bits · 8 Go de mémoire · USB 3.0 · micro-HDMI · matériaux recyclables et biodégradables</dd>
                 </div>
               </dl>
-              <p class="spec__src">Repris des fiches produit de <b>waouw.tech/boutique</b>. Les cinq fiches annoncent la même mémoire et le même processeur : sur ce catalogue, seul le disque change d'un modèle à l'autre.</p>
             </div>
           </details>
         </section>
@@ -2922,7 +2978,7 @@ input[type=range]:focus-visible{outline:2px solid var(--accent); outline-offset:
           <span>J'ai lu et j'accepte les <a href="cgv.html" target="_blank" rel="noopener">conditions générales de vente</a>, et je confirme mon droit de rétractation de 14 jours.</span>
         </label>
         <span class="err" id="eoCgv" role="alert"></span>
-        <p class="cmd__mock"><b>Maquette —</b> le paiement n'est pas branché. Le bouton ci-dessous appelle le point d'intégration Stripe (<code>window.waouwPay</code>), qui simule pour l'instant un règlement accepté. Tout le reste du tunnel — adresse, grille de port, calcul, récapitulatif — fonctionne réellement.</p>
+        <p class="cmd__mock">Le règlement en ligne n'est pas encore actif sur cette version du site : aucun montant ne sera débité.</p>
       </section>
 
       <!-- ---- 4 : confirmation ---- -->
@@ -2934,7 +2990,7 @@ input[type=range]:focus-visible{outline:2px solid var(--accent); outline-offset:
           <h3 class="cmd__h" id="cmdH4">Commande enregistrée</h3>
           <p id="cmdOkP">Un e-mail de confirmation part à l'instant.</p>
           <p><span id="cmdRefLab">Référence</span> <span class="cmd__ref" id="cmdRef">—</span></p>
-          <p class="cmd__mock" style="text-align:start"><b>Maquette —</b> aucune commande n'a réellement été transmise et aucun paiement n'a été prélevé.</p>
+          <p class="cmd__mock" style="text-align:start">Cette commande n'a pas été transmise et aucun paiement n'a été prélevé.</p>
         </div>
       </section>
 
@@ -3001,7 +3057,7 @@ input[type=range]:focus-visible{outline:2px solid var(--accent); outline-offset:
     </div>
 
     <button class="btn chat__send" id="chatSend" type="submit" data-press-target>Envoyer</button>
-    <p class="chat__legal">Maquette — aucun message n'est réellement transmis.</p>
+    <p class="chat__legal">Ce formulaire n'est pas encore relié à notre boîte de support.</p>
   </form>
 
   <div class="chat__support">
@@ -3199,13 +3255,15 @@ const DUO = 625;
    Changer POIDS ou SUPPLEMENT deplace tous les prix du site de
    maniere coherente — il n'y a qu'un seul endroit a toucher.
 
-   A CONFIRMER AVEC LE CLIENT : le poids reel du boitier emballe.
-   1 600 g place l'envoi dans la tranche 2 kg ; sous 1 000 g la
-   France passerait a 9,59 € + supplement, soit 12,90 € livre.
+   REGLE POSEE PAR LE CLIENT : un colis ne depasse jamais 1 kg.
+   Un Duo part donc en DEUX colis, et le port se compte par colis —
+   deux paquets d'un kilo, pas une tranche 5 kg.
    ============================================================ */
 const PORT = (() => {
-  const POIDS = { boitier: 1200, emballage: 400 };   /* grammes — A CONFIRMER */
-  const SUPPLEMENT = 3.31;
+  const POIDS_COLIS = 1000;   /* grammes — plafond par colis, pose par le client */
+  const SUPPLEMENT = 4.91;    /* preparation + assurance, par colis :
+                                 9,59 € de grille + 4,91 € = les 14,50 €
+                                 annonces pour la France metropolitaine */
 
   const G = {
     fr:   [[250,5.49],[500,7.59],[750,9.29],[1000,9.59],[2000,11.19],[5000,17.39],[10000,25.29],[15000,31.99],[30000,39.59]],
@@ -3313,7 +3371,9 @@ QA|c|mo|0|Qatar`
 
   let codeActuel = 'FR', modeActuel = 'dom';
 
-  const grammes = duo => POIDS.emballage + POIDS.boitier * (duo ? 2 : 1);
+  /* Le poids facture est celui d'UN colis ; c'est leur NOMBRE qui varie. */
+  const colis = duo => (duo ? 2 : 1);
+  const grammes = () => POIDS_COLIS;
 
   /* prix d'une grille pour un poids : premiere tranche qui couvre.
      Au-dela de la derniere tranche on ne devine pas — on renvoie null,
@@ -3330,11 +3390,13 @@ QA|c|mo|0|Qatar`
      Colissimo International seul — plutot qu'un tarif express invente. */
   function modes(code, duo) {
     const d = byCode[code]; if (!d) return [];
-    const g = grammes(duo);
+    const g = grammes();
+    const n = colis(duo);
     const out = [];
     const pousse = (id, grille, nom, detail) => {
       const p = dansGrille(grille, g);
-      if (p != null) out.push({ id, grille, nom: nom(), detail: detail(), prix: +(p + SUPPLEMENT).toFixed(2) });
+      if (p != null) out.push({ id, grille, nom: nom(), detail: detail(), colis: n,
+                                prix: +((p + SUPPLEMENT) * n).toFixed(2) });
     };
     if (d.grille === 'fr') {
       pousse('dom', 'fr',
@@ -3357,7 +3419,7 @@ QA|c|mo|0|Qatar`
   }
 
   return {
-    liste: D, POIDS, SUPPLEMENT,
+    liste: D, POIDS_COLIS, SUPPLEMENT, colis,
     dest: () => byCode[codeActuel] || byCode.FR,
     code: () => codeActuel,
     mode: () => modeActuel,
@@ -3781,14 +3843,17 @@ render(false);
       lab.querySelector('input').addEventListener('change', () => { PORT.setMode(m.id); render(true); majPied(); });
       hote.appendChild(lab);
     });
-    const g = PORT.grammes(duo);
-    const kg = (g / 1000).toFixed(1).replace('.', ',');
+    const n = PORT.colis(duo);
     const p = $('cmdPoids');
-    if (p) p.textContent = T(
-      'Poids expédié : ' + kg + ' kg. Tarifs La Poste au 1er janvier 2026, préparation et assurance incluses.',
-      'Shipping weight: ' + (g / 1000).toFixed(1) + ' kg. La Poste rates as of 1 January 2026, handling and insurance included.',
-      'Versandgewicht: ' + kg + ' kg. La-Poste-Tarife vom 1. Januar 2026, Bearbeitung und Versicherung inbegriffen.',
-      'Peso enviado: ' + kg + ' kg. Tarifas de La Poste al 1 de enero de 2026, preparación y seguro incluidos.');
+    if (p) p.textContent = n > 1
+      ? T(n + ' colis de 1 kg maximum. Tarifs La Poste au 1er janvier 2026, préparation et assurance incluses.',
+          n + ' parcels of 1 kg maximum. La Poste rates as of 1 January 2026, handling and insurance included.',
+          n + ' Pakete von maximal 1 kg. La-Poste-Tarife vom 1. Januar 2026, Bearbeitung und Versicherung inbegriffen.',
+          n + ' paquetes de 1 kg máximo. Tarifas de La Poste al 1 de enero de 2026, preparación y seguro incluidos.')
+      : T('Un colis de 1 kg maximum. Tarifs La Poste au 1er janvier 2026, préparation et assurance incluses.',
+          'One parcel of 1 kg maximum. La Poste rates as of 1 January 2026, handling and insurance included.',
+          'Ein Paket von maximal 1 kg. La-Poste-Tarife vom 1. Januar 2026, Bearbeitung und Versicherung inbegriffen.',
+          'Un paquete de 1 kg máximo. Tarifas de La Poste al 1 de enero de 2026, preparación y seguro incluidos.');
   }
   window.__waouwMajModes = majModes;
 
@@ -3975,7 +4040,7 @@ render(false);
         destination: s.dest.code, zone: s.dest.grille,
         mode: s.modePort ? s.modePort.id : null,
         libelle: s.modePort ? s.modePort.nom : null,
-        poidsG: PORT.grammes(s.duo),
+        colis: PORT.colis(s.duo), poidsColisG: PORT.POIDS_COLIS,
         prix: c(s.port),
       },
       taxe: { taux: s.tva, montant: c(s.vat) },
@@ -5080,9 +5145,6 @@ set('.tl li span',
    `El prototipo de la <em>WaouW Box</em> sale del taller. Un servidor del tamaño de una mano.`,
    `Finalista del concurso <em>Tech for Future</em> (La Tribune), categoría Start, en Toulouse.`,
    `La caja sale a la venta. <em>Usted</em> se convierte en el proveedor de hosting.`]);
-set('#histoire .note', `<b>Production note —</b> figures taken from the press quoted above. To be checked with the client before launch, and to be completed with a photo of the founder: without a face, this section loses half its force.`,
-  `<b>Produktionshinweis —</b> Zahlen aus der zitierten Presse übernommen. Vor dem Launch vom Kunden gegenzuprüfen, und durch ein Foto des Gründers zu ergänzen: ohne Gesicht verliert dieser Abschnitt die Hälfte seiner Wirkung.`,
-  `<b>Nota de producción —</b> cifras tomadas de la prensa citada. Por confirmar con el cliente antes del lanzamiento, y por completar con una fotografía del fundador: sin rostro, esta sección pierde la mitad de su fuerza.`);
 
 /* ---- IA locale (ALPHA / OMEGA) ---- */
 set('#ia .eyebrow', `AI sovereignty`, `KI-Souveränität`, `Soberanía de la IA`);
@@ -5101,34 +5163,52 @@ set('.iabox__d',
    `Genug Leistung, um Ihre Modelle und KI-Agenten in voller Größe lokal laufen zu lassen — ohne Abo, ohne externe API, ohne dass Daten Ihr Zuhause verlassen.`],
   [`Antes de que una pregunta salga hacia un servicio de IA en línea, ALPHA la lee primero. Si detecta un dato sensible — un número de tarjeta, un expediente de cliente — la solicitud nunca sale de su red.`,
    `Potencia suficiente para ejecutar sus modelos y agentes de IA a plena escala, en local — sin suscripción, sin API externa, sin que ningún dato salga de su casa.`]);
-set('.iabox__tags span',
-  [`2× M.2 SSD slots · 2×10 TB`, `NVIDIA Jetson Orin Nano *`, `7–15 W *`, `4× M.2 SSD slots · 4×10 TB`, `NVIDIA Jetson AGX Thor T5000 *`, `40–130 W *`],
-  [`2× M.2-SSD-Steckplätze · 2×10 TB`, `NVIDIA Jetson Orin Nano *`, `7–15 W *`, `4× M.2-SSD-Steckplätze · 4×10 TB`, `NVIDIA Jetson AGX Thor T5000 *`, `40–130 W *`],
-  [`2 ranuras SSD M.2 · 2×10 TB`, `NVIDIA Jetson Orin Nano *`, `7–15 W *`, `4 ranuras SSD M.2 · 4×10 TB`, `NVIDIA Jetson AGX Thor T5000 *`, `40–130 W *`]);
-
+set('.iabox__fig',
+  [`275<span>TOPS</span>`, `2,070<span>TOPS</span><span class="iabox__figx">~7.5× the Orin generation</span>`],
+  [`275<span>TOPS</span>`, `2.070<span>TOPS</span><span class="iabox__figx">~7,5× die Orin-Generation</span>`],
+  [`275<span>TOPS</span>`, `2070<span>TOPS</span><span class="iabox__figx">~7,5× la generación Orin</span>`]);
+set('.iabox__figk',
+  [`AI compute power · INT8`, `AI compute power · FP4`],
+  [`KI-Rechenleistung · INT8`, `KI-Rechenleistung · FP4`],
+  [`Potencia de cálculo de IA · INT8`, `Potencia de cálculo de IA · FP4`]);
 set('.iabox__specs dt',
-  [`GPU architecture`, `Memory (RAM)`, `AI compute power`, `GPU architecture`, `Memory (RAM)`, `AI compute power`],
-  [`GPU-Architektur`, `Arbeitsspeicher (RAM)`, `KI-Rechenleistung`, `GPU-Architektur`, `Arbeitsspeicher (RAM)`, `KI-Rechenleistung`],
-  [`Arquitectura GPU`, `Memoria (RAM)`, `Potencia de cálculo de IA`, `Arquitectura GPU`, `Memoria (RAM)`, `Potencia de cálculo de IA`]);
+  [`Platform`, `GPU`, `Memory`, `Storage`, `Power draw`,
+   `Platform`, `GPU`, `Memory`, `Storage`, `Power draw`],
+  [`Plattform`, `GPU`, `Arbeitsspeicher`, `Speicher`, `Leistungsaufnahme`,
+   `Plattform`, `GPU`, `Arbeitsspeicher`, `Speicher`, `Leistungsaufnahme`],
+  [`Plataforma`, `GPU`, `Memoria`, `Almacenamiento`, `Consumo`,
+   `Plataforma`, `GPU`, `Memoria`, `Almacenamiento`, `Consumo`]);
 set('.iabox__specs dd',
-  [`NVIDIA Ampere with 2,048 CUDA cores and 64 Tensor cores`,
-   `32 GB / 64 GB LPDDR5 (up to 204.8 GB/s bandwidth)`,
-   `Up to 275 TOPS (INT8)`,
-   `NVIDIA Blackwell (2,560 CUDA cores, 96 Tensor cores)`,
-   `128 GB LPDDR5X (up to 275 GB/s bandwidth, inline 1-bit ECC)`,
-   `Up to 2,070 FP4 TOPS (~7.5× the AI performance of the Orin generation)`],
-  [`NVIDIA Ampere mit 2.048 CUDA-Kernen und 64 Tensor-Kernen`,
-   `32 GB / 64 GB LPDDR5 (bis zu 204,8 GB/s Bandbreite)`,
-   `Bis zu 275 TOPS (INT8)`,
-   `NVIDIA Blackwell (2.560 CUDA-Kerne, 96 Tensor-Kerne)`,
-   `128 GB LPDDR5X (bis zu 275 GB/s Bandbreite, inline 1-Bit-ECC)`,
-   `Bis zu 2.070 FP4 TOPS (~7,5× die KI-Leistung der Orin-Generation)`],
-  [`NVIDIA Ampere con 2048 núcleos CUDA y 64 núcleos Tensor`,
-   `32 GB / 64 GB LPDDR5 (hasta 204,8 GB/s de ancho de banda)`,
-   `Hasta 275 TOPS (INT8)`,
-   `NVIDIA Blackwell (2560 núcleos CUDA, 96 núcleos Tensor)`,
-   `128 GB LPDDR5X (hasta 275 GB/s de ancho de banda, corrección de errores ECC inline de 1 bit)`,
-   `Hasta 2070 TOPS FP4 (~7,5× el rendimiento de IA de la generación Orin)`]);
+  [`NVIDIA Jetson Orin Nano`,
+   `NVIDIA Ampere<span>2,048 CUDA cores · 64 Tensor cores</span>`,
+   `32 / 64 GB LPDDR5<span>up to 204.8 GB/s bandwidth</span>`,
+   `2× 10 TB<span>2 M.2 SSD slots</span>`,
+   `7–15 W`,
+   `NVIDIA Jetson AGX Thor T5000`,
+   `NVIDIA Blackwell<span>2,560 CUDA cores · 96 Tensor cores</span>`,
+   `128 GB LPDDR5X<span>up to 275 GB/s · inline 1-bit ECC</span>`,
+   `4× 10 TB<span>4 M.2 SSD slots</span>`,
+   `40–130 W`],
+  [`NVIDIA Jetson Orin Nano`,
+   `NVIDIA Ampere<span>2.048 CUDA-Kerne · 64 Tensor-Kerne</span>`,
+   `32 / 64 GB LPDDR5<span>bis zu 204,8 GB/s Bandbreite</span>`,
+   `2× 10 TB<span>2 M.2-SSD-Steckplätze</span>`,
+   `7–15 W`,
+   `NVIDIA Jetson AGX Thor T5000`,
+   `NVIDIA Blackwell<span>2.560 CUDA-Kerne · 96 Tensor-Kerne</span>`,
+   `128 GB LPDDR5X<span>bis zu 275 GB/s · Inline-1-Bit-ECC</span>`,
+   `4× 10 TB<span>4 M.2-SSD-Steckplätze</span>`,
+   `40–130 W`],
+  [`NVIDIA Jetson Orin Nano`,
+   `NVIDIA Ampere<span>2048 núcleos CUDA · 64 núcleos Tensor</span>`,
+   `32 / 64 GB LPDDR5<span>hasta 204,8 GB/s de ancho de banda</span>`,
+   `2× 10 TB<span>2 ranuras SSD M.2</span>`,
+   `7–15 W`,
+   `NVIDIA Jetson AGX Thor T5000`,
+   `NVIDIA Blackwell<span>2560 núcleos CUDA · 96 núcleos Tensor</span>`,
+   `128 GB LPDDR5X<span>hasta 275 GB/s · ECC inline de 1 bit</span>`,
+   `4× 10 TB<span>4 ranuras SSD M.2</span>`,
+   `40–130 W`]);
 set('.iabox__price', `Price <b>on request</b>`, `Preis <b>auf Anfrage</b>`, `Precio <b>a consultar</b>`);
 set('.iabox__foot a', `Talk to us`, `Uns kontaktieren`, `Consultarnos`);
 set('#ia > .wrap > p.lede[style*="s8"]', `A data center built for large-scale AI draws power at the gigawatt scale. ALPHA and OMEGA are sized for a single use: yours.`,
@@ -5144,9 +5224,6 @@ set('.iacite__q',
 set('.iacite__go', `Watch the report<svg width="11" height="11" viewBox="0 0 11 11" fill="none" aria-hidden="true"><path d="M3 8L8 3M4 3h4v4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
   `Reportage ansehen<svg width="11" height="11" viewBox="0 0 11 11" fill="none" aria-hidden="true"><path d="M3 8L8 3M4 3h4v4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
   `Ver el reportaje<svg width="11" height="11" viewBox="0 0 11 11" fill="none" aria-hidden="true"><path d="M3 8L8 3M4 3h4v4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>`);
-set('#ia .note', `<b>Production note —</b> * chip and power figures are from the development kits shown in the source videos, not yet confirmed on the finished WaouW product. The tested OMEGA kit is a robotics kit (CAN bus, camera inputs): whether these are kept or removed on the sold product is still to be confirmed. Price, availability, and pre-installed software (or not) still need to be defined with the client before final launch.`,
-  `<b>Produktionshinweis —</b> * Chip- und Verbrauchsangaben stammen von den in den Quellvideos gezeigten Entwicklungskits, für das fertige WaouW-Produkt noch nicht bestätigt. Das getestete OMEGA-Kit ist ein Robotik-Kit (CAN-Bus, Kameraeingänge): ob diese im verkauften Produkt erhalten bleiben oder entfernt werden, ist noch zu klären. Preis, Verfügbarkeit und vorinstallierte Software (oder nicht) müssen vor dem endgültigen Launch noch mit dem Kunden festgelegt werden.`,
-  `<b>Nota de producción —</b> * las cifras de chip y consumo proceden de los kits de desarrollo mostrados en los vídeos fuente, aún no confirmadas para el producto WaouW terminado. El kit OMEGA probado es un kit de robótica (bus CAN, entradas de cámara): queda por confirmar si estos elementos se mantienen o se retiran en el producto vendido. Precio, disponibilidad y software preinstalado (o no) siguen por definir con el cliente antes del lanzamiento definitivo.`);
 
 /* ---- pour qui ---- */
 set('#pour-qui .eyebrow', `Who it's for`, `Für wen`, `Para quién`);
@@ -5185,7 +5262,7 @@ set('.who__p',
 set('.who__go', `Configure<span class="who__go__ic"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true"><path d="M2 6h8M6.5 2.5L10 6l-3.5 3.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>`,
   `Konfigurieren<span class="who__go__ic"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true"><path d="M2 6h8M6.5 2.5L10 6l-3.5 3.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>`,
   `Configurar<span class="who__go__ic"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true"><path d="M2 6h8M6.5 2.5L10 6l-3.5 3.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>`);
-set('#pour-qui .wrap > p[style*="s6"]', `Payback periods assume a competing host at 20 € excl. VAT a month. <span style="color:var(--on-night-2)">Adjust to the rates actually seen with your clients.</span>`,
+set('#pour-qui .wrap > p[style*="s6"]', `Payback periods assume a competing host at 20 € excl. VAT a month.`,
   `Die Amortisationszeiten gehen von einem konkurrierenden Hoster mit 20 € netto pro Monat aus. <span style="color:var(--on-night-2)">Passen Sie sie an die tatsächlich bei Ihren Kunden beobachteten Tarife an.</span>`,
   `Los plazos de amortización suponen un hosting competidor a 20 € sin IVA al mes. <span style="color:var(--on-night-2)">Ajústelos a las tarifas realmente observadas en sus clientes.</span>`);
 
@@ -5251,9 +5328,6 @@ set('.spec__list dd',
    `Copia de seguridad local en red · cifrado configurable · restauración en cuatro pasos`,
    `Matomo, AWStats y Webalizer preinstalados`,
    `Procesador quad-core de 64 bits · 8 GB de memoria · USB 3.0 · micro-HDMI · materiales reciclables y biodegradables`]);
-set('.spec__src', `Taken from the product pages on <b>waouw.tech/boutique</b>. All five pages state the same memory and the same processor: in this catalogue, only the disk changes from one model to the next.`,
-  `Übernommen von den Produktseiten auf <b>waouw.tech/boutique</b>. Alle fünf Seiten nennen denselben Arbeitsspeicher und denselben Prozessor: in diesem Katalog ändert sich von Modell zu Modell nur die Festplatte.`,
-  `Tomado de las fichas de producto de <b>waouw.tech/boutique</b>. Las cinco fichas indican la misma memoria y el mismo procesador: en este catálogo, solo cambia el disco de un modelo a otro.`);
 set('#duo ~ .opt__box .opt__use', `A second box, continuously synced. If one fails, the other takes over.`,
   `Eine zweite Box, ständig synchronisiert. Fällt eine aus, übernimmt die andere.`,
   `Una segunda caja, sincronizada continuamente. Si una falla, la otra toma el relevo.`);
@@ -5307,14 +5381,14 @@ set('#cmdEdit', `Change the address`, `Adresse ändern`, `Modificar la direcció
 set('#oCgv + span', `I have read and accept the <a href="cgv.html" target="_blank" rel="noopener">terms of sale</a>, and I confirm my 14-day right of withdrawal.`,
   `Ich habe die <a href="cgv.html" target="_blank" rel="noopener">Verkaufsbedingungen</a> gelesen und akzeptiert und bestätige mein 14-tägiges Widerrufsrecht.`,
   `He leído y acepto las <a href="cgv.html" target="_blank" rel="noopener">condiciones de venta</a>, y confirmo mi derecho de desistimiento de 14 días.`);
-set('#cmdS3 .cmd__mock', `<b>Mock-up —</b> payment is not wired. The button below calls the Stripe integration point (<code>window.waouwPay</code>), which for now simulates an accepted payment. Everything else in the flow — address, shipping grid, calculation, summary — genuinely works.`,
-  `<b>Mock-up —</b> die Zahlung ist nicht angebunden. Die Schaltfläche ruft den Stripe-Integrationspunkt auf (<code>window.waouwPay</code>), der vorerst eine akzeptierte Zahlung simuliert. Alles andere — Adresse, Versandtabelle, Berechnung, Übersicht — funktioniert wirklich.`,
-  `<b>Maqueta —</b> el pago no está conectado. El botón llama al punto de integración de Stripe (<code>window.waouwPay</code>), que por ahora simula un pago aceptado. Todo lo demás — dirección, tarifas, cálculo, resumen — funciona de verdad.`);
+set('#cmdS3 .cmd__mock', `Online payment is not active yet on this version of the site: no amount will be charged.`,
+  `Die Online-Zahlung ist in dieser Version noch nicht aktiv: es wird kein Betrag abgebucht.`,
+  `El pago en línea aún no está activo en esta versión: no se cobrará ningún importe.`);
 
 set('#cmdH4', `Order recorded`, `Bestellung erfasst`, `Pedido registrado`);
-set('#cmdS4 .cmd__mock', `<b>Mock-up —</b> no order was actually sent and no payment was taken.`,
-  `<b>Mock-up —</b> es wurde keine Bestellung übermittelt und keine Zahlung eingezogen.`,
-  `<b>Maqueta —</b> no se ha transmitido ningún pedido ni se ha cobrado nada.`);
+set('#cmdS4 .cmd__mock', `This order was not sent and no payment was taken.`,
+  `Diese Bestellung wurde nicht übermittelt und es wurde keine Zahlung eingezogen.`,
+  `Este pedido no se ha transmitido y no se ha cobrado nada.`);
 set('#cmdBack', `Back`, `Zurück`, `Atrás`);
 set('#cmdRefLab', `Reference`, `Referenz`, `Referencia`);
 
@@ -5501,7 +5575,7 @@ set('label[for="cName"]', `Last name`, `Nachname`, `Apellidos`);
 set('label[for="cMail"]', `Email`, `E-Mail`, `Correo electrónico`);
 set('label[for="cMsg"]', `Message`, `Nachricht`, `Mensaje`);
 set('#chatSend', `Send`, `Senden`, `Enviar`);
-set('.chat__legal', `Mock-up — no message is actually sent.`, `Mock-up — es wird keine Nachricht tatsächlich gesendet.`, `Maqueta — no se envía ningún mensaje realmente.`);
+set('.chat__legal', `This form is not connected to our support inbox yet.`, `Dieses Formular ist noch nicht mit unserem Support-Postfach verbunden.`, `Este formulario aún no está conectado a nuestro buzón de soporte.`);
 set('.chat__support__t', `Customer support`, `Kundensupport`, `Atención al cliente`);
 set('.chat__hours li',
   [`<span>Monday</span><span>2:00 – 6:00 PM <i>(closed in the morning)</i></span>`,
