@@ -1591,7 +1591,7 @@ input[type=range]:focus-visible{outline:2px solid var(--accent); outline-offset:
 /* ============================================================
    Révélation au scroll — ressort, décomposé, interruptible
    ============================================================ */
-[data-reveal]{opacity:0; will-change:transform,opacity}
+[data-reveal]{opacity:0; will-change:transform,opacity; -webkit-backface-visibility:hidden; backface-visibility:hidden}
 .no-motion [data-reveal]{opacity:1 !important; transform:none !important}
 
 @media (prefers-reduced-motion:reduce){
@@ -2767,7 +2767,22 @@ if (!REDUCED.matches && 'IntersectionObserver' in window) {
             el.style.opacity = p;
             el.style.transform = `translate3d(0,${(1 - p) * 22}px,0)`;
           },
-          onRest: () => { el.style.willChange = 'auto'; el.style.transform = ''; }
+          onRest: () => {
+            el.style.willChange = 'auto'; el.style.transform = '';
+            /* Filet Safari/iOS : certains textes (le h1 du hero en particulier,
+               a cause du span display:block imbriqué) restent invisibles apres
+               une animation de transform pilotee en JS -- bug de repaint connu
+               du moteur WebKit, le DOM est correct (opacity:1) mais l'ecran ne
+               suit pas. On force un repaint minimal juste apres coup pour ne
+               jamais laisser de texte fantome, sans flash visible (tout se
+               joue dans la meme frame, avant le prochain paint). */
+            requestAnimationFrame(() => {
+              const prevDisplay = el.style.display;
+              el.style.display = 'none';
+              void el.offsetHeight;
+              el.style.display = prevDisplay;
+            });
+          }
         });
       }, Math.min(i, 6) * 70);
       io.unobserve(el);
