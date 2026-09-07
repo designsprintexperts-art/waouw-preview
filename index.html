@@ -788,7 +788,15 @@ legend{
 .opt__box:hover{border-color:rgba(11,11,10,.3)}
 .opt input:checked + .opt__box{border-color:var(--ink); background:#fff; box-shadow:inset 0 0 0 1px var(--ink)}
 .opt input:focus-visible + .opt__box{outline:2px solid var(--accent); outline-offset:3px}
-.opt input:disabled + .opt__box{opacity:.5; cursor:not-allowed; background:transparent}
+/* Une option indisponible doit rester LISIBLE : l'opacite globale
+   d'origine ecrasait aussi la mention qui explique pourquoi elle l'est,
+   et l'opacite d'un parent ne se rattrape pas sur un enfant. On attenue
+   donc l'echantillon et le nom, on laisse la mention a plein contraste,
+   et le trait pointille dit "pas encore" sans rien cacher. */
+.opt input:disabled + .opt__box{cursor:not-allowed; background:transparent; border-style:dashed}
+.opt input:disabled + .opt__box:hover{border-color:var(--line)}
+.opt input:disabled + .opt__box .opt__sw{opacity:.45; filter:saturate(.4)}
+.opt input:disabled + .opt__box .opt__cap{color:var(--ink-3)}
 .opt__cap{font-weight:500; min-width:74px; flex:none}
 .opt__use{font-size:14px; color:var(--ink-3); line-height:1.4; flex:1 1 150px; min-width:0}
 .opt__p{font-size:14.5px; margin-inline-start:auto; flex:none}
@@ -1102,7 +1110,7 @@ footer{border-top:1px solid var(--line-night); padding-block:var(--s8) var(--s7)
   display:grid; gap:1px;
   background:var(--line-night); border:1px solid var(--line-night); border-radius:var(--r); overflow:hidden;
 }
-@media (min-width:900px){.press__grid{grid-template-columns:repeat(3,1fr)}}
+@media (min-width:900px){.press__grid{grid-template-columns:repeat(2,1fr)}}
 .press__i{
   position:relative; background:var(--night-2); padding:var(--s6) var(--s5);
   display:flex; flex-direction:column;
@@ -1312,6 +1320,15 @@ a.press__i:focus-visible{outline:2px solid var(--accent-night); outline-offset:-
   background:rgba(243,242,238,.03); color:var(--on-night-2);
   font:500 12.5px/1 "Instrument Sans",sans-serif;
 }
+.iabox__specs{
+  margin:var(--s4) 0 0; padding-top:var(--s4); border-top:1px solid var(--line-night);
+  display:grid; gap:var(--s3);
+}
+.iabox__specs dt{
+  font:500 11px/1 "Instrument Sans",sans-serif; letter-spacing:.09em;
+  text-transform:uppercase; color:var(--on-night-3); margin-bottom:4px;
+}
+.iabox__specs dd{margin:0; font-size:13.5px; line-height:1.5; color:var(--on-night-2)}
 .iabox__foot{
   display:flex; align-items:center; justify-content:space-between; gap:var(--s4);
   margin-top:auto; padding-top:var(--s5); border-top:1px solid var(--line-night);
@@ -1636,6 +1653,150 @@ input[type=range]:focus-visible{outline:2px solid var(--accent); outline-offset:
 }
 .skip{position:absolute; left:-9999px; top:0; background:var(--ink); color:var(--paper); padding:12px 18px; z-index:200; border-radius:0 0 var(--r) 0}
 .skip:focus{left:0}
+
+/* ============================================================
+   LIVRAISON VARIABLE & TUNNEL DE COMMANDE
+   Le port cesse d'etre une constante : il depend de la destination
+   et du poids de la configuration (grille La Poste 2026).
+   Le tunnel reutilise les composants de formulaire deja en place
+   (.f, .row2, .consent, .btn) : rien de nouveau a apprendre pour
+   l'oeil, et rien de nouveau a maintenir en double.
+   ============================================================ */
+.dest{display:grid; gap:var(--s4); grid-template-columns:1fr; margin-top:var(--s2)}
+@media (min-width:560px){.dest{grid-template-columns:1.6fr 1fr}}
+.dest__f label{display:block; font-size:12px; font-weight:500; color:var(--ink-2); margin-bottom:6px}
+.dest select,.dest input{
+  width:100%; appearance:none; -webkit-appearance:none;
+  font:400 15px/1.4 "Instrument Sans",sans-serif; color:var(--ink);
+  background:var(--paper-hi); border:1px solid var(--line); border-radius:9px;
+  padding:12px 14px; min-height:46px;
+  transition:border-color var(--t-micro) var(--ease), box-shadow var(--t-micro) var(--ease);
+}
+.dest select{
+  padding-inline-end:42px; cursor:pointer;
+  background-image:linear-gradient(45deg,transparent 50%,var(--ink-2) 50%),
+                   linear-gradient(135deg,var(--ink-2) 50%,transparent 50%);
+  background-position:calc(100% - 21px) 50%, calc(100% - 15px) 50%;
+  background-size:6px 6px, 6px 6px; background-repeat:no-repeat;
+}
+.dest select:focus-visible,.dest input:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
+.dest select:focus,.dest input:focus{outline:0; border-color:var(--ink); box-shadow:0 0 0 3px rgba(11,11,10,.08)}
+.dest__note{grid-column:1/-1; font-size:12.5px; line-height:1.5; color:var(--ink-3); margin:2px 0 0}
+.dest__note b{color:var(--ink-2); font-weight:500}
+
+/* --- panneau de commande : tiroir lateral, plein ecran sous 560px --- */
+.cmd{position:fixed; inset:0; z-index:120; display:none}
+.cmd[data-open]{display:block}
+.cmd__veil{position:absolute; inset:0; background:rgba(11,11,10,.52); -webkit-backdrop-filter:blur(2px); backdrop-filter:blur(2px)}
+.cmd__panel{
+  position:absolute; inset-block:0; inset-inline-end:0;
+  width:min(540px, 100vw); background:var(--paper);
+  display:flex; flex-direction:column; overflow:hidden;
+  box-shadow:-30px 0 90px rgba(0,0,0,.34);
+  will-change:transform, opacity;
+}
+@media (max-width:560px){.cmd__panel{width:100vw}}
+.cmd__hd{
+  flex:none; display:flex; align-items:center; gap:12px;
+  padding:calc(16px + env(safe-area-inset-top)) 18px 14px;
+  border-bottom:1px solid var(--line-soft); background:var(--paper-hi);
+}
+.cmd__t{flex:1; min-width:0; margin:0; font:500 15px/1.2 "Instrument Sans",sans-serif}
+.cmd__t span{display:block; font-size:12px; color:var(--ink-3); margin-top:3px; font-weight:400}
+.cmd__x{
+  width:38px; height:38px; border:0; border-radius:50%; background:transparent; cursor:pointer;
+  display:grid; place-items:center; color:var(--ink-3); flex:none;
+  transition:background var(--t-micro) var(--ease), color var(--t-micro) var(--ease);
+}
+.cmd__x:hover{background:rgba(11,11,10,.06); color:var(--ink)}
+.cmd__x:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
+
+/* fil d'etapes : on sait toujours ou on en est et combien il en reste */
+.cmd__steps{flex:none; display:flex; gap:6px; padding:12px 18px; border-bottom:1px solid var(--line-soft)}
+.cmd__steps li{flex:1; list-style:none; font-size:11px; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-3)}
+.cmd__steps li::before{content:""; display:block; height:3px; border-radius:3px; background:var(--line); margin-bottom:7px; transition:background var(--t-ui) var(--ease)}
+.cmd__steps li[data-on="1"]{color:var(--ink)}
+.cmd__steps li[data-on="1"]::before,.cmd__steps li[data-done="1"]::before{background:var(--accent)}
+.cmd__steps li[data-done="1"]{color:var(--ink-2)}
+
+.cmd__body{flex:1 1 auto; overflow-y:auto; overscroll-behavior:contain; padding:20px 18px 8px}
+.cmd__step{display:none; padding:0}
+/* .f input/.f textarea ne couvre pas les <select> : le champ Destination du
+   tunnel doit avoir exactement la meme boite que les autres, sinon il se lit
+   comme un element d'un autre formulaire */
+.cmd .f select{
+  width:100%; appearance:none; -webkit-appearance:none;
+  border:1px solid var(--line); border-radius:9px; background:#fff;
+  padding:10px 40px 10px 12px; min-height:44px; color:var(--ink); cursor:pointer;
+  font:400 15px/1.45 "Instrument Sans",sans-serif;
+  background-image:linear-gradient(45deg,transparent 50%,var(--ink-2) 50%),
+                   linear-gradient(135deg,var(--ink-2) 50%,transparent 50%);
+  background-position:calc(100% - 20px) 50%, calc(100% - 14px) 50%;
+  background-size:6px 6px, 6px 6px; background-repeat:no-repeat;
+  transition:border-color var(--t-micro) var(--ease), box-shadow var(--t-micro) var(--ease);
+}
+.cmd .f select:focus{outline:0; border-color:var(--ink); box-shadow:0 0 0 3px rgba(11,11,10,.08)}
+.cmd .f select:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
+.cmd__step[data-on="1"]{display:block}
+.cmd__h{margin:0 0 4px; font:500 17px/1.3 "Instrument Sans",sans-serif}
+.cmd__p{margin:0 0 16px; font-size:13.5px; line-height:1.55; color:var(--ink-3)}
+
+/* modes de livraison : une ligne = un choix, prix et delai visibles ensemble */
+.mode{display:grid; gap:10px; margin:0 0 4px}
+.mode__o{position:relative; display:block; cursor:pointer}
+.mode__o input{position:absolute; opacity:0; width:0; height:0}
+.mode__b{
+  display:flex; align-items:flex-start; gap:12px;
+  border:1px solid var(--line); border-radius:var(--r); background:var(--paper-hi);
+  padding:14px 16px; transition:border-color var(--t-micro) var(--ease), box-shadow var(--t-micro) var(--ease);
+}
+.mode__o input:checked + .mode__b{border-color:var(--ink); box-shadow:0 0 0 1px var(--ink)}
+.mode__o input:focus-visible + .mode__b{outline:2px solid var(--accent); outline-offset:2px}
+.mode__i{flex:1; min-width:0}
+.mode__n{display:block; font:500 14.5px/1.3 "Instrument Sans",sans-serif}
+.mode__d{display:block; font-size:12.5px; color:var(--ink-3); margin-top:3px; line-height:1.45}
+.mode__p{flex:none; font:500 14.5px/1.3 "Instrument Sans",sans-serif; font-variant-numeric:tabular-nums}
+
+/* recapitulatif : memes lignes que le ticket du configurateur */
+.cmd__sum{border:1px solid var(--line); border-radius:var(--r); background:var(--paper-hi); padding:14px 16px; margin:0 0 16px}
+.cmd__sum .tline{padding:6px 0}
+.cmd__sum .tline--total{margin-top:6px; padding-top:10px; border-top:1px solid var(--line)}
+.cmd__adr{font-size:13px; line-height:1.6; color:var(--ink-2); margin:0}
+.cmd__adr b{color:var(--ink); font-weight:500}
+.cmd__edit{
+  background:none; border:0; padding:0; margin-top:8px; cursor:pointer;
+  font:400 12.5px/1 "Instrument Sans",sans-serif; color:var(--ink-3);
+  text-decoration:underline; text-underline-offset:3px;
+}
+.cmd__edit:hover{color:var(--ink)}
+
+.cmd__foot{
+  flex:none; padding:14px 18px calc(16px + env(safe-area-inset-bottom));
+  border-top:1px solid var(--line-soft); background:var(--paper-hi);
+  display:flex; align-items:center; gap:10px;
+}
+.cmd__back{
+  flex:none; min-height:46px; padding:0 14px; border:1px solid var(--line); border-radius:var(--r);
+  background:transparent; color:var(--ink-2); cursor:pointer; font:400 14px/1 "Instrument Sans",sans-serif;
+}
+.cmd__back:hover{color:var(--ink); border-color:var(--ink-3)}
+.cmd__next{flex:1; min-height:46px}
+.cmd__next[disabled]{opacity:.45; cursor:not-allowed}
+.cmd__tot{flex:none; font:500 14px/1 "Instrument Sans",sans-serif; font-variant-numeric:tabular-nums}
+
+/* ecran de confirmation */
+.cmd__ok{text-align:center; padding:24px 4px 8px}
+.cmd__ok__ic{width:52px; height:52px; margin:0 auto 16px; border-radius:50%; background:#EAF6EF; display:grid; place-items:center; color:var(--accent)}
+.cmd__ok h3{margin:0 0 8px; font:500 19px/1.3 "Instrument Sans",sans-serif}
+.cmd__ok p{margin:0 0 6px; font-size:14px; line-height:1.55; color:var(--ink-2)}
+.cmd__ref{font-family:"JetBrains Mono",monospace; font-size:13px; color:var(--ink)}
+
+/* la note de maquette ne se deguise pas en element d'interface */
+.cmd__mock{
+  margin:16px 0 4px; padding:12px 14px; border:1px dashed var(--line);
+  border-radius:var(--r); font-size:12.5px; line-height:1.5; color:var(--ink-3);
+}
+.cmd__mock b{color:var(--ink-2); font-weight:500}
 </style>
 </head>
 <body>
@@ -1824,20 +1985,7 @@ input[type=range]:focus-visible{outline:2px solid var(--accent); outline-offset:
           </span>
         </p>
       </a>
-      <a class="press__i" data-reveal
-         href="https://www.ladepeche.fr/article/2001/09/18/306880-nfrance-conseil-s-attaque-a-l-hebergement-us.html"
-         target="_blank" rel="noopener"
-         aria-label="Lire l'article sur La Dépêche du Midi, nouvel onglet">
-        <p class="press__brand"><img class="b--depeche" src="data:image/webp;base64,UklGRjJMAABXRUJQVlA4ICZMAADQkgGdASqtBSICPj0ejkUiIaGRGLyMIAPEsrd/MB60rq7PXldEGEHeQB+gGuJb54j+/f4z9ov6j5UGp+vf27+7f3r+xf8H/afP9ZH5599P7F/sv8j94+HrjPzF/Gvy//F/2j/H/5H+4////2feT/D/8z8ov5X9Ff1P/4f8H8AP6hf5L+vft1/Zf///9/zN6G/MF/Xv7V/p/85+/Xy0f4r/ef6L96vkv/Wf8d/uf9h/nf/h9AX85/pn3x/OB/1PYs/yn/V9gX+Q/23/m/n/8XH/l/x37//9z7VP2m/8H+a/fv6HP59/a/+3+2n//+QD/reoB6AHqn9RP7b/f/Ex+if3T+7/ip7+9UP88/XHkYeUf33mV/E/sl+Q/sP7wf2H90vlH9SPE/gBfif88/139a/t3/G4FcAH1b/13+K/vv7Rekd/q+hn6H/ef+j/h/gA/ov9G/x33F+0V4NH33/ZftB8AP8q/mn/D/uf+o/a36bf43/s/5f/S+oP8y/zX/q/0XwL/zb+1/97+//4/3x///7nv3R///ujfrX//xNduXf/VkPCIB6FxZYXuC9wXuC9wXuC9wXuC9wXuC9wXuC9wXuC9wXuC9wXuC9wXuC9wXuC9wXuC9wXuC9wXuC9wXuC9wXuC9wXuC9wXuC9wXuC9wXuC9wXuC9wXuC9wXuC9wXuC9wXuC9wXuC9wXuC9wXuC9wXuC9wXuC9wXuC9wXuC9wXuC9wXuC9wXuC9wXuC9wXuC9wXuC9wXuC9wXuC9wXuC9wXuC9wXuC9wXuC9wXuC9wXuC9wXuC9wXuC9wXuC9wXuC9wXuC9wXuC9wXuC9wXuC9wXuC9wXuC9wXuC9wXuC9wXuC9wXuC9wXuC9wXuC9wXuC9wXuC9wXuC9wXuC9wXuC9wXuC9wXuC9wXuC9wXuC9wXuC9wXuC9wXuC9wXuC9wXuC9wXuC9wXuC9wXuC9wXuC9wXuC9wXuC9wXuC9wXuC9wXuC9wXuC9wXuC9wXuC9wXuC9wXuC9wXuC9wXuC9wXtWH/1ZDwiAeC5d/9WQ8IgHoXFlhe4L3Be4L3Be4L3Be4L3Be4L3Be4L3BTTPY2S88LsHGXt90bQuLLC9oB60epqAYc02Zpt10MWWF7gvcF7gvcF7gvcF7gvcF7gvcF7gvcF7gvcF7gvcFNNbmsGNWvNf9OG0/6DxIh/9WQ8IZyfOXUFpPYov7+rxiW1e0RgNPXrqxmBpWs13/1ZDwiAehcWWF7gvcF7gvaRJAjebqeR1ekzspqwv5/IW0fk2SqeR7IyPr2EiaeYfjvclCBqf0nLZXsXrRwnkvTvinGHBOnoG7LtS4ky79Z+0bImbqJ/uVBw7YByBjeF3LvctGHS6PPgxEZ+LIfGH+mGZ1oamxkSQPHolW6+6wAPvP1q5Mm8Syzqrcc8P+A/e1PKvuoq4r7Riv0CEBxknntCIT+RnMsM0qjFQBd+gFWI/uIWSrmCN/hFIbDx32ll2wXEXrKj3dm6HpP4jBCWoMyLPuC9wXuC9oQDhgCRqzYUDk5tZAm7Vo6hMIlFo4BVEQjqIgqL9VR9kpqF+vAc6uZay6t8U9bJNC55qxEuutuISZrokHtLeaclvuqUHYfksKtQoogHCU+vWZuuTvcAiAm4RrI7o82vblE2/rT4rzi1SVxA5wSiPpbmyRATLyHjAwsvpTvjFlUXjg9vOnE9UzIPB3+v7W9fM8BBMgYRfiR8nlJi03mAsmPQ7NwR3CrnsDAM8+4L3Be4L2oRRETaYsoHH+csuRnJ/8/aRpzB614s4Y/9vdRnHH2E6flAYOILpow5ctGfbNNKH66CblPGcaQhv4hksvxKUnSMJ4QDPH87X8eL83a+niU/Qq0Houqk2ANPQ22e0Rf73yK8Mh4RAPQuLK/MjqpUYxLhCcko6fSDS/Ah++XnAJxtjm9mHppdxe+oCOYwpeQfJg1hbn9JdcRS8ORjWaCzaTJ7XY82Sh6YSfaPF24THLRJD12CRRHXbVJeVz0fwT9CrageQp8ACxDOEQD0LiywvahFERMtV9ZMcBB6giREBrM4LZJSI5l4o7OkAAjl0yEODf6rGB6s0jTlYvg1OFahnR9oNTzihN8hTDKpIRhkaATVUp3DfCPZtZTZGDIFTqYMXZMWYXZp4yrbgPhrTCIB6FxZYXt/MjqpUYxF5KeK+s1LCgt0QpCxEbVV+YuWoalf45gocEnmKOxYocqzDrdpGnChC76SBs9rkVm0eb/ItFP/QmGoLZmAGmh4RZu2nW3kadFxGukjVcNCRuJ3ct6ILVhe4L3Be4LxvefzqTVBvUX+4RPYybU/Cb/EtfMotP/El5W1F0StMsp0+QjO+Vy0MuXQj9n/La+sxSeYontQOcsxH0TgQFAF66ZzHNTlOef9eGEmy/e4WsyNeGb2zvgIUAlkOacbPr8CI4vGMZAvOP9aqNaizwxCbyNdqusvcF7gvcF7gq8QMFuTzxaEhpNYNhckhVnjzi6u5LXoJ6Fq2YYRvfFXhx1cRpwKJklJA1J4e6LeLag4U/Evv5Aw+nhsk0U23bAfy/bqGkknLaVlwXiH6CN/MjqT4ATglMxR+dUC84/1P0oBjsMkQl5RafqIXFlhe4L3BeN7z+dSZ7OLhUWPm6OIhmEn0w/hDjAA2heXGx5ofiH8YuVlkzci2FheZUKCF2joOIKFlq9I2/fmCxzCWmHOvNDzXiBgtegsj+CfoVDgVqkV3qP7bcu/+rIeEQDv5GCgdZ3/XK1tmUcz/3B3NZZ5r9JtZBZzQz2wZAcj8qTuc8R0LZI5VVBTSd1xa9BRmBcNGa5xRnT5iv9FMc5XurUc83RLrAGnmKjMD/BE8tGha7+fhdLP5eEQD0LiywvG95/Oaobug48gzPIff8WGZuFzX1lAqwf5AVlA20MC3d9OPsJ35tridXEa4+wqsoP88gpoOqr02ARzFz8xzaTMvgkS+7Y2uD/GwYGKMkPLDmVdEQZoAjj7CyP4J+hVuYmD3J++HKonoXFlhe4KvEDBayVEFTaQcckHvVXW76wBcgVLbInFp1VJeTwlaDy6MbBam5gyzEvWfgI5SA7Vc1jU+/MSVaD0HfTmjOCGfpzqnbR+yOSL2/Q4RrVNE14Jef8wCdBLJBbJLG9rRRETJ8KJ33rh+rhEA9C4ssLws43gwUaWI5Ku8wxCXqgf+S2qWVHmx/cVU4dfpeApwIWyRyGXmOPM7gC6272h9827zDhc8vDANqJxUFoSK9OuCv/6u38jLvYaI3Xm0+VJjSi7xJVCdPoH6pxEeGy+1PkXpfZx7jmSLHSoly3ifOQC+bd5hTfsOrBfpdGBXTE9NB+debPYABJRDJoTFPv0oPCIB6FxZYVFmPKX/25A5KCk6kPLqz752nj60XU+jIHg+XERb41Zk6C1ICPd6FkMCyn3ItENjQjRx/j04hu57xLmeXWu3CkI1+FpcE46K9dVq2/5jDwW/kGhQ0y98bbOnhTlPbc6u5QsvZHR/g+iPA901DOuQ39epNuj674m4sghZNX6BXb0YidGGst3nK5En38gqeAbRp5zu0iR/ncvKiGKIXOL5cghUwaZAyAv7HRbr/kzoj5Sb4gQnK/hgmlel8vQFF8/9AbRqxx8tena6vsQOoFbBBkg0nH0Sc/zIf1E3FJNZCi4/5PxqfDb9EFS8bURuS8KyxU1YXuC9wXuEeZOpVKJxOJxOJxOMa5iMRiMTG2sNWq1YCW+B8/n4PB4PB4PB4PB4PFWECdSqVSicTqUZRdzUen07MHvarWGw1arWGw1arWGrVarVarVersQD0LiywvcF7gvcF7gvcF7gvcF7gvcF7gvcF7gvcF7hMTcu/+rIeEQD0LiywvcF7gvcF7gvcF7gvcF7gvcF7gvcF7gvcF7gvcF7gvcF7gvcF7gvcF7gvcF7gvcF7gvcF7gvcF7gvcF7gvcF7gvcF7gvcF7gvcF7gvcF7gvcF7gvcF7gvcF7gvcF7gvcF7gvcF7gvcF7gvcF7gvcF7gvcF7gvcF7gvcF7gvcF7gvcF7gvcF7gvcF7gvcF7gvcF7gvcF7gvcF7gvcF7gvcF7gvcF7gvcF7gvcF7gvcF7gvcF7gvcF7gvcF7gvcF7gvcF7gvcF7gvcF7gvcF7gvcF7gvcF7gvcF7gvcF7gvcF7gvcF7gvcF7gvcF7gvcF7gvcF7gvcF7gvcF7gvcF7gvcF7gvcF7gvcF7gvcF7gvcF7gvcF7gvcF7gvcF7gvcF7gvcF7gvcF7gvcF7gvcF7gvcF7gvcF7gvcF7gvcF7gvcF7gvcF7gvcF7gvcF7gvcF7gvcF7gvAAA/viuV2E+D4IT3yICOYxJJYAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAoudaLMSbf2YM4DyZO4IRYdDvZUiYhgAAAAXE+cLj+zP6eRub+FOC+C7Rn8Um5THZcUuQNuGIPY+zXnXoYldC/hbuh8QEJA10WuzV0YskN0PyDdR7sf8ZhcUwLSTllURlM9cvsgf2kNFXtAM2TVBUGtthAw22rSqHY0qc5AJVNb4o3BvYfwLsxSVz5XnY+v0/IAKONds+bmqEWU/Hxibwg7HBeQsRVThFe7zd2Fvf+5rHfP1JpwmYYn8YBPHuO3Mz3NWNubpZH6L9QyRo14uP54t2/PAsZZbqM4wXnTkEO7ruVOGkizepcgvXqrvlKiyIKy6J6DaVZi+U2cGc1BAdgMm6QuCovfg3O4NRFoWiaW6laddJTza4GqoRa/o43TZ13MfJNin1culglOr7VNMgEejMyqvn8jkLoyjJOo9T84q8HMHALLq9YyuBTNpdi1+jRebAqiwppvW0jMCn68r4n4PFG88yqEua4L19hYCec6v8xubaE5vUOe1KfYpwitQsFThIQ8vQZ/DQNFB9EBD10YT+atgAAADUOshY5NRiWp4u3RsfqEJ9aPp5FwwXRHel0beJ5V6RUesb0u7ZXHMJQEv39P9VnlBI3yUp1p+1SlHxeSL+I864n+qFbR5X9Pozx0s8hlRxZQT5OScxSHSJLNJYTDSZ9FEWWJg+a/RvCq/CGL2zp6jhyORDUOHIVwWLrQOh40FQM3z67WRnrrVgGZYRrvfawWMk063Dg4bbK3s9CHjCF2UjkTLVX+Vjbusqr5qQPXcjnQC+GKgAvD6lBW+CO330Imo5tIAtOtnhSMvEocLl+OPfP3y2YT8k4Wz4Wv8/wFJXmZNcQbqqJV4CJELJcOjmeaz4s149f705eh6cmvtgztDf6jcLuejyFy9CmaiubkcdtX2/TgEsMTf5UZ2Izd49IBPlh3qDhuvgD3SgrwmiD3aDaAB7+im8P6O3N76t/wTyhRFApP3xuaMY8JyrKyVl6tDnMtCD6zer2Q5qLOWF1D08nB+ZrGL8iXSYpgiI0YRBzlCWx5gSrTaAAONeSHNfsL0vaY13CpXLsoXfXP9sOhvPyb0cIG2Cx0uOTWlnYmKHLCj2TMILOW6lCh7nof6it2/bn1JauV/YhqeoNhr7Ek+XRbF5MZich3vBsHfk1END8oVi4XzSHVfVibLXfZr0yEREm3oAkOKQIL1Y3LxUWX/HI33JIZS7qK2jwDiv65Hofv/DSVIhNUtbWBhQ1s3VI70dtcPyh347HLcjOvtv+TbAtjEFPS3Bg9koPQUMnpYACHqzHGO+DRnpmHJHxDYPv5bI6eHllBIbBBwNq3jiJ+qs/Vqf+T5nsx221Xrk+ORrARu4sv6L0+Y5w0LYQEuKEy6VTt7NbpKwywKQ3UB1hJiAnXCtfcc0FtZ4Cg69ws0tv58q1ZSDzVBPhYem3TYndbZ8Ct+nSEX+M8NhWkmokDpEfiTT8hHabNHc82udZMtp70HiflWcxTmjUhDIDM+EzUl5Ar1RyR/MP7iwYd//8rrQcZwfADKi33kACUh5MQ1NaVkuAF9W1ROaYBdML4+e+dNRk37XjFVVsyxfPZ48pMDDraGqpq2g/oW9KLcwnX0qheWaEdqst+W+N8eHlUyGMMMvFHHDTpbxEtfcdpDuagu4VOLcOK8pdOrxCUaaQNAGSFMYRWFH1YPRBQUn5d2uPPVcvXIAN5YSu4WUodkaBSPQrTynHsfwERnuVOFKIKv4Jr9H5iKUWAqdWhuHYb/8xaQKku5PeK6gN6KGCALaJmgqx5dvCtFvuK2Mc7B8MsuzqMt9XqwAL7CXOaAIpG5+WuzK/H1XhLSAbglZxn3vteDGLzssOUxGdIviXbaILw3SDVTYm+G4+jnxz/5FHcbDCAEK8DukAZV/Tqa61E89na8GTVBxNHaRfsk1deXeVCdHu39aKt32trjBgBv9hkPwczXMs15gpk6Bakin0L5Q38L5U0LvFnsjDZLIB+CxpxRuiW1yTXdsuHdIINK5jCxYk0gIo2DI9LcllyBDs2SFkvpJ652WdFWQOOEa+hBVM6fzPSbOrBNWFrlW+EdWx/MWLq4sd+5eqSAOxeolhtxXe89wtHb7NBy+bGy1GYp3SgBq3t/3vNrWSIxnT1M86eVt1u8MyXhjPiA3u2Arxuh8CL98u3XRJQqigN1OlTd+EaR7eWczxmK/OzvS2Wm5wR63woFpf3auBDamEYudHSd/eIRosmVmxtY/FLsjoBYxJX7huM5erv/4ZE6hWPehxxNW0gc4sASSOoJLpNgeEDL1vNywEtRbbl1WGkwST/btAlC60z4Ue49Kfq3eGydRpuPAERDCiQG9YtS6l2Daf2kKE0lEQT8cr8wi8RBdEgNqfsUc7xHgPZejjIFqudWgqjJeIkKUHOsjEOTVitEerjE4hbSMbl2tDt/CLNqxshUL5bPDbJVUdNZ85xKiM3S7LQiR/vCYlavRmMSPHCy437a3leeVjYo6SQXXUJZWOpptlyl1PwkW+nzqoTMnOyP4/BHYxI6dez/eSAoMeJthK8TES3dDiRo5Hy/0lvUmyG8pW/Lify2BU3ErTHB2Dlq0M2E8KDYCmaGw1mmihXJDg0cqEDycW9ZJizyuOcSBHUcjRRSgxtiFzDjywUo5jxLzJgmUIzRfJyB8uzjILZ/OMe9XMHw3IZcAT/8V/+XEJ3QyIP5QNrIbGWBItiyP9e5J6vsv2XuoEDjvHYJVNojClYo2mfkOCRsSVQ2V4GS0t9ARvhpqMpS1FmE8qTvPunJ0KKvDuu6gh9fFbJBKGPPjiQ6i1kIdDV5p3zSXNj4S5/7isnUsRGnobqQpix03HXPLWUS5nAJPjEa3mvNf34raVUMYJSN3H6KyvN4rWt/QQ6XH/C1szwPcBDMPITWYWBC23Is9bopfgMwRUuA0q8n19hZ4boq3twBey/38g7sBVhjyjRs8IuSP7TTLT3/3MIOrve47HwwKZJNDOQLd0I7XtbEwpNHBo1at2ptB3ju8nyBUnjlT1OUreSD77LnZ1Mv1EB6XRZcCqh4d+UXH7smjs5ep68QkWGPYAPD8vk62Ah4r0OQtW0pLJ+m+Ioastytf+C8gbjHgiOeqCW6jVbgH6DYewAOrGbplnBCmAWee4UqX5veeFjxuT9UIsXceM/nlCgIEZZ2VdKLor9VZc4NXcyX946/uVrb7SP0aR/slzcG/ovSdIluhzpY+0UP1SxGWRhLNeQJ5DPtDArz7Hh9b0jNJiL6iPk/qtCcFeK9ErdsAEWB+pHeGOc/jXZoMktAcEPnemd3GxJg9Q9cziSB/ADG/4uFjS9rl2wVBhQJhLRKiQeWliLlkyoJPjN6GFZ0hxRsiuKJ6DG7/sOnO5kruKdpQSlkvyP4abaTagFnvjft11bUhv9TVLNc9F8ClSCNQwnQcj6WBt9WS7hmqPPBxCJSKHntg4cG7fPVPR8rAbCPxwTrRyKXZqgPe4SYkeJ2nB9psHQrltrZW4zk5THxqkw0ZfAQeg+77lExltTs3tTnR+/R/aJ39DHWLca0nAz4t+8XrAGar8t1N60MKzno9yZWWT7miYxQy4604SnuPTTpgCZbX/cn4uY9lCnYR4+rMz51AK/tBUBelh9h6uVvx61wp5pR2uHJXRmECp6uSYqGuQmaV04TBg0eqtJl//s/RJRIfTYJ6M3y2iLCI+MPlbfFT7T6F+vjcVQUfn5Csu5gUAAwFJ49Eo8ppHvEIwni9TqKdEDOtwir8j5goDxTYfXVAz+oyLAt7r2Ty3MYRW6mZH+z+VZpm9fccbH6qpdeV+aKmxshu4GPC4HOmEohw91CxjBa5owuwLVwxaLmAAQGpWW5YSS4TXI7VubaWlC65xG9+J/U6Jl2MJO3J3Kb20NQvdw98paQhJnh76M+yxO7ekcFPRdIbZ7A8ETjtvm4ltX9JyO/ub0+gsi+mLolmhOYfAllKxVC8Vey5nngjMVA6hFO7AAOswPywmekwBP8mr+SnQaLm33zDj2Yb4jjma6y2HD2Eeje9FOot5tz9/yyZfs2vxYUA6e0tJPQgX7viVlv5Yx18Wiy3kg/21oMxCU0s0dw18pLlaZ5OfRuZ4uL4oW1ViyhYH35LitxbgT/oR87JBZ9NZXx11Tn3y47Gz5OeT6Leii+xdDBRMrhT/fxdA06Nb3LcXH1Chz+5auAwtWsAPjvKKbgQhIlEBAsVukgVQZl9v49W4/zQvkmDAlWGw08NfISJTClUw0xctF9kndjcF8ye55uDRU4Vz1M/MstBJ//7rrcPgndiawYfJsiuInMrc3ej5wX2Ffjfbx1ABPAsUyoECUY+ERO2mcRZJux108nIbyE/pfuLc4KxFtusgGA3m56kCJ9O5XMVxD9W4bAOu8iwDZCEpOgJFSjqq1rvlCYvKv1HM1iva/EloifDfAI11uMvCu1M50R0O1/nW3x2sV0sSmfGy1BHGiy6pmE2XXCp9jXG8lb6MBxts905LXTWCRFx8CscT6IV91k1BaRhjPMMMAKoPT3J8+s250sVcwSGofIc3YI5O7Kj2YND4YOAp34KnVb7pXcrfPJkBzVbREAEC2y/Qwe6sIuNGoADM5Z0izSnT5h8h426mGpUbDxG88gBDChCN6MMY8zjUx/Yc9Cx+zV0WzQG1vQuj8zE6Ne15gRqZCGdtjul7SUkIp4w4RvRi4Hs+7ptu8E4eyUhNqb9OYB8Jtl8RIc0N6hI/9FixdrZC1/xZSFx7o+P2W2howJQaLRM+h5P9GqIYemL3RUXxwYx53+uj6ucVRKAtcOTiMm+3Xe9/I1Uc7XhfAuLjY0FckveN/8zEHLs4uPYYRCdtfu2lbKRabjj0eyXDn/Z1t1f3mruiQcBVck4AABN7G1Ag85BuGuziSdVy4NqBUqnP4buayCUIPOq9uN6XVU2kLgZiSmWwCf5kx1eWtyN50rWe1t6jdlkTKJEnSXnycX5TW79RMkZ5n1bTFGAndwHxjMi/RIJZmGQ14INwIOIFPOLsUPxAnI5AkVw+J+8Jl3XOwo4CBPxbAwYIOb26Cg+GIrp3Y1fJlPEmE+1JAIAM5duZ6g0esqLRvHPxW4cwSlgNrinoxUXPE0z7a9hhX3TePkXueF6lmgYuJzsbV25yyjbQSYGEZ5yLfUwUd9wuxrxy+nzd/pF//MzHjV3KCXAhPb4BycBOTG20whMeS2SNyc1i4qAg9J9q69g5zy4I6sPoMc5uL8LssM0n9/CxShTR9e33EkUMKvH2S74XJOEatsKkA8cabnVc2CRLwJfyCquHuMjjoM+y9vjjE1S6Uq8KtSA6fODnrni/PIydmhs1wwkX4RpXHl8/rwYvmZ2BlVoAm0zPL6Fnn5pF90F8n12oOAER0mzrmIdT1v/FtJw/WDbr1Xh62nDkT5wWv9DCxLmCCey8yQbBMm/t/Z+YiEfjxBGyn8z2dCESVNgjnpKQo7FAa2wWBXMrap7aoa1DHsdROyCesZ39VYc1ZA8NJ+JRCji1q1pFibUCJIg9T7HyzCKEyZsaybkbBQ6R49aw6DkEXE5vIfmjLyFdRaAIMVgiTYzGz7w3xTgi3sHuK52+gmCvEn+aMW+e+3kggKx7oIlpHfedS5cw3T5bnwm7F8PhWp5pxuuMRA0csBFWNzjgnh0HbX2ekUlIRCGSYdlUdcswBu6hkhTQC96YO6uh1pnRWgh5vMmDRYOphNUALEvev1DJPQDF9/h/pOoQVeK529IY8YTUqxizlnEVUupcpgPNSoyrWv4+64MANPOjs8LJqxdx0ZHWY23Kg/HqEBcjDOyvsiAF9WbrG8hMW99WvfV0PNizIzQNglG+hWeTNexun70fLf1uTbNWWCe8DLg4NcMbdD8Eo0Gms+cJ/B/1ji9hNIv0mOa8Pn0A9G5MN+DyRMUPOvKWQTkwt5FORictcQEkMKM7imw0uVTAExlEQd3k+6FIh5i2ENvLDYOzhPW/rxGo92z/XEisw1dOA+22rCS/B2hMsyifm5C5uUsBy7k/oVc638qpL4X8QeVqaEdyIWQ7ENYJyo7pNJvcUhctjr8+a+2ZNIXKKcqKhVA/+z7jNkk0GDy4WkW6xU/QOlkKvKiOX0GWSDieyIzQhAQT5RmenfajkrhfnpwBYoAMx3RQAIBypblwsDtNGYjp3SRb7wOAU2Obsx8C78S5sbIMmvR6bOn6jKLa6e/ztgUfELO5QgFvjxhJB+8Nj8OdqEYms0NlQI++SWsU4txk+cMXwvNZTuKnwy/Mh7K6GavRXIbWtaTnvA+50PUUosCt6zMHnlOr41eP3Ek8Gjj+8TrspNYIqRX+mUNGm4ANdFyeBlw+Y0XbOwclorfOUpwxdHn9zGw6pbcn6ulN72/b3yH3VJ2sOl1Tjtkya2r+Uq4bNaw3mgvxmSscCTs8wkVuf1T3qxRkjd1f6T/yRDIzu4wP/tEqUUlrcE9WbcbAkV8n1pRINGiwAUQq/rqTKzkx/vIvG+GAHPHEZhexvkiOMPYYwxaWEpyfYarjwHDdd7QvYE2vmUEBRPzbjUbyu7Nw8Ya/JvkjFNJ/adkclZQJYs+tG7sb5pByRtUw1no4Os6MhhuUfS0/P/iYYGr0Z+RZjAPdNZKkfbVd+4yYh7kiR+DbimNNdITXiHsIBzHGcxrfa6k7vmQFX5ExnYxd/8DBydWCtIsWabMH3q2cIy+WMJv0PjBtphcT6V6jMYjez6ZuhFamY+rFaXyGCHLwy40wgCeCIVfGoojJSSsZzKJCLtxtYpDYvxkz15aUixFXtb15N39DgwbBB4Xdv86o9hL1cGDEVEIsetc1HC5UWtEgV5fEnuhK8q5gL3lA05KT0i1XcYEOWGUli3JBArQ/u3Et3fA5XKI12AlJCJAwf9JpfeH9KEdhfqYZR26YqOHlTszr9K40YQmnNKg5+fllu68NBonmhgJXMoyM9TyEkWkeWHtTiZoy+Ks24Vhjqubnvb0ITr01JJSjbeWXT3OUfF6HkOF39oTPnISEAiwCf9nr+EQR8cCTttvvDVyR1GRuE3HCRAr1OmfXmqZNFUbzC6DFWUqG4Sxagh7hy9YtPodOev0bMPEDlfXx9tlZPpoCqOGxv/LtXFJ4NhL4cHhHjFkbln1YWx2JvqwQGwG94wDAUUX/h5uvvtFYD7wTPzU6obL706sjqLwbUe4D96vErzPB/5kej6Nu+Ynu+cIcRl3OApA2QluuTxWx3zaq6GBGdv+bNkNMNYAXtt/HBZckh4eT+zI7ADhalg43vGYDWHxhm67FhwjCnw04FDVEtudQ64Bdpr5LcPyT9m7hMxncjBM5fdzs0TzYGc1aKKUm1rdm8jMieFRuzlN5ab2ugyJxmY5uVmNV3NVDruG+yyYHlNnPtIejKMVYV3+FHgoKRcSEGUnZHil53ruiPym5UJnUmOQmOrAr3uXOHvTVZ1TCU5kK1PgqElpCRUhYaCqw3xHPsN5iFOGF2bwRPjAHrxFgiUNJno/HTjNelmtO/k7sRuSQOfzwrIVFzQPlNIZcUFXbfnD1u1Jmj97A686nPtKzKQ7jLgNp4khIONs0v+Mh+PkWn2k5wcCjshoaFqIWoMMgMPez02ZdDnVkv0yE5wD6x1zEaUWVHNUDK1Ga4wO9n52n8ceSgQw1zWosch0mIclGqW2jom/F3jA/X1NQLUzUAbAkm5AOGAU5Pi1JiBzattbm872RkJxw4AYVSBbjWjRHO5Mk0OineCVmVPhzmO0HJKJjokxF/mp8nA6Xr2RKs5Lx9EtI24/lFLVaDeivUHSypJdMNLvKk1tYCfe0OZ5pEY+CCBXG+OOPJDE8J4WTtSBvrMGF9IUEjP8s5echj+MgtS0riIUp9CT9S9yBUx6dZz5/SAQpgdgVKtA4vARXO6Sp6GYVlN0ssDhRIntWarqTDGO0lYdoFMv8oUxZ3Hg272TtrgsVtRiH+1boU3dQ+hdB+J3IlcUDTV0rnr5lh+tt61l1Ei/yI4OoH4K0OAcg7lH0jPF9RBvhgWrANxZ0SYLHAlfAiXGWdev8nCh5EdZUlmaXsiM+7JkKE5L7MGcrAnorFuhrlupsN39D0D0lvyZ5FAIWi43Fxc5gEAV6y61M8ERv2YrBjbprFNwJYQz4NvyNuTLrSNwLg2bpH0xHRdBlH1pTLk52v9X9kqWBsP6AmGjxVgD+MS1EnEaJj60deLi1xrRFD9oJxa2ABSsTTUGWpz9vEaXrm+dKbH5iiD0rls5G4ziTjEmn0FABYadtCTaxqTe6N3n0+vc3cgy+vcwF7oWuN5HeMROUK84L6eSoDD1vQJ0aghxfqIuYAalbfC8mH/ncDmI/NMfK+LyLZ0YJ8diOOR6tY2car+ZbZQRwg577yDdjC3ymkyE1tcXbbDRgr1OtNz0U9oGP4HlDAP8GEixJUTI5VPLAOHgsGNb+DUJ5G/r/4BN1EtynH79u8JxRGwRruWnC/y//w2b5yf5HYEtWqs/KT5Kd393yXqLTyW31W+kuZrEDhTPlMUyz564///LF0yuiU/OvkVX3PRxA1o+rzHKBtmNx2EUtMQKn9W3s4EXX54BfH9P6ZG/UDmbVyyba++djBADbY07UJ1KKMss639Frwyjl2SKnoY7boMxIpu+NI+TFHxI2fK0pfoVEa43y3awZwixJoD+Vyt2dwUnfQtWTGDNkQ5UmkXdsNQyIqFCOepNG8Ozfhj0+uJBRNF+cbUhT2EwtVwepxGdohSNpBfgnoqRwnQ+xc9712jbe7PaNFIMgFqmHjCvXR34ZGZvk8iZceEKGaR/kn2x9M4VwFTCkELwP5xacfCRmJxyzQmN7ckjFiMzh9d3I+PPtT1p84rbFbCXbgJgBwJ39HhxFzFrAPPAUdgv03ol3PJKY8uoQBEUPO35vzl2KvWM0ILN3oJEn54UDq9HvjXll+iB1j95vgCd4m657ZNNbkF0qd+sSKpfLVNWZSVDbwOt56n7IF3CQqLLqeThPTUaPQELvcmHjm2FHovbGYN1B5v+o5OfGTc19aek0P96M+PrZNXLKdqMNPwv/0N9c55NPdfCy5ZgJsb/wn00rEBbiEtyoDIXUTvfBQll7O0hh87SpLpCWbKiuF+83X/+txf/AEwW7OZ68CX1XXgRat1k2eg8mR8yyEWCAZoSShL4iSDe1uh2rcZL5ZvPnKNxz5uAX8CYDVqOghXRZAWlpEUx+1CcBHk3CCr0mGnHWXYsALzmSawfR0dlHd5Bv+ARAhLGThsAxzz1wq15NkNSrO0Atmo6f4mwURr+nOHc666TvCncahl1ii39VlizS1NrzInvgzblWk2u6lHCmRnHMpWelq8KhsnSeSJgL5aDHfZvkCFo8YKnIJFA2YzosMYQteNoMkPeV07GBU+U78hiulzTu5EM0yp/w82DlTNKAMBGSOJuoistqPeJxT/226MKAT/XcfzJmf4Z8Orn6PTut4y8lNKjIaNzu5YTh39OuXiOJmF6hxe0cPkEHQPhVM2PiQt40jIR8pqyJaPjvI4rSbabb+jxOLvy2RQAz4VI00ib/zqaxh3KSjBhP8pmKjB5PJSUK6sl0abbkVW7UGOiugj7YRx4OO1QG3ef70++J6/67GA83anx8AD/ISZg/wX+JSeKsmzbqiMhayVEg8tLEXUYKAirDC9OfG24jt2kjJ1r52YFcEIAxqEjSMfLWtbb/Y7sFpCKYubxdPN0b3231pOrYEg1bn/Vr9G290CjbZxIyYgCzXHi2FtoWiIHATG18vdmj54plrNVeau6yebNnwdRb97d58rBRNLB5+/qW2tHUppmrHLykLHIk7Kd+f53AgKsB8NSFQTnNUAaGcozAvq49YlcewmaROcf50RQekFQpId89BHHYHg7tyLI7ffbI0DzDF7DPVYjyZmVKqq6/2u1+dAw348mEJ1QZTgw0qQxxeoXPv9i4q8ecqjUvGkRnJ61H09eelHS899xjHcna1jIB0NFVTrzOl0wW1VqI8NaOU/gah7Sx+C3jeI8b9Abq8+9kv7PK2UUDLkKA9bjwe/ABbvafTOZQEcQJIrxuqlTU44FjRaXCbAOmA2JLDvvLIrJXwJTZPeCtZxX3r5kfOuuqtxL+ny9y6Wp9ar5wWsxIUSdLy2Q4dpORNMfjcGz/SpZr9+HE082h3eBVHRy9YKGATDVKomV2Xzv05xTQvZIQ3oojsucwRsSuRclLSQI1uVzyNX8R1zSk8mlB1nZF63sOgcg925v8p99mtzg48Y86JYMhDYx6NKGhuavNdfY3mvz24Be/TC+i7aAsr7n++HPnuo6KPSizQs69Jw4P8fJge+5n2fAfn4mXd+dj7VhoooWTFkYugH1pu03y9uwFQbOwP8zk1t7SbZZGF5SyXPTJK9tP1SnZbiKFoReXruZvc5hF4hYSMwGta0nNtw9ZYa001VDXNu2oL1qU/Ee/wHNbjFIi+xoSVcwYGy36djZh5pFt/tojRSIGu2Exy2kVac0/GAi6Xb71TZdPMmzac5kmACp3wTOF+taJXP50eNvhYwGJ3vJytP/6I9oC/rBWBUzHZPXMoayvpc2JnVT+3XhxVTVj/O67PrT9O5tqpcvyc9p6qmcUk3X8LcJWnJwu9/yxq/GOM3v7YyotszsTwyQYTQDfBfkYGFOEWJUfBst6uMZm7SA14j3Ak9Dn86qQ+Qd7UQTZKp3DLoM+ROiJhwdKEf9spkUK4z0S0xptqby487jnAf4S6xYkeFtKNABQ/tWvKjPAJx0/EdVl6x4Rgd7W9cPYLjtjaKFsq8HAmTcUTNlqklzv1gAy7yfHvfyaBTXvnqxWv0PsIeb2jzc4Oq33ciVzLKeq/pnRI5PMaAHAyEdaR0WXNFH0Ym/DU0Ogd8v7NLBPTKWdRTTfFZGQupxwffYWJNhmDOqxnoBSVe/B2qLCeYI7jCqcIHCDuIC6s1INcqPrZuFT7OoyWHu5CAZXRpVmMEuaciOECnKaLHASesacF9t8vC0YoDD+SA/prZsq/bp3JPLf5sURM7xk1vNFRMuVAg4Tfx/vD8KRYaPKqAjf8MgelG3pusWyYjPN+PPMVKknNGuQgL1ATUQjsCdimmjzMnyAZdHK61zmpPfO1Z1OJc+PEmnM1H/V4I7GnbBriXbgH2msOL8bIBJFMomBCB312Ge3Xg0Hbrkh57Kw0OvZ9A6T3i7QkoS96RgtFPDo1clmlFFSm0kO3trWpIyYAnPRPoANYtf4bZgjYlmSY2m4shZOW24gHPOI26/oVUPRYnK8EZ5tSO43lDVmLjjNxVDZc2U4hovjUi2A8dO4gJ19jIAdy1KCwDGhTBAjjdE0ljwu6oy4n8RVLW8Z3Wmiik71cU6b8fjP7/DGTbAfmwE9hnMfPVJGcadn4AdsNa+EuIE1+C3tB/36V14N8YeBnbMOfLxIiEN0UAtZEW229ld6qzeHvQnj9VBVXnNymY5xcFc27LhFDAaPL0ws4XLFNpdqfd4+Co5BboF8Ap2nb0m25N9tVwbh6T6EffXb0sQiaYk/8whsW0FN/jOC5qI5uhpOSPmk97LIL7HpUUvnzdpNmA8X9+NtEjJc5nPLAWOxUZemteDz287qGkORCuLtJS51l6ecj4RsjY0CNVyBjUrCKlaWsaHTV88WPC/O6mxs/4s9y6Y0wvB/h+JnPPh0O70ntB3+zBstrDpWyJtn9MEs8AebaEO0wppTb4Pebql/fKG2eYI85mbGQgWxUjmmHhQNM80Cz+LHe0SwiZqMSzlEdihIRLCVBPYgWMZCYVfmORdDFGsY/LFGtks1A8rHYiEE9GxQpiEPS4F5/Wl4sOeHmKf79FlfPgFCe8Cf2OXQ/yLOUy3zhDd0PcauRiw3np4x4QnK+ZU/lhggvrVKAAKoZwzI2/Y0XvcDCwjoQm3lWiXW39ds1sUGCu4wRyREQ8eRQk6NVed07nM/7A8tocRspStfiqryNO4C8b7sZ9F+NJvE8XiCqarHMRcjMyhDOXY99W6ZmFCdnzznN5n5B5yRJ/5vs3STS3CoN/EWCRkqMIHnbD6jaSm1FZ4oBg085rGIXOSkuwHDDoA1pdmskRV4K8xYJO69+FE70EbauyqOy896zNoyz2nYOSVT/elEhV5aRnjqZPLSCOpI2ydwM15lbYwCPV36Oz3pDM4S2h7B7JrrPqGlkDAG9PQ9RjEDoLEsTZSV2PQccbcLJERiyo0CVuJMNADKsv7yba0Ev/ccd9HP/6oGzMz3r5hSLGyxGwieZXPS4FaSFFLXw8ETkEASdyVWPOX7Zj9pV1YkJLBmykwtRoAAWq5AL9XLgzWAoz14jtOsF6IeoMBpD2H0RCkd89WwDvDuViOQAjR5bXlL/htn3JxuCl77sCZkrqWQqma40KrPfF0Xa4/KPLjBmh0CJC0NcNq78gpOB7+rF0xLcru6XJYoHM1Aj7Q739OQxTuh/rd/s0GVDt+Kn8HDlg9w6Nwxm0MOVXhOtN/JSqu39Krn7Bi/9CzkpBu2XiRpnErcCWZja68mCc+HBCE9Tt5hBTvwuYNP3GEM7/72HUhX7W6buUIX7XLJ9iVdD+ypJ0XPZL+9neetXlazo4TvIBYatqdngHHBXOplnyBO3Tywk07LcB3WC736ogU0AVPSWNb/x77NW1836k2+fSmzHK/atg6h7O+hDhP7x4qvcdNGsLGcZ9UJ/zIHJQC1HerBR9m6ARt5g6ViJ3WyeO+aqr4QvWtmyRHb7IUK817CrJLkwna2K2T//FOswbX2LKs3fivKisqQlUHzKmXQht4fc+/3cOP45esBhhkMPXAFkEybopf3Fan6OfEnYOCR/p5nNwGYKLs4c/4mwVa+dbrJbsGFy8U6Rs4UxLxrmwPB5CYDvJZivoTJpLZ9fwBSCgEsMEHVzxe2U2iBpNQQQ1L/SS3V+LSxAWM9xGU+RpA5MnMSz76DQb6bWQVMQh+u8dGgB9xf1qOmS9HSVAaIMLY20GfTszIBS5TPVoLek/8OfhEKjx/IpqzWQOoItI1B+cmfUsWjbZiwKyyIdmIC1ec/Y5rPEAJAu00kQ+lz8xGoHsi1+EJ6p1ThKtQC7VRSv1pU/yxvckH0Y0mpA2de3C9rqNGKwVlouuouePIsrEAD6TybCxHL3KonIN43SPFbUo8+SfrDwA/GNd2EYkyJG94zybyoJpWJ64LC8JdXUotvq6WAoSH3N2PNfWwIM5ybTNu/BrAgvWEdl0yCA3TYK6U7auJ+GssLi0F9rfxLapiLNOeEqkVhV8pOV1lBBbZk0Xpx/HiQZMxwGeefsYgKNo302W+KkGLwSY52NnyPQKufKVxgC6YyLk85IoNv22X2h2ganLvDpjETEiMS4UGiQoIA6eVWpZ5kszcsKsQrumKo67obrJsoz73zCTivFN2EdtTPwgi1UV0Z3CTBYPVC232Uqv0vufhzBTdN6ug9s0sAuAZALddeYtmBuA39chyGyTptzBFQh0lKgXq451wY2bKqQcc+4Xzr9Y754OIzEYUpAioegshEC9r0e/j3054d3mI4K6sv4s+B8OH7Orh2TvMOzJuqaVCpa8U3AdZ8FaMllGz+k2tYFeaj/mIGB2q0Fy1moFAnwnrFvy8lMe6P0dSKm1fx6IwtbP6X5AB1Bs2G/DheChN8xRSV2k0PxTAkLjI5LCO3wf8wU835Du3DD4QiJj66KRFP7OQvZSDFNnLIRtdKWJgUHYLZuSxqF0KbnLJBYsdCwjt3L/KLOpxM23hR+dFV/JavugqpdodshreNYS5blc+RMh5ZZCa/GXdbhB6iUKmy/gKeOI4OsxFOYbYwhhHCvKRCJoEO1PH1JM3cEXWenR7rKj9rC7WhtksdBeYk0q1NoJuT9ULWbV9a7dQogy3WDKpk9kyQAYGdd/xz1dE2Tdi08PTBpjMJpDOGhDrurXLEpNtlnRHhq/rk8Bd8AIRf1X2kVac1wdSDhldW/NsogVue8Ml5C0epmkl40Bx7QrCWMYgEFe3cOnFeEek/3fSwtebZn0f+htDCmXwYaAfEj0ivVuVtxpjV4Awp+YTvkF1Gh+27sm7IzaFm3uulm0NWPJ0+HwfZAzIPonCzIcnJ+qjWFc/peKfmYj14hSFvNpuGiRt0QvAJ5YG5/nVGI1wYZ8ZRw3ve74RFlsFClrf0GVOw0tWB7fC3KN5XrPj7rYCnbDYlKvkZgwHb7vVvWwVZaKq9N0WLF+GzXbJx7sFtHel0Cz/JvAu6N7yKDHNtN38PAD/HIOq0nrbAM1WS/wZMwPKAYrG/uJPmg6UcMIysH+GL/ThwOsbE/gOvCY7nSpEvSnqhKJpUi23e3wrjXsqYnl08jwLUeX5WS34BwKrISVc8qGwNdXHPrzmFNeALTZWuG9EKq6j94QkH+yIG1SetB0lIIU8r5u/e1fauhdpVKFjz+BbFGBhwU4+ZB6JMYtTp9CT80bSHEBBWxLteohu5wd9mOpHbavLT2i15yWw5G20wvB/gQXY7VMswLZLT7M+iOJmzcq9VGCkCR8u4hQzhMqJt3Tz9q7ABcEy21m73/xMfuVf7//91/f/pHVPowgBpZqgaVIknUN0tfHIoYa5unPTJ4DngUIQOxo8O2JD5Hvwo54HcedOTL0hqqIF9je52fHdcavAEmXnSM/FfDUnO4/PC/wCfenHmr/iy5m09NITqkcQlHOGw0y2JbVJyTLNxmb6MIeVW3So3IjcIpNbS/mI5fjepqB+nMPuVVkt9qpVisy5qPC3WSPCBtEd+muQ1fn0H/QE5A/vSSfJIK52xEHvFWrt4atK5/S8AZzPk1Xm5LfAPFWrqJ8/8eVGAlzcS5JbBneqMOCmE9AytdEsTJLRwTJqNwERoRP/cmfdd70KfMnwVau7t7hfUyqbU+nPqdcw0ygRjF2zGnTChvvVDYc+K2d62RNs+wjFFLCPuJW6yJyxairMyqe+OevZ/KyhexMjiTWGmq3/Ale0OS4GtTUZy3I9J1ePIw4+/2LLcQnggVbIzE7vAcfOrMx18ehbcgKMZ/KKW6B4R3h7pv0FQ36vPhP8DvlsrhNQpFhhiakerODpIIovzn9nH9aZJb4/Fqv8Yyg//9lYfQIhhxDgJc6ibGEMsMivLJdLHHNQnv21tmNyDJgFJxuAdCTkk+Kz91exWLlVRjpXfmM286uduu6knlR4xZB/k1xRvvvME2QTpf7o+sFdBldauM8At2kdckpg+r/OFX5Lxbg5q8bf4AlfalzW12j6cGdGHUvy4q8gLx28uJKvebxFzT8BFk0CDXCT9wJV1BRiGVsizS6Rq2YM1btYFTnCmuqTHw4hxa9kTyU/AD/Vafp5f0bAduMatTrEqZaWaMOSGy/tLcv0MI5ugX3Fo98+y2zCDCP23SW/Fii+Stp2+E6XN86KgI0x56t/YxrP6DR/oZ3QVyaQ0f54qrMHva3/Qy6CcWZly9jKh3Rl7XKsbAc9Y146qv/plCqYzG4I0K1qRiuTiTjLfZFhha6+YPTIq83K64li183D/urLCB8ZPoi3fzHncUscs9U4d2IosT/VcL1oFCa05s9F4vNd3fSgy74oe+qSFo2OlrXdhblBiDNeVYzRDBKrhn7/utL2OT4meI4bKVENptVN2MuUidTVbAXDRhn2UGM6ZrxNIUUMNptubC2Lz/z7A0hjEy+fbYT4/pfSQgFOtBG1Jr5uBXQl7nxMPQbHSTZ0m2GQBwXo7wJoCQClCcz2WU6+tvsdZyJM7+Df+PgMJAoZN3RtXKxMmGeoRzx7e+yR3/+Lf3OWS40A3ZlW+98H1swvOx3GxBzURS2yxwTJIVYmTqU9UanqqXjMnIrktc4Nlm3ifKyr09vs3Y+2eAFfg2ahjvTrBr+PoJdqjiZfEJGkjzOzHnYdnHq+s2xrAFH4AdawCqn5Yip+hKMgCAFEDSL6NGCJHXQUFNtuYXqOYKg4Zbda6u2nIldD7xNHXjGgCSPCOxbwu9fiAxqrL8pY6YDE0s4cy+2ngeSAO35eghOVzrbLMCZs9OVpbawwSW/Wi+kToCwlzzBxMTEbtSKX0JDPcxEVnsbhI9S4irXzN4Dn8snm6hOY1PEVBeNA/2VchTEqI8U0uzjdMSjLU6qg94r3bxCkuCQ56Ai6NhWIwaVqUq7PUi8AHvMEw1IoYRLd8VteOv57FhKCgNnp/y/4+0lRYVfmnaab52VoFZsg1B/SM9dpby7hgn9s8i9/jxU1x+XnQXwokDmYglZs8N7zsxi8hH+UgQ8lUHvrvHU0Z2TDxCI6uIbLdKWXJi6w0X7GZgN7Xv+ReTw0eeTru6SaaeuyF/VScep2TvkxcL2eRRxXjzlnPkx8WxqbFl8VobRVKfpgoEm1Brgfj38uz82l53MvoqdoQ1RHSud9kHf4uXvtMg1AbUkmM6d6+KeA/RoK8nGQDisH8FI9COUjs/+srDAg9woW5B3ouhQRNzOmYcrSC/HM3QBpGIPMQWPNzqAXxb/l2+PEXStrqKfl8az2Y7FaPNuf97lD9QdEUPER1ARRXSrS6xrmHKAVK7hLNOLECABSSs+y5PH0Onv+T71s5lC+Q0les3mGqm+5cBe27FXR4mFkGwi49fv8J2g6gXlNq3fvuKsAkq+AipjkgdCp2N8P6ZQyLO+lbKczwqAVG4GA6Cv1jsyHyqCX0PdXdGnL7glA1cHMucUbmx1INd+muAl6iPj0J5TbEcODR5Q3c2N6cTfXmKSsZ/8/QI08fl64fg4Bx4MFjGOTRn8N9wptVnQ872S3m8/pBurUZ4teG87vkGqDTenm+ky06HOUMKcTYNtZHGt9sgADvrL9JomaOkBzNv1ACwbm3p2VPEWC4L89PtDEYLSiEXe69agRGSq0bhd+r9xzcNOoPL0hQ9oSIe+jPrg//oAoWG8fS7TqyhKuqNv+i3bL+sUUzHoxdqdvEa9yrer26NWilSmnlxKHCPVZNDFLbN40PfRn2Nsq1u804twhUGY6wsc34XmboDAoUNqcqc8GV4C/wtm0SOZoRroqYSVY8Tz3XIuJc/DN15Sjy/9rQm0ar4r6cq9yc/demMXETnPad736nPaCB8HvukFo07kAJPxq0AngB2GbXwqPdsCM4NKb5cyn+ONQW+g6jl8rVNV0KfbI2uwAhZT8f0/pkb9NoIm8y1XQu+0dqQVx/Rk00+Y6ZJNBjHV9ZMPcYtJ/VdqXp9ZfS6/3bzBMJFAzBr2GYz5nomIkZVAFNtQ7/lhQfZtB7Z6QB/89WrgOl07BKfyEf+jcXFE+9RX+FUU9CMeadlSv03vcpsju/wg7kXMp/p9wD+c1mINxbDkUtqkqPR0nlNg2bUGix8i0Aw/TStXk86j31ZMfvUFqablot8giPUl84ewLBbto7zo31am0ForutkR52YvsWdj6V/ToLR3v0An2Ulz4DY5zLMySqdlr4tGJ5JHsj8j1etB5+5Qxf//lu2qbfIlEBBNUIde8tlQBp2+0wVUauSfvcW5ByJoAQMlxRXt5deoeoPBPdJlB/AXdTAvzyuKNH3RvdvBFUEBMu3P2hvzpsHtQ/NhFnerdGrhHL4T0yVhyccp92WILQ5NbELSyJbz9Ay39yH8b3hIUfa2t28Jh1Z31A+fyYzcLcyi4itvAMafX2EwnXF+4qNL06v24Li0GtGbDTIqo24PpE5XxUat1vdvJclArhS1Zfim9J9fVzSOP2Bnc0EuTwMPyHFmrk+A3PX7QvoCYv+tvAtZMtVxoZZSxNpbPnkBy611pPsFFNNQmDlzcxV0bSlasvB2JGFKM0f3XyNC9dlnfR4XoYH81XbqphkLXUNaW1Rgj+Cd50wt5zewlvPMMJK/70Ods0tNH4mnH8e3bMROy/yqlKIFWVm56Lq/gyfx+9HakeujwRYbRmHN9W9jx/I2E47dgTCOd6FeUsMD33wGMLeAmEc3Y7QLk7F0WXCl38OLsupv9oQQ6eXiL/VqB5n52di+C1ay3OnA54L4MAhHezNfQgLTns0rVHa2wpeLSvesQ16kpmCaFJV5krbqnWR1RY9GyRFeXobeVQlydnvD0kUS/u153HvbTzSctDwJovT4CSob118+DLHyxpQD6oLhBdbXvrTthakgD6Y0539xFchtscpwCXHPZvZYbsrPfznBIPiST/72Vtp3tIFZH94GdRHm1ePzthj9p/If7wBiQUvxc2gLGcEbS5NC90u9/2ulV12AWPADtfwFtz3ZWMu6Fe0UNQmV5E4yUL6zRe233RzGVTOHt7eNe1eV7C0jsTnOh0XqL5maQB+RxcTvABadIkme6zO00Mdn9oSv4UOn15frV54n4THQ06lP8rB/aqHZ5iOQxIkVHBXAr+zNcM7/u4xCCWgMleK0F23d1Z/jfpwegRu+bh9tQ+OFGIMQ9npSOokp73GW+sz/92/LFmrByqizFrPIOdvazfc1O8BVy0jdBCPSairFuvqjb7vTC2nQpSFg0skEpOtjbQH4UJHgLi2wNHG959UbBC/yJNeDs4tGwneCXdImZigyN05+SiMdCQRyutS8Ogdc/AuRnvXd+sKt/Re304Lteyh3QoLEnAVX9p4Xb60qyENbWPvWBRkY+fkSIHfJ4TKdHvnzCoci0JE5TibhfsL8L3XVYF9qqcZXae1xF8nSlW2LyB15pPpFaps7fc0G6oZ9Rxopic9UUgvbI761eMXYB4hVS9QDVI2xlMddubtJkDMixbGvMqxcR+2P9wqygxJVYmaE3ZjzshpwLoaP7/PDpQf3uZwCA+WtZFN8L774FtHytaFEGAHLZFWdp8aJ/kXBo2T+YuZcBejq04VpCY5pbIIDwxDsx9S0N8XLVy1u3niqOKsJrR/1URz+9QhtS63xIpg0BiWpcI/Pl7BDdHrH5s4lKcYjd62tuF9weAhQUnhhuzx5p2HJ6tdqqkEZyOOFN1LD47yKLQiAXA2WFKXHJOq203jgwqZKKoSYDEOxfrDiF6Uq6pJn1+j296ihFHr2zSeXnNvmPyyqZbWM4H6B/U/Qzf4pzP0vbcERjbIdqumtYFZfhUZJNJETqVAP48ryxu+sVVn2/N2zKLyBV95azCdY2+WvUv+oytsTe+0u9CDMMsuCrjIq0223bMllt+I+1oxo1wzcUpQ9Dq+KxCD7POYWFhp9D1sqK7T9g3P59xK0OIiIw6xvyBz89hNJIlzhQXxQOgjU2mitB18iQFG1HkVBLwySzSDdifzrRF3sQPoHoj2/Dev+5+a5sW7mAXoMY6/CGTsyPW4EymvAGkBFzfCBcSWe6gVr+VH8IHNlvGK/BhXOEY58L+h8Mp1pjfGagVj5RFJEGIDNkFk33IgGgXBBG6ig0VRBSrub2lX1BzflVy+R6ZZw4i2ye1d3ysCA4r9/gomt9Rweal1TTdAiyQE+Rc1d2zq/TowRVMI58cKWAF7ALoWPV9XB4ZVCdGt4SJr7S4HzyhXVONtOp2o4OI01l/YddnZxl0GT1rRaQyk4yqGsN9/4Q6Oq/DLnHxzCoie0u4p1W3pkE7KIU0wUJzm8Yk885ns9xQMtvn+wJEj26zvZV7au4W3fpu+wNDqSFzA/R1T+XGKACdua/WbwXHCFcwmY33rnE5EepFhVj3FEv/7epRvXvKrnB176IkWOQHQRlyyMtYonZaqoW6ms8owrXBXNQ7wb+Z56YHT+Jh3GDUR2WDSbAoCmmxm27UlfVGW3QPKhRhI+o1hIYJFLMiAxXZmeKYOieyV4jfH9IMNnt2jbwfLxIpxNwz3eW3tzw/MM9taNpxc7ug4yCgxLvud/Gnzlq6AGCYkiHDEgaU6q61InNBVyKCux+8vk57FOW/UurIFDWkvN/fsFrizdpWisLMtr+vP3mFHzc6lLtC78qyjW+E5G174ecy40bTk3l6/EZKqbDgff568TcbJCrx3/GOtlMoJ+zWkjMtkroUDf1Byau/Iokw9Vhood/7ZF3eT0LNMHqX8C/ZM1K3ivbKYFvtp8r+QN+FUHJYvLCaXHaJohdmWNlelCmd375qHeGkociLOZ/LPcdq09+ZseYBtHS0LTBNw3jUbI2zoT6D2WDz060XcMclN5MBt8hAroqNEOeVeSeqpgMKwnm2JvSbbcN+AGFVUItJxhwBH0CiH70J9nHs2OL1/zMEMlLB22mgpbNlsrwbsffG55ywI3ToNVzrWwGdo4KMa8cxtBJjuLjSRj5ZBiPW02bg1QN4gIYR2fO92/wag8ePs+vFgO6cXO85kwct0Usk7bYQ832UydAJgN71UYhcoP4Y/QAWz7ffAi5w+gXP8Y8vNLo4LAldUoG4yhLof7K7ZAAFs3Q/YxfsgN8jI7Ynb4kXT9nh+L70SmBX7UrM+6j5deSVb4lxyx1CdG7qcRZPZDFWf73euLJV3pUjQgCqmn/don1kIB5wkY5N7nOELCRDIjzpK4M2DByA0vhpkzTRyF09rzU4y3wjk/5t92k4fon18wd5QCtKx2udy05oDrtxKasN4Sfql2KNUQ1z31guOf/YbtRIjTT85jA3ZIoNVYyTTd9l8pL9DtkP1sqOz5wuP7M/SGTv2SnNWHHqcwQrZDIAXhbEhoUIF0FkYkPzI23d+6+SGen9EUCK2hbPXjmwVSVL3+TDvLIAZFjvGt9jiqNGXbXHWcRl1DfiqSmM/A6uR8Vq8yF/FvNRkZFSp0wGSkBmSiiIYdJPxLfaYhGuAQE7eYfnPtCXwENUYV0o+U1TbRpeJlpxlKNPVk4QGnY3nReie4Y1zX+NAiwAvlyk40utHAAQbMttsmEl5GPWGdGkFizIFVo8gIUXO1HxmtGoXmXvuDGnTZDdbPMckrez+j95bupvLhhashZ4FLF5ZPaWSkTo4m2k1F8aa5EahexW/fiQ+cHbIBz1Q0mRK4giAkCrERcmIepNPdZJY+pn4HaUWCie4XepU8YO4+e8Gue4n8NyEC9TPOowDZEq1tHvma7r0c5dwyso13LvHZjCPvtQn5u6UoyHMZjOFzjUEk2R/FMHQZ+DiPvHkKIjgZ+Phl7ZFZhlxpU9TpCDDkNN6zRe233RzGVHSiREtWcgy+ky04rsVCw1YLCkXPHklcOd3ltXELcvUZJ3baR7NgGXqzquyph5YtlveMyq/SLQuNYyk2LxBz5jqFzDcif5IFNCQj6VTdJzrV9CEKuKySwtjbLACenN9wP4Vjx3ScXNVAlBmX2mNYhxguMOkXX4Xjb/igB0NMokilgwZjyG+bfPR528XdHLpp4rGbVddLGRPvPHgYnMFr393ikRPBUeYGZHxl6LJoMNEaU+RfEF1QtLmr/1iAudplhOZ+8nVE09UJoBbuUJUqgFwWQFbyAUPIZYmHcq0xvK6DB4LKybTblkDIdnIe+UG+uqcyq5kPPuk/2kKm6to+YNUkJ0Yr8786KcfQTY+eaQLjhjybY5gSCE+TLXILerHP0QSx6QmletV10WfSK+r7J0FbEvCDi/wy03x2gANofC3UUX6nUbqMG2fNq4DzV5I8/HAAAAAAAAAAAAAAAAAAAAB3OwZslL8oAVSLbwi+nn4FUaxJAMFi7cHZhowAs9smBBdA2lIcVCM8Pkseoq10UJ56BPybtFx+FowhnVbmSLdYUwtAuY/MsyhjbA2/HCogLT/1XT6gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=" alt="La Dépêche du Midi" loading="lazy" decoding="async"></p>
-        <p class="press__q"><span class="press__mark">«</span> NFrance Conseil héberge <span class="it">65 %</span> du marché midi-pyrénéen des sites web, et s'attaque aux USA. <span class="press__mark">»</span></p>
-        <p class="press__m">
-          <span class="press__d num">18 septembre 2001</span>
-          <span class="press__go">Lire l'article
-            <svg viewBox="0 0 11 11" fill="none" aria-hidden="true"><path d="M3 8L8 3M4 3h4v4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </span>
-        </p>
-      </a>
-    </div>
+ </div>
   </div>
 </section>
 
@@ -2049,16 +2197,14 @@ input[type=range]:focus-visible{outline:2px solid var(--accent); outline-offset:
 
     <div class="founder" style="margin-top:var(--s8)">
       <div data-reveal>
-        <p class="founder__quote">« NFrance Conseil héberge actuellement <span style="color:var(--accent)">65 %</span> du marché midi-pyrénéen des sites web, et s'attaque aux USA. »</p>
-        <p class="founder__src">La Dépêche du Midi, 18 septembre 2001 — sur l'entreprise fondée quatre ans plus tôt par Éric-Lionel Perez.</p>
-
-        <p class="lede" style="margin-top:var(--s6)">Vingt-cinq ans plus tard, le même homme construit l'inverse de ce qu'il a bâti : au lieu de concentrer les sites de milliers de clients dans ses machines, il met une machine chez chaque client. <strong>Ce n'est pas une start-up qui découvre l'hébergement — c'est un hébergeur qui a changé d'avis.</strong></p>
+        <p class="founder__quote">Un pionnier du Cloud souverain : Fondée à Toulouse en 1997, l'entreprise est l'un des plus anciens acteurs français de l'Internet.</p>
+ <p class="lede" style="margin-top:var(--s6)">Vingt-cinq ans plus tard, le même homme construit l'inverse de ce qu'il a bâti : au lieu de concentrer les sites de milliers de clients dans ses machines, il met une machine chez chaque client. <strong>Ce n'est pas une start-up qui découvre l'hébergement — c'est un hébergeur qui a changé d'avis.</strong></p>
       </div>
 
       <ul class="tl" data-reveal><span class="tl__rail" aria-hidden="true"><i id="tlFill"></i></span>
         <li><b>1997</b><span>Fondation de <em>NFrance Conseil</em> à Toulouse, l'un des premiers hébergeurs français.</span></li>
         <li><b>2001</b><span><em>65 %</em> des sites web de Midi-Pyrénées hébergés. 6<sup>e</sup> enregistreur de noms de domaine de France, environ 500 revendeurs.</span></li>
-        <li><b>2022</b><span>Le prototype de la <em>WaouW Box</em> sort des cartons. Un serveur de la taille d'une main.</span></li>
+        <li><b>2019</b><span>Le prototype de la <em>WaouW Box</em> sort des cartons. Un serveur de la taille d'une main.</span></li>
         <li><b>2023</b><span>Lauréate finaliste du concours <em>Tech for Future</em> (La Tribune), catégorie Start, à Toulouse.</span></li>
         <li><b>2026</b><span>La box est en vente. <em>Vous</em> devenez l'hébergeur.</span></li>
       </ul>
@@ -2085,6 +2231,11 @@ input[type=range]:focus-visible{outline:2px solid var(--accent); outline-offset:
           <span>NVIDIA Jetson Orin Nano *</span>
           <span>7–15 W *</span>
         </p>
+        <dl class="iabox__specs">
+          <div><dt>Architecture GPU</dt><dd>NVIDIA Ampere avec 2 048 cœurs CUDA et 64 cœurs Tensor</dd></div>
+          <div><dt>Mémoire (RAM)</dt><dd>32 Go / 64 Go LPDDR5 (jusqu’à 204,8 Go/s de bande passante)</dd></div>
+          <div><dt>Puissance de calcul IA</dt><dd>Jusqu’à 275 TOPS (INT8)</dd></div>
+        </dl>
         <div class="iabox__foot">
           <span class="iabox__price">Prix <b>sur devis</b></span>
           <a href="#" class="btn btn--sm" onclick="document.getElementById('chatOpen').click();return false" data-press-target>Nous consulter</a>
@@ -2099,6 +2250,11 @@ input[type=range]:focus-visible{outline:2px solid var(--accent); outline-offset:
           <span>NVIDIA Jetson AGX Thor T5000 *</span>
           <span>40–130 W *</span>
         </p>
+        <dl class="iabox__specs">
+          <div><dt>Architecture GPU</dt><dd>NVIDIA Blackwell (2 560 cœurs CUDA, 96 cœurs Tensor)</dd></div>
+          <div><dt>Mémoire (RAM)</dt><dd>128 Go LPDDR5X (bande passante jusqu’à 275 Go/s, correction d’erreur ECC inline 1 bit)</dd></div>
+          <div><dt>Puissance de calcul IA</dt><dd>Jusqu’à 2 070 TOPS FP4 (~7,5× les performances IA de la génération Orin)</dd></div>
+        </dl>
         <div class="iabox__foot">
           <span class="iabox__price">Prix <b>sur devis</b></span>
           <a href="#" class="btn btn--sm" onclick="document.getElementById('chatOpen').click();return false" data-press-target>Nous consulter</a>
@@ -2189,11 +2345,11 @@ input[type=range]:focus-visible{outline:2px solid var(--accent); outline-offset:
               </span>
             </label>
             <label class="opt">
-              <input type="radio" name="col" value="blanc">
+              <input type="radio" name="col" value="blanc" disabled>
               <span class="opt__box">
                 <img class="opt__sw" src="data:image/webp;base64,UklGRpgEAABXRUJQVlA4IIwEAACQHACdASqEAFoAPjEWiEMiISEWOe2wIAMEtIAFiS8IhAH4//UOFRY6jN/Kp9Y+wT+tw86SuAeIFRdbDsIzty9hFY+PsrL/lKTIlto68N3d+dW1IG74o/kxrZFIw0yimAdMotGzqMsdkD+N6ho01+qVY+itBEPvRHmFf54kLGR3Zv/9fOvZNV0brhO6vx6jNY8n4NulhhbntS9aNereF7p3afFuOgWYHcaDrs+H8TNa/4ypmD8X27mnNWAbgooivQoBE4CecFIrO9jEMz/rhWHgGffmfjBBUQ9ciYcI1vbNzUgtEycKVE85xl7j8XAA/v6JWNbdcvJKPdSoEsLP0AIOBNmqbH7vOJ1ZVaFCktV2MuW9f9rIDbTEtYGt5T56mb3zxel70B7UfCTdfgQo+KVSpaEiBZWyRcwEQPlStMSFEzGQg/cDFKjZ6dab/vZPYy9s8epOWT+pngPpl0OYuP9xFtbIrTr/0fRztzU8V1U6BP8ouCCg/HAPWfeQQRUqpShEGzh0iD0cHzViyN0bqveMwjsBOtJKSO8UWR7P6BWJNtEcZW6e8IsezlRbBV9olEanASJ8g1wmG5k7Fi2XwGBGtPDJ5HxoxEI0HdttniSRqY1H61tJdhrEcql6OuRCNt0e5uc8AjY1pk0+AaCBSYuk5VGCTVON2xd1PmjVnXsp7AQXAz1s/D6rx0op1rCX8R91j3jZ6Oq34yhWq378M/z74Iy/j+/8PsXoyudk31VIttV/LLwnKcbLkNMiLka5A+W3KR28/gl2sdDW7wT+/Bn3SZFfzMq8Cdq1oZa0qPkWn/W+IAtMsS31pwLfMc0Mh/Q2wDGBMH2JNTro0ZyMbNchp33qNbua0bz1tm3KMAOrV6/O/D+tNoVcRUrFRqPv7MAupL+08rvEYVGXf48Bnky58u/njNJ5iBGvk6t1zKoB1pr0QH0XX1gf1b/+IOs//juJbEyY46KhnHi+BJ8uCBYIyx0Al8An9k5+DhyBJ1B3gMM+fR0+ON/0jX6SYeVEF4uJIJqXgXHepmnfM63oJzuNW7rw0e+gKAIMEvy8OMxFqQaGqTKzsCyjjDzu81JRM6f0nWUHmdBNOhnbCCiB2Xjgf5aj1yGhDFOPH8axK6Hv06fN7Qk1S/MtZhogbvXcftBSYsfnsgi3Vp79rwE7RIPxNML+CWC8/I3O1WRsP5suhvXGwFkLJbHSLRMhsULzEATkkrnqPwqLFW9u6Qenqp6K01p4utZiyvM9ko5FsLBWkm63PHFVmOVCFCSts5pKBeKow/I3SrZlvDwNvWpfQv+GpQK9YQhfrDXKqmLBGnB4Ci3n1FbOeRw2teBV50wFjsWqIY4A3PNvR2jhaXY7GHTWDsvo9grG/xBq4229K/+hAonziiLX8/Qewghr8c5Onb8ZE5aVTJpJDZ25YquRviVlbPw5RSWLIT0MSQ0LXL9c/DHg7v4t21B4j6/akzMH/o5oUOaeUqw18AC7JhRo+OmxB+tJgSvdQhCfp3tuCx8cEOurRqHhnx4fTaZ6WvD2a0qgUZHUNynCMgAAAAA=" width="44" height="30" alt="" loading="lazy" decoding="async">
                 <span class="opt__cap">Blanc</span>
-                <span class="opt__flag" style="color:var(--accent); border-color:currentColor">En stock</span>
+                <span class="opt__flag" style="color:var(--ink-3); border-color:var(--line)">Disponible en décembre</span>
               </span>
             </label>
           </div>
@@ -2251,7 +2407,7 @@ input[type=range]:focus-visible{outline:2px solid var(--accent); outline-offset:
              l'autre : même nombre de lignes, donc aucun saut de mise en
              page au changement. Contenu repris des fiches produit de
              waouw.tech/boutique. -->
-        <section class="spec" aria-labelledby="specT">
+        <section class="spec" id="specs" aria-labelledby="specT">
           <div class="spec__head" aria-live="polite">
             <p class="spec__t" id="specT"><span id="specCap" class="num">128 Go</span> — ce que ça tient</p>
             <p class="spec__use" id="specUse">Trois sites vitrine, deux boîtes mail et cinq ans de sauvegardes tiennent dessus sans jamais toucher au disque.</p>
@@ -2314,6 +2470,29 @@ input[type=range]:focus-visible{outline:2px solid var(--accent); outline-offset:
           </div>
         </fieldset>
 
+        <!-- ============ DESTINATION ============
+             Le port cesse d'etre un forfait affiche : il se calcule.
+             Deux champs seulement ici — la destination decide la grille,
+             le code postal sert a rattraper une erreur de choix (97xxx
+             saisi alors que "France metropolitaine" est selectionne) et
+             a prefiller le tunnel. Le choix du transporteur, lui, n'a
+             pas sa place dans un configurateur produit : il arrive a
+             l'etape livraison de la commande, la ou on le decide vraiment. -->
+        <fieldset>
+          <legend id="legLivraison">Livraison</legend>
+          <div class="dest">
+            <div class="dest__f">
+              <label for="dPays">Destination</label>
+              <select id="dPays" autocomplete="country"></select>
+            </div>
+            <div class="dest__f" id="dCpWrap">
+              <label for="dCp">Code postal</label>
+              <input id="dCp" type="text" inputmode="numeric" autocomplete="postal-code" maxlength="5" placeholder="34470">
+            </div>
+            <p class="dest__note" id="dNote"></p>
+          </div>
+        </fieldset>
+
       </form>
 
       <aside class="ticket" data-reveal aria-live="polite">
@@ -2344,12 +2523,12 @@ input[type=range]:focus-visible{outline:2px solid var(--accent); outline-offset:
           <p class="tline tline--h"><span>Le détail, hors taxes</span></p>
           <p class="tline"><span id="lineName">WaouW Box 128 Go — Noir</span><b class="num" id="lineBase">615,00 €</b></p>
           <p class="tline" id="lineDuoRow" hidden><span>Second boîtier miroir</span><b class="num" id="lineDuo">625,00 €</b></p>
-          <p class="tline" id="lineShipRow"><span>Livraison Colissimo suivi + assurance</span><b class="num">14,50 €</b></p>
-          <p class="tline" id="lineVatRow"><span>TVA 20 %</span><b class="num" id="lineVat">125,90 €</b></p>
+          <p class="tline" id="lineShipRow"><span id="lineShipLab">Livraison Colissimo suivi + assurance</span><b class="num" id="lineShip">14,50 €</b></p>
+          <p class="tline" id="lineVatRow"><span id="lineVatLab">TVA 20 %</span><b class="num" id="lineVat">125,90 €</b></p>
           <p class="tline tline--total"><span>Total <span id="totalMode">TTC</span></span><b class="num" id="lineTotal">755,40 €</b></p>
         </div>
 
-        <a href="#" class="btn" data-press-target>Commander</a>
+        <button type="button" class="btn" id="cmdOpen" style="width:100%" data-press-target>Commander</button>
 
         <ul class="assur">
           <li><svg width="15" height="15" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M2 8.6l4 4L14 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span><b>Garantie légale de conformité 2 ans</b>, en plus de la garantie commerciale.</span></li>
@@ -2564,22 +2743,21 @@ input[type=range]:focus-visible{outline:2px solid var(--accent); outline-offset:
       <div>
         <h4>Produit</h4>
         <ul>
-          <li><a href="#produit">Le boîtier</a></li>
-          <li><a href="#boitier">Le boîtier</a></li>
+          <li><a href="#produit">Le coût</a></li>
+          <li><a href="#boitier">Comment ça marche</a></li>
           <li><a href="#offres">Offres et prix</a></li>
-          <li><a href="#">Caractéristiques techniques</a></li>
+          <li><a href="#specs">Caractéristiques techniques</a></li>
         </ul>
       </div>
       <div>
         <h4>Aide</h4>
         <ul>
           <li><a href="#faq">Questions fréquentes</a></li>
-          <li><a href="#">Tutoriels</a></li>
-          <li><a href="#">Garantie et retours</a></li>
+          <li><a href="cgv.html#a9">Garantie et retours</a></li>
           <li><a href="https://www.francenum.gouv.fr/aides-financieres" target="_blank" rel="noopener">Aides de l'État pour financer l'achat</a></li>
           <li><a href="trouver-un-hebergement-ecologique.html">Trouver un hébergement écologique</a></li>
           <li><a href="#distributeur">Devenir distributeur</a></li>
-          <li><a href="#">Nous contacter</a></li>
+          <li><a href="#" onclick="document.getElementById('chatOpen').click();return false" data-press-target>Nous contacter</a></li>
         </ul>
       </div>
       <div>
@@ -2588,8 +2766,7 @@ input[type=range]:focus-visible{outline:2px solid var(--accent); outline-offset:
           <li><a href="mentions-legales.html">Mentions légales</a></li>
           <li><a href="cgv.html">CGV</a></li>
           <li><a href="cgu.html">CGU</a></li>
-          <li><a href="#">Gérer mes cookies</a></li>
-        </ul>
+          </ul>
       </div>
     </div>
 
@@ -2636,6 +2813,141 @@ input[type=range]:focus-visible{outline:2px solid var(--accent); outline-offset:
      préremplissage par puces — c'est le formulaire réel, pas une mise
      en scène. Les horaires et les canaux directs (mail, téléphone,
      visio) sont repris de la même page. -->
+<!-- ============ TUNNEL DE COMMANDE ============
+     Trois etapes dans un seul panneau, pas trois pages : l'adresse
+     decide la grille de port, le transport decide le prix, le
+     recapitulatif ne cache rien avant de payer. On ne demande jamais
+     deux fois la meme information — la destination choisie dans le
+     configurateur arrive deja remplie.
+     Le paiement s'arrete au point d'integration Stripe : tout ce qui
+     precede est reel, la transaction est le seul element simule, et
+     l'ecran le dit franchement plutot que de faire semblant. -->
+<aside class="cmd" id="cmd" role="dialog" aria-modal="true" aria-labelledby="cmdTitle">
+  <div class="cmd__veil" id="cmdVeil"></div>
+  <div class="cmd__panel" id="cmdPanel">
+
+    <div class="cmd__hd">
+      <p class="cmd__t" id="cmdTitle"><span id="cmdTitleLab">Votre commande</span><span id="cmdSub">WaouW Box 128 Go</span></p>
+      <button type="button" class="cmd__x" id="cmdClose" aria-label="Fermer la commande">
+        <svg width="13" height="13" viewBox="0 0 13 13" aria-hidden="true"><path d="M2 2l9 9M11 2l-9 9" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+
+    <ol class="cmd__steps" id="cmdSteps">
+      <li data-on="1">Adresse</li>
+      <li>Livraison</li>
+      <li>Paiement</li>
+    </ol>
+
+    <div class="cmd__body" id="cmdBody">
+
+      <!-- ---- 1 : coordonnees et adresse ---- -->
+      <section class="cmd__step" id="cmdS1" data-on="1" aria-labelledby="cmdH1">
+        <h3 class="cmd__h" id="cmdH1">Où livrons-nous&nbsp;?</h3>
+        <p class="cmd__p">Le port se calcule sur cette adresse. Rien n'est prélevé à cette étape.</p>
+        <form id="cmdForm" novalidate>
+          <div class="row2">
+            <div class="f">
+              <label for="oFirst">Prénom</label>
+              <input id="oFirst" name="given-name" type="text" autocomplete="given-name" aria-describedby="eoFirst">
+              <span class="err" id="eoFirst" role="alert"></span>
+            </div>
+            <div class="f">
+              <label for="oName">Nom</label>
+              <input id="oName" name="family-name" type="text" autocomplete="family-name" aria-describedby="eoName">
+              <span class="err" id="eoName" role="alert"></span>
+            </div>
+          </div>
+          <div class="f">
+            <label for="oSoc">Société <span style="color:var(--ink-3); font-weight:400">— facultatif</span></label>
+            <input id="oSoc" name="organization" type="text" autocomplete="organization">
+          </div>
+          <div class="row2">
+            <div class="f">
+              <label for="oMail">E-mail</label>
+              <input id="oMail" name="email" type="email" inputmode="email" autocomplete="email" aria-describedby="eoMail">
+              <span class="err" id="eoMail" role="alert"></span>
+            </div>
+            <div class="f">
+              <label for="oTel">Téléphone</label>
+              <input id="oTel" name="tel" type="tel" inputmode="tel" autocomplete="tel" aria-describedby="eoTel">
+              <span class="err" id="eoTel" role="alert"></span>
+            </div>
+          </div>
+          <div class="f">
+            <label for="oAdr">Adresse</label>
+            <input id="oAdr" name="address-line1" type="text" autocomplete="address-line1" aria-describedby="eoAdr">
+            <span class="err" id="eoAdr" role="alert"></span>
+          </div>
+          <div class="f">
+            <label for="oAdr2">Complément <span style="color:var(--ink-3); font-weight:400">— facultatif</span></label>
+            <input id="oAdr2" name="address-line2" type="text" autocomplete="address-line2">
+          </div>
+          <div class="row2">
+            <div class="f">
+              <label for="oCp">Code postal</label>
+              <input id="oCp" name="postal-code" type="text" inputmode="numeric" autocomplete="postal-code" aria-describedby="eoCp">
+              <span class="err" id="eoCp" role="alert"></span>
+            </div>
+            <div class="f">
+              <label for="oVille">Ville</label>
+              <input id="oVille" name="address-level2" type="text" autocomplete="address-level2" aria-describedby="eoVille">
+              <span class="err" id="eoVille" role="alert"></span>
+            </div>
+          </div>
+          <div class="f">
+            <label for="oPays">Destination</label>
+            <select id="oPays" name="country" autocomplete="country"></select>
+          </div>
+        </form>
+      </section>
+
+      <!-- ---- 2 : mode de livraison ---- -->
+      <section class="cmd__step" id="cmdS2" aria-labelledby="cmdH2">
+        <h3 class="cmd__h" id="cmdH2">Comment livrons-nous&nbsp;?</h3>
+        <p class="cmd__p" id="cmdS2p">Tarifs La Poste en vigueur, calculés sur le poids réel de votre configuration.</p>
+        <div class="mode" id="cmdModes"></div>
+        <p class="cmd__p" id="cmdPoids" style="margin-top:14px; margin-bottom:0"></p>
+      </section>
+
+      <!-- ---- 3 : recapitulatif et paiement ---- -->
+      <section class="cmd__step" id="cmdS3" aria-labelledby="cmdH3">
+        <h3 class="cmd__h" id="cmdH3">Vérifiez, puis payez</h3>
+        <p class="cmd__p">Le montant ci-dessous est celui qui sera débité. Aucun frais ne s'ajoute après.</p>
+        <div class="cmd__sum" id="cmdSum"></div>
+        <p class="cmd__adr" id="cmdAdr"></p>
+        <button type="button" class="cmd__edit" id="cmdEdit">Modifier l'adresse</button>
+        <label class="consent" style="margin-top:18px">
+          <input type="checkbox" id="oCgv" aria-describedby="eoCgv">
+          <span>J'ai lu et j'accepte les <a href="cgv.html" target="_blank" rel="noopener">conditions générales de vente</a>, et je confirme mon droit de rétractation de 14 jours.</span>
+        </label>
+        <span class="err" id="eoCgv" role="alert"></span>
+        <p class="cmd__mock"><b>Maquette —</b> le paiement n'est pas branché. Le bouton ci-dessous appelle le point d'intégration Stripe (<code>window.waouwPay</code>), qui simule pour l'instant un règlement accepté. Tout le reste du tunnel — adresse, grille de port, calcul, récapitulatif — fonctionne réellement.</p>
+      </section>
+
+      <!-- ---- 4 : confirmation ---- -->
+      <section class="cmd__step" id="cmdS4" aria-labelledby="cmdH4">
+        <div class="cmd__ok">
+          <div class="cmd__ok__ic" aria-hidden="true">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M4 12.6l5.2 5.2L20 7" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <h3 class="cmd__h" id="cmdH4">Commande enregistrée</h3>
+          <p id="cmdOkP">Un e-mail de confirmation part à l'instant.</p>
+          <p><span id="cmdRefLab">Référence</span> <span class="cmd__ref" id="cmdRef">—</span></p>
+          <p class="cmd__mock" style="text-align:start"><b>Maquette —</b> aucune commande n'a réellement été transmise et aucun paiement n'a été prélevé.</p>
+        </div>
+      </section>
+
+    </div>
+
+    <div class="cmd__foot" id="cmdFoot">
+      <button type="button" class="cmd__back" id="cmdBack">Retour</button>
+      <button type="button" class="btn cmd__next" id="cmdNext" data-press-target>Continuer</button>
+    </div>
+
+  </div>
+</aside>
+
 <button class="chat-launch" id="chatOpen" type="button" aria-expanded="false" aria-controls="chat" data-press-target>
   <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
     <path d="M3 5.5a1.5 1.5 0 011.5-1.5h11A1.5 1.5 0 0117 5.5v9a1.5 1.5 0 01-1.5 1.5h-11A1.5 1.5 0 013 14.5v-9z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
@@ -2868,7 +3180,209 @@ document.querySelectorAll('[data-press-target], .btn').forEach(b => {
    Le prix est la vérité du site : il s'anime, il ne saute pas.
    Tout est annoncé — base, port, TVA, total.
    ============================================================ */
-const SHIP = 14.5, VAT = 0.2, DUO = 625;
+const DUO = 625;
+
+/* ============================================================
+   6 bis — LE PORT N'EST PLUS UN FORFAIT, IL SE CALCULE
+   ------------------------------------------------------------
+   Grilles publiques La Poste en vigueur au 1er janvier 2026
+   (tarifs TTC, particuliers). Chaque grille est une liste
+   [poids max en grammes, prix] : on prend la premiere tranche
+   qui couvre le colis. C'est exactement la facon dont La Poste
+   facture, donc aucune interpolation, aucun prix invente.
+
+   SUPPLEMENT : preparation + assurance, ajoute a chaque envoi.
+   Il est calibre pour que la configuration de reference
+   (1 boitier, France metropolitaine, Colissimo a domicile)
+   retombe EXACTEMENT sur les 14,50 € annonces partout ailleurs
+   sur le site : 11,19 € de grille + 3,31 € = 14,50 €.
+   Changer POIDS ou SUPPLEMENT deplace tous les prix du site de
+   maniere coherente — il n'y a qu'un seul endroit a toucher.
+
+   A CONFIRMER AVEC LE CLIENT : le poids reel du boitier emballe.
+   1 600 g place l'envoi dans la tranche 2 kg ; sous 1 000 g la
+   France passerait a 9,59 € + supplement, soit 12,90 € livre.
+   ============================================================ */
+const PORT = (() => {
+  const POIDS = { boitier: 1200, emballage: 400 };   /* grammes — A CONFIRMER */
+  const SUPPLEMENT = 3.31;
+
+  const G = {
+    fr:   [[250,5.49],[500,7.59],[750,9.29],[1000,9.59],[2000,11.19],[5000,17.39],[10000,25.29],[15000,31.99],[30000,39.59]],
+    frPR: [[250,4.79],[500,6.89],[750,8.59],[1000,8.89],[2000,10.49],[5000,16.69]],
+    frEX: [[1000,23.40],[3000,25.20],[10000,28.80],[20000,40.80],[30000,54.00]],
+    om1:  [[500,12.02],[1000,19.00],[2000,25.89],[5000,38.90],[10000,62.32],[30000,143.02]],
+    om2:  [[500,12.21],[1000,18.95],[2000,33.49],[5000,55.96],[10000,109.58],[30000,287.23]],
+    eu:   [[500,14.99],[1000,19.39],[2000,22.19],[5000,28.59],[10000,46.99],[15000,67.99],[20000,87.99],[30000,87.99]],
+    uk:   [[500,18.99],[1000,23.39],[2000,26.19],[5000,32.59],[10000,50.99],[15000,71.99],[20000,91.99],[30000,91.99]],
+    b:    [[500,23.79],[1000,28.39],[2000,31.09],[5000,39.89],[10000,66.09],[15000,89.59],[20000,109.49]],
+    c:    [[500,35.19],[1000,39.19],[2000,53.99],[5000,78.69],[10000,148.99],[15000,210.79],[20000,256.89]],
+  };
+
+  /* code ISO | grille | groupe | TVA en % | libelle francais.
+     Les libelles des autres langues viennent d'Intl.DisplayNames :
+     un nom de pays n'a pas a etre traduit a la main quatre fois.
+     Zones reprises des grilles La Poste : UE + Suisse en zone A,
+     Europe de l'Est hors UE + Norvege + Maghreb en zone B, Afrique
+     hors Maghreb + Canada + Etats-Unis + Russie + Proche et
+     Moyen-Orient en zone C. Toute destination hors de ces listes
+     n'est PAS devinee : elle passe par « nous consulter ». */
+  const D = `FR|fr|fr|20|France métropolitaine
+MC|fr|fr|20|Monaco
+GP|om1|om|0|Guadeloupe
+MQ|om1|om|0|Martinique
+GF|om1|om|0|Guyane
+RE|om1|om|0|La Réunion
+YT|om1|om|0|Mayotte
+PM|om1|om|0|Saint-Pierre-et-Miquelon
+MF|om1|om|0|Saint-Martin
+BL|om1|om|0|Saint-Barthélemy
+NC|om2|om|0|Nouvelle-Calédonie
+PF|om2|om|0|Polynésie française
+WF|om2|om|0|Wallis-et-Futuna
+DE|eu|ue|20|Allemagne
+AT|eu|ue|20|Autriche
+BE|eu|ue|20|Belgique
+BG|eu|ue|20|Bulgarie
+CY|eu|ue|20|Chypre
+HR|eu|ue|20|Croatie
+DK|eu|ue|20|Danemark
+ES|eu|ue|20|Espagne
+EE|eu|ue|20|Estonie
+FI|eu|ue|20|Finlande
+GR|eu|ue|20|Grèce
+HU|eu|ue|20|Hongrie
+IE|eu|ue|20|Irlande
+IT|eu|ue|20|Italie
+LV|eu|ue|20|Lettonie
+LT|eu|ue|20|Lituanie
+LU|eu|ue|20|Luxembourg
+MT|eu|ue|20|Malte
+NL|eu|ue|20|Pays-Bas
+PL|eu|ue|20|Pologne
+PT|eu|ue|20|Portugal
+CZ|eu|ue|20|République tchèque
+RO|eu|ue|20|Roumanie
+SK|eu|ue|20|Slovaquie
+SI|eu|ue|20|Slovénie
+SE|eu|ue|20|Suède
+CH|eu|ho|0|Suisse
+GB|uk|ho|0|Royaume-Uni
+NO|b|ho|0|Norvège
+RS|b|ho|0|Serbie
+UA|b|ho|0|Ukraine
+MD|b|ho|0|Moldavie
+AL|b|ho|0|Albanie
+BA|b|ho|0|Bosnie-Herzégovine
+MK|b|ho|0|Macédoine du Nord
+ME|b|ho|0|Monténégro
+MA|b|mo|0|Maroc
+DZ|b|mo|0|Algérie
+TN|b|mo|0|Tunisie
+US|c|mo|0|États-Unis
+CA|c|mo|0|Canada
+RU|c|mo|0|Russie
+SN|c|mo|0|Sénégal
+CI|c|mo|0|Côte d'Ivoire
+CM|c|mo|0|Cameroun
+MG|c|mo|0|Madagascar
+AE|c|mo|0|Émirats arabes unis
+IL|c|mo|0|Israël
+LB|c|mo|0|Liban
+SA|c|mo|0|Arabie saoudite
+QA|c|mo|0|Qatar`
+    .split('\n').map(l => {
+      const [code, grille, groupe, tva, nom] = l.split('|');
+      return { code, grille, groupe, tva: +tva / 100, nom };
+    });
+
+  const byCode = Object.fromEntries(D.map(d => [d.code, d]));
+
+  /* delais annonces par La Poste, jamais inventes ici */
+  const DELAI = {
+    fr:   () => T('2 jours ouvrés', '2 business days', '2 Werktage', '2 días hábiles'),
+    frPR: () => T('2 jours ouvrés', '2 business days', '2 Werktage', '2 días hábiles'),
+    frEX: () => T('le lendemain avant 13 h', 'next day before 1 pm', 'am Folgetag vor 13 Uhr', 'al día siguiente antes de las 13 h'),
+    om1:  () => T('6 à 18 jours', '6 to 18 days', '6 bis 18 Tage', '6 a 18 días'),
+    om2:  () => T('6 à 18 jours', '6 to 18 days', '6 bis 18 Tage', '6 a 18 días'),
+    eu:   () => T('3 à 8 jours', '3 to 8 days', '3 bis 8 Tage', '3 a 8 días'),
+    uk:   () => T('3 à 8 jours', '3 to 8 days', '3 bis 8 Tage', '3 a 8 días'),
+    b:    () => T('3 à 8 jours', '3 to 8 days', '3 bis 8 Tage', '3 a 8 días'),
+    c:    () => T('3 à 8 jours', '3 to 8 days', '3 bis 8 Tage', '3 a 8 días'),
+  };
+
+  let codeActuel = 'FR', modeActuel = 'dom';
+
+  const grammes = duo => POIDS.emballage + POIDS.boitier * (duo ? 2 : 1);
+
+  /* prix d'une grille pour un poids : premiere tranche qui couvre.
+     Au-dela de la derniere tranche on ne devine pas — on renvoie null,
+     et l'interface bascule sur « nous consulter ». */
+  const dansGrille = (grille, g) => {
+    const t = G[grille];
+    if (!t) return null;
+    const l = t.find(([max]) => g <= max);
+    return l ? l[1] : null;
+  };
+
+  /* les trois modes ne sont proposes que la ou leur grille existe :
+     Chronopost et le point retrait sont des offres France. Ailleurs,
+     Colissimo International seul — plutot qu'un tarif express invente. */
+  function modes(code, duo) {
+    const d = byCode[code]; if (!d) return [];
+    const g = grammes(duo);
+    const out = [];
+    const pousse = (id, grille, nom, detail) => {
+      const p = dansGrille(grille, g);
+      if (p != null) out.push({ id, grille, nom: nom(), detail: detail(), prix: +(p + SUPPLEMENT).toFixed(2) });
+    };
+    if (d.grille === 'fr') {
+      pousse('dom', 'fr',
+        () => T('Colissimo à domicile', 'Colissimo home delivery', 'Colissimo nach Hause', 'Colissimo a domicilio'),
+        () => T('Remis contre signature · ' + DELAI.fr(), 'Signature required · ' + DELAI.fr(), 'Gegen Unterschrift · ' + DELAI.fr(), 'Contra firma · ' + DELAI.fr()));
+      pousse('pr', 'frPR',
+        () => T('Colissimo en point retrait', 'Colissimo pickup point', 'Colissimo Abholstelle', 'Colissimo en punto de recogida'),
+        () => T('Bureau de poste ou commerce partenaire · ' + DELAI.frPR(), 'Post office or partner shop · ' + DELAI.frPR(), 'Postfiliale oder Partnergeschäft · ' + DELAI.frPR(), 'Oficina de correos o comercio asociado · ' + DELAI.frPR()));
+      pousse('exp', 'frEX',
+        () => T('Chronopost 13', 'Chronopost 13', 'Chronopost 13', 'Chronopost 13'),
+        () => T('Livraison ' + DELAI.frEX(), 'Delivery ' + DELAI.frEX(), 'Zustellung ' + DELAI.frEX(), 'Entrega ' + DELAI.frEX()));
+    } else {
+      const om = d.grille === 'om1' || d.grille === 'om2';
+      pousse('dom', d.grille,
+        () => om ? T('Colissimo Outre-mer', 'Colissimo Overseas', 'Colissimo Übersee', 'Colissimo Ultramar')
+                 : T('Colissimo International', 'Colissimo International', 'Colissimo International', 'Colissimo International'),
+        () => T('Suivi jusqu’à destination · ' + DELAI[d.grille](), 'Tracked to destination · ' + DELAI[d.grille](), 'Sendungsverfolgung bis zum Ziel · ' + DELAI[d.grille](), 'Seguimiento hasta destino · ' + DELAI[d.grille]()));
+    }
+    return out;
+  }
+
+  return {
+    liste: D, POIDS, SUPPLEMENT,
+    dest: () => byCode[codeActuel] || byCode.FR,
+    code: () => codeActuel,
+    mode: () => modeActuel,
+    grammes,
+    modes,
+    setCode(c) { if (byCode[c]) { codeActuel = c; if (!modes(c, false).some(m => m.id === modeActuel)) modeActuel = 'dom'; } },
+    setMode(m) { modeActuel = m; },
+    /* prix du mode courant pour la configuration courante */
+    prix(duo) {
+      const ms = modes(codeActuel, duo);
+      const m = ms.find(x => x.id === modeActuel) || ms[0];
+      return m ? m.prix : 0;
+    },
+    modeCourant(duo) {
+      const ms = modes(codeActuel, duo);
+      return ms.find(x => x.id === modeActuel) || ms[0] || null;
+    },
+    /* nom du pays dans la langue courante, sans table de traduction */
+    nom(d) {
+      if (CURLANG === 'fr') return d.nom;
+      try { return new Intl.DisplayNames([CURLANG], { type: 'region' }).of(d.code) || d.nom; }
+      catch (e) { return d.nom; }
+    },
+  };
+})();
 const eur = n => n.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
 let showTTC = true, priceSpring = null, shownTotal = 755.40;
 
@@ -2936,14 +3450,19 @@ function state() {
   const col = form.querySelector('input[name=col]:checked');
   const duo = $('duo').checked;
   const base = +cap.dataset.p + (duo ? DUO : 0);
-  const ht = base + SHIP;
+  const dest = PORT.dest();
+  const modePort = PORT.modeCourant(duo);
+  const port = modePort ? modePort.prix : 0;
+  const ht = base + port;
   const colorKey = col ? col.value[0].toUpperCase() + col.value.slice(1) : 'Noir';
   return {
     cap: cap.value,                     // clé brute — sert à SPEC_USE
     label: unitLabel(cap.value),
     color: colorKey,                    // clé interne (FR) — sert à SHOTS[s.color]
     colorLabel: colorLabel(colorKey),    // ce qui s'affiche, dans la langue courante
-    duo, base: +cap.dataset.p, ht, vat: ht * VAT, ttc: ht * (1 + VAT)
+    duo, base: +cap.dataset.p,
+    dest, modePort, port, tva: dest.tva,
+    ht, vat: ht * dest.tva, ttc: ht * (1 + dest.tva)
   };
 }
 
@@ -3005,8 +3524,45 @@ function render(animate = true) {
   $('lineBase').textContent = eur(s.base);          // les lignes restent HT…
   $('lineDuoRow').hidden = !s.duo;
   $('lineDuo').textContent = eur(DUO);
-  $('lineVatRow').hidden = !showTTC;                // …et la TVA est une ligne, pas une surprise
-  $('lineVat').textContent = eur(s.vat);
+  /* le port porte desormais le nom du mode et de la destination :
+     « 14,50 € » sans dire vers ou n'est pas un prix, c'est un chiffre */
+  $('lineShip').textContent = eur(s.port);
+  $('lineShipLab').textContent = (s.modePort ? s.modePort.nom : T('Livraison', 'Shipping', 'Versand', 'Envío'))
+    + ' — ' + PORT.nom(s.dest);
+
+  /* hors France et hors UE, la TVA francaise ne s'applique pas : on le dit
+     sur la ligne meme, plutot que de la faire disparaitre sans explication */
+  if (s.tva === 0) {
+    $('lineVatRow').hidden = false;
+    $('lineVatLab').textContent = T('TVA française non applicable', 'French VAT not applicable', 'Französische MwSt. nicht anwendbar', 'IVA francés no aplicable');
+    $('lineVat').textContent = '—';
+  } else {
+    $('lineVatRow').hidden = !showTTC;              // …et la TVA est une ligne, pas une surprise
+    $('lineVatLab').textContent = T('TVA 20 %', 'VAT 20%', 'MwSt. 20 %', 'IVA 20 %');
+    $('lineVat').textContent = eur(s.vat);
+  }
+
+  /* la note sous le selecteur : delai, regime de taxe, et le fait que
+     d'autres modes existent — sans les imposer ici */
+  if ($('dNote')) {
+    const d = s.modePort;
+    const taxe = s.tva === 0
+      ? T('Prix hors taxes : taxes et droits d’importation à régler à l’arrivée.',
+          'Prices excl. tax: import taxes and duties payable on arrival.',
+          'Preise ohne Steuern: Einfuhrsteuern und Zölle bei Ankunft fällig.',
+          'Precios sin impuestos: impuestos y aranceles de importación a pagar a la llegada.')
+      : T('TVA 20 % incluse.', 'VAT 20% included.', 'Inkl. 20 % MwSt.', 'IVA 20 % incluido.');
+    $('dNote').innerHTML = d
+      ? `<b>${d.nom} — ${eur(d.prix)}</b> · ${d.detail}. ${taxe} `
+        + T('D’autres modes de livraison sont proposés à la commande.',
+            'Other delivery options are offered at checkout.',
+            'Weitere Versandarten stehen bei der Bestellung zur Auswahl.',
+            'Se ofrecen otras opciones de entrega al finalizar la compra.')
+      : T('Cette destination se règle au cas par cas — écrivez-nous.',
+          'This destination is handled case by case — get in touch.',
+          'Dieses Ziel wird individuell behandelt — schreiben Sie uns.',
+          'Este destino se gestiona caso por caso — escríbanos.');
+  }
   $('lineTotal').textContent = eur(total);
   $('totalMode').textContent = showTTC
     ? T('TTC', 'inc. VAT', 'inkl. MwSt.', 'con IVA')
@@ -3036,6 +3592,438 @@ function sync() {
   render(true);
 }
 render(false);
+
+/* ============================================================
+   6 ter — DESTINATION : LES DEUX SELECTEURS N'EN FONT QU'UN
+   Le meme choix existe a deux endroits (configurateur et tunnel).
+   Ils partagent un seul etat — celui de PORT — donc on ne peut
+   pas les mettre en desaccord, et on ne redemande jamais au
+   visiteur une information qu'il a deja donnee.
+   ============================================================ */
+(() => {
+  const GROUPES = {
+    fr: () => T('France', 'France', 'Frankreich', 'Francia'),
+    om: () => T('Outre-mer', 'French overseas', 'Französische Überseegebiete', 'Ultramar francés'),
+    ue: () => T('Union européenne', 'European Union', 'Europäische Union', 'Unión Europea'),
+    ho: () => T('Europe hors UE', 'Europe outside the EU', 'Europa außerhalb der EU', 'Europa fuera de la UE'),
+    mo: () => T('Reste du monde', 'Rest of the world', 'Restliche Welt', 'Resto del mundo'),
+  };
+  const AUTRE = () => T('Autre destination — nous consulter', 'Other destination — ask us',
+                        'Anderes Ziel — fragen Sie uns', 'Otro destino — consúltenos');
+
+  const selects = [$('dPays'), $('oPays')].filter(Boolean);
+
+  function peupler() {
+    selects.forEach(sel => {
+      const garde = PORT.code();
+      sel.textContent = '';
+      Object.keys(GROUPES).forEach(g => {
+        const items = PORT.liste.filter(d => d.groupe === g);
+        if (!items.length) return;
+        const og = document.createElement('optgroup');
+        og.label = GROUPES[g]();
+        items
+          .map(d => ({ d, nom: PORT.nom(d) }))
+          .sort((a, b) => g === 'fr' ? 0 : a.nom.localeCompare(b.nom, CURLANG))
+          .forEach(({ d, nom }) => {
+            const o = document.createElement('option');
+            o.value = d.code; o.textContent = nom;
+            og.appendChild(o);
+          });
+        sel.appendChild(og);
+      });
+      const o = document.createElement('option');
+      o.value = 'AUTRE'; o.textContent = AUTRE();
+      sel.appendChild(o);
+      sel.value = garde;
+    });
+  }
+
+  /* « Autre destination » n'invente pas un tarif : elle ouvre la
+     conversation, exactement comme les autres « nous consulter » du site,
+     et le selecteur revient sur le dernier choix valide. */
+  function choisir(code, source) {
+    if (code === 'AUTRE') {
+      selects.forEach(s => { s.value = PORT.code(); });
+      const c = $('chatOpen'); if (c) c.click();
+      return;
+    }
+    PORT.setCode(code);
+    selects.forEach(s => { if (s !== source) s.value = code; });
+    majCpVisible();
+    render(true);
+    if (typeof window.__waouwMajModes === 'function') window.__waouwMajModes();
+  }
+
+  /* le code postal ne sert que la ou il veut dire quelque chose pour nous :
+     en France, il rattrape le 97xxx saisi alors que « France metropolitaine »
+     est selectionne — l'erreur de destination la plus courante et la plus
+     couteuse, puisqu'elle change la grille du simple au double. */
+  function majCpVisible() {
+    const wrap = $('dCpWrap');
+    if (wrap) wrap.style.display = PORT.dest().grille === 'fr' ? '' : 'none';
+  }
+
+  const OM_CP = { '971': 'GP', '972': 'MQ', '973': 'GF', '974': 'RE', '975': 'PM', '976': 'YT',
+                  '977': 'BL', '978': 'MF', '986': 'WF', '987': 'PF', '988': 'NC' };
+
+  function verifCp(valeur) {
+    const v = (valeur || '').trim();
+    if (PORT.dest().grille !== 'fr' || !/^\d{3}/.test(v)) return null;
+    const code = OM_CP[v.slice(0, 3)];
+    if (!code) return null;
+    const d = PORT.liste.find(x => x.code === code);
+    return d ? { code, nom: PORT.nom(d) } : null;
+  }
+
+  peupler();
+  majCpVisible();
+  selects.forEach(sel => sel.addEventListener('change', () => choisir(sel.value, sel)));
+
+  const cp = $('dCp');
+  if (cp) {
+    cp.addEventListener('input', () => {
+      const om = verifCp(cp.value);
+      if (om) {
+        /* on ne corrige pas dans le dos du visiteur : on propose, il valide */
+        $('dNote').innerHTML = '<b>' + T('Ce code postal est en ' + om.nom + '.', 'This postcode is in ' + om.nom + '.', 'Diese Postleitzahl liegt in ' + om.nom + '.', 'Este código postal está en ' + om.nom + '.') + '</b> '
+          + '<button type="button" class="cmd__edit" id="dFix" style="margin:0">'
+          + T('Choisir cette destination', 'Select this destination', 'Dieses Ziel wählen', 'Elegir este destino') + '</button>';
+        const fix = $('dFix');
+        if (fix) fix.addEventListener('click', () => { choisir(om.code); });
+      } else if (/^\d{5}$/.test(cp.value.trim()) || cp.value === '') {
+        render(false);
+      }
+    });
+  }
+
+  window.__waouwPeuplerPays = peupler;   // relu a chaque changement de langue
+  window.__waouwVerifCp = verifCp;
+})();
+
+/* ============================================================
+   6 quater — TUNNEL DE COMMANDE
+   Trois etapes : adresse, livraison, paiement. Chacune ne demande
+   que ce dont elle a besoin, et chacune peut revenir en arriere
+   sans rien perdre. Le total affiche en pied de panneau ne quitte
+   jamais l'ecran : c'est la seule chose qu'on ne doit jamais avoir
+   a chercher pendant un paiement.
+   ============================================================ */
+(() => {
+  const panel = $('cmd'), boite = $('cmdPanel'), veil = $('cmdVeil');
+  const ouvre = $('cmdOpen'), ferme = $('cmdClose');
+  const suivant = $('cmdNext'), retour = $('cmdBack');
+  if (!panel || !ouvre) return;
+
+  const etapes = [$('cmdS1'), $('cmdS2'), $('cmdS3'), $('cmdS4')];
+  const fil = Array.from($('cmdSteps').children);
+  let etape = 0, isOpen = false, anim = null, lastFocus = null;
+
+  /* ---------- validation ---------- */
+  const RXMAIL = /^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i;
+  const champ = id => $(id);
+  const regles = [
+    ['oFirst', 'eoFirst', v => v.trim().length >= 2, () => T('Votre prénom.', 'Your first name.', 'Ihr Vorname.', 'Su nombre.')],
+    ['oName',  'eoName',  v => v.trim().length >= 2, () => T('Votre nom.', 'Your last name.', 'Ihr Nachname.', 'Su apellido.')],
+    ['oMail',  'eoMail',  v => RXMAIL.test(v.trim()), () => T('Cette adresse ne semble pas valide.', "This address doesn't look valid.", 'Diese Adresse scheint ungültig zu sein.', 'Esta dirección no parece válida.')],
+    ['oTel',   'eoTel',   v => v.replace(/[^\d]/g, '').length >= 8, () => T('Un numéro joignable, pour la livraison.', 'A reachable number, for the delivery.', 'Eine erreichbare Nummer für die Zustellung.', 'Un número localizable, para la entrega.')],
+    ['oAdr',   'eoAdr',   v => v.trim().length >= 4, () => T('Numéro et rue.', 'Street and number.', 'Straße und Hausnummer.', 'Calle y número.')],
+    ['oVille', 'eoVille', v => v.trim().length >= 2, () => T('Votre ville.', 'Your city.', 'Ihre Stadt.', 'Su ciudad.')],
+    /* le format postal n'est normalise qu'en France : ailleurs on verifie
+       qu'il y a quelque chose, on n'invente pas la regle du pays */
+    ['oCp', 'eoCp',
+      v => PORT.dest().grille === 'fr' ? /^\d{5}$/.test(v.trim()) : v.trim().length >= 2,
+      () => PORT.dest().grille === 'fr'
+        ? T('Cinq chiffres.', 'Five digits.', 'Fünf Ziffern.', 'Cinco cifras.')
+        : T('Le code postal de la destination.', 'The destination postcode.', 'Die Postleitzahl des Ziels.', 'El código postal del destino.')],
+  ];
+
+  function verifie(id, muet) {
+    const r = regles.find(x => x[0] === id); if (!r) return true;
+    const f = champ(id); if (!f) return true;
+    let ok = r[2](f.value);
+    let msg = r[3]();
+    /* incoherence code postal / destination : c'est une erreur de saisie
+       reelle, pas un detail de format — elle merite d'etre bloquante */
+    if (ok && id === 'oCp' && typeof window.__waouwVerifCp === 'function') {
+      const om = window.__waouwVerifCp(f.value);
+      if (om) { ok = false; msg = T('Ce code postal est en ' + om.nom + ' : changez la destination ci-dessous.',
+                                    'This postcode is in ' + om.nom + ': change the destination below.',
+                                    'Diese Postleitzahl liegt in ' + om.nom + ': Ziel unten ändern.',
+                                    'Este código postal está en ' + om.nom + ': cambie el destino abajo.'); }
+    }
+    if (!muet) {
+      f.setAttribute('aria-invalid', String(!ok));
+      const e = $(r[1]); if (e) e.textContent = ok ? '' : msg;
+    }
+    return ok;
+  }
+  regles.forEach(([id]) => {
+    const f = champ(id); if (!f) return;
+    f.addEventListener('blur', () => verifie(id));
+    f.addEventListener('input', () => { if (f.getAttribute('aria-invalid') === 'true') verifie(id); });
+  });
+
+  /* ---------- etape 2 : les modes disponibles pour CETTE destination ---------- */
+  function majModes() {
+    const hote = $('cmdModes'); if (!hote) return;
+    const duo = $('duo').checked;
+    const ms = PORT.modes(PORT.code(), duo);
+    hote.textContent = '';
+    ms.forEach(m => {
+      const lab = document.createElement('label');
+      lab.className = 'mode__o';
+      lab.innerHTML = '<input type="radio" name="cmdMode" value="' + m.id + '"' + (m.id === PORT.mode() ? ' checked' : '') + '>'
+        + '<span class="mode__b"><span class="mode__i"><span class="mode__n"></span><span class="mode__d"></span></span>'
+        + '<span class="mode__p">' + eur(m.prix) + '</span></span>';
+      lab.querySelector('.mode__n').textContent = m.nom;
+      lab.querySelector('.mode__d').textContent = m.detail;
+      lab.querySelector('input').addEventListener('change', () => { PORT.setMode(m.id); render(true); majPied(); });
+      hote.appendChild(lab);
+    });
+    const g = PORT.grammes(duo);
+    const kg = (g / 1000).toFixed(1).replace('.', ',');
+    const p = $('cmdPoids');
+    if (p) p.textContent = T(
+      'Poids expédié : ' + kg + ' kg. Tarifs La Poste au 1er janvier 2026, préparation et assurance incluses.',
+      'Shipping weight: ' + (g / 1000).toFixed(1) + ' kg. La Poste rates as of 1 January 2026, handling and insurance included.',
+      'Versandgewicht: ' + kg + ' kg. La-Poste-Tarife vom 1. Januar 2026, Bearbeitung und Versicherung inbegriffen.',
+      'Peso enviado: ' + kg + ' kg. Tarifas de La Poste al 1 de enero de 2026, preparación y seguro incluidos.');
+  }
+  window.__waouwMajModes = majModes;
+
+  /* ---------- etape 3 : le recapitulatif reprend les lignes du ticket ---------- */
+  function majRecap() {
+    const s = state();
+    const l = [];
+    l.push('<p class="tline"><span>WaouW Box ' + s.label + ' — ' + s.colorLabel + '</span><b class="num">' + eur(s.base) + '</b></p>');
+    if (s.duo) l.push('<p class="tline"><span>' + T('Second boîtier miroir', 'Second mirror box', 'Zweite Spiegel-Box', 'Segunda caja espejo') + '</span><b class="num">' + eur(DUO) + '</b></p>');
+    l.push('<p class="tline"><span>' + (s.modePort ? s.modePort.nom : '') + ' — ' + PORT.nom(s.dest) + '</span><b class="num">' + eur(s.port) + '</b></p>');
+    l.push(s.tva === 0
+      ? '<p class="tline"><span>' + T('TVA française non applicable', 'French VAT not applicable', 'Französische MwSt. nicht anwendbar', 'IVA francés no aplicable') + '</span><b class="num">—</b></p>'
+      : '<p class="tline"><span>' + T('TVA 20 %', 'VAT 20%', 'MwSt. 20 %', 'IVA 20 %') + '</span><b class="num">' + eur(s.vat) + '</b></p>');
+    l.push('<p class="tline tline--total"><span>' + T('Total à payer', 'Total to pay', 'Zu zahlender Betrag', 'Total a pagar') + '</span><b class="num">' + eur(s.ttc) + '</b></p>');
+    $('cmdSum').innerHTML = l.join('');
+
+    const v = id => ($(id) ? $(id).value.trim() : '');
+    const lignes = [
+      '<b>' + v('oFirst') + ' ' + v('oName') + '</b>',
+      v('oSoc'), v('oAdr'), v('oAdr2'),
+      (v('oCp') + ' ' + v('oVille')).trim(),
+      PORT.nom(PORT.dest()),
+      v('oMail'), v('oTel'),
+    ].filter(x => x && x.trim());
+    $('cmdAdr').innerHTML = lignes.join('<br>');
+  }
+
+  /* ---------- pied de panneau : le total ne quitte jamais l'ecran ---------- */
+  function majPied() {
+    const s = state();
+    retour.style.visibility = (etape === 0 || etape === 3) ? 'hidden' : 'visible';
+    if (etape === 3) {
+      suivant.textContent = T('Fermer', 'Close', 'Schließen', 'Cerrar');
+    } else if (etape === 2) {
+      suivant.textContent = T('Payer ', 'Pay ', 'Bezahlen ', 'Pagar ') + eur(s.ttc);
+    } else {
+      suivant.textContent = T('Continuer', 'Continue', 'Weiter', 'Continuar');
+    }
+    $('cmdSub').textContent = 'WaouW Box ' + s.label + ' — ' + s.colorLabel + (s.duo ? ' · Duo' : '');
+  }
+
+  function va(n) {
+    etape = Math.max(0, Math.min(3, n));
+    etapes.forEach((s, i) => s.setAttribute('data-on', i === etape ? '1' : '0'));
+    fil.forEach((li, i) => {
+      li.setAttribute('data-on', i === etape ? '1' : '0');
+      li.setAttribute('data-done', i < etape ? '1' : '0');
+    });
+    if (etape === 1) majModes();
+    if (etape === 2) majRecap();
+    majPied();
+    $('cmdBody').scrollTop = 0;
+    const cible = etapes[etape].querySelector('input, select, button');
+    if (cible) setTimeout(() => cible.focus({ preventScroll: true }), 60);
+  }
+
+  /* ---------- ouverture / fermeture ---------- */
+  const peint = p => {
+    veil.style.opacity = p;
+    boite.style.transform = 'translate3d(' + ((1 - p) * 100).toFixed(2) + '%,0,0)';
+  };
+
+  function setOpen(next) {
+    if (next === isOpen) return;
+    isOpen = next;
+    ouvre.setAttribute('aria-expanded', String(next));
+    if (next) {
+      lastFocus = document.activeElement;
+      panel.setAttribute('data-open', '');
+      document.documentElement.style.overflow = 'hidden';
+      /* la destination et le code postal deja saisis passent tels quels :
+         personne ne ressaisit ce qu'il vient de choisir */
+      if ($('oPays')) $('oPays').value = PORT.code();
+      if ($('oCp') && $('dCp') && !$('oCp').value) $('oCp').value = $('dCp').value;
+      va(0);
+    } else {
+      document.documentElement.style.overflow = '';
+    }
+    if (REDUCED.matches) {
+      peint(next ? 1 : 0);
+      if (!next) panel.removeAttribute('data-open');
+    } else {
+      const from = anim ? anim.value : (next ? 0 : 1);
+      if (anim) anim.stop();
+      peint(from);
+      anim = spring({
+        from, to: next ? 1 : 0, response: next ? 0.42 : 0.28, damping: 1,
+        onUpdate: peint,
+        onRest: () => { anim = null; if (!isOpen) panel.removeAttribute('data-open'); }
+      });
+    }
+    if (!next && lastFocus) lastFocus.focus({ preventScroll: true });
+  }
+
+  peint(0);
+  ouvre.addEventListener('click', () => setOpen(true));
+  ferme.addEventListener('click', () => setOpen(false));
+  veil.addEventListener('click', () => setOpen(false));
+  addEventListener('keydown', e => { if (e.key === 'Escape' && isOpen) setOpen(false); });
+
+  /* piege a focus : un paiement ne doit pas laisser le clavier filer
+     derriere le panneau, sur une page qu'on ne voit plus */
+  boite.addEventListener('keydown', e => {
+    if (e.key !== 'Tab') return;
+    const f = boite.querySelectorAll('a[href], button:not([disabled]), input:not([type="hidden"]), select, textarea');
+    const vis = Array.from(f).filter(el => el.offsetParent !== null);
+    if (!vis.length) return;
+    const premier = vis[0], dernier = vis[vis.length - 1];
+    if (e.shiftKey && document.activeElement === premier) { e.preventDefault(); dernier.focus(); }
+    else if (!e.shiftKey && document.activeElement === dernier) { e.preventDefault(); premier.focus(); }
+  });
+
+  $('cmdEdit').addEventListener('click', () => va(0));
+  retour.addEventListener('click', () => va(etape - 1));
+
+  suivant.addEventListener('click', () => {
+    if (etape === 0) {
+      let ok = true;
+      regles.forEach(([id]) => { if (!verifie(id)) ok = false; });
+      if (!ok) {
+        const mauvais = $('cmdS1').querySelector('[aria-invalid="true"]');
+        if (mauvais) mauvais.focus({ preventScroll: true });
+        return;
+      }
+      va(1);
+    } else if (etape === 1) {
+      va(2);
+    } else if (etape === 2) {
+      const cgv = $('oCgv');
+      if (!cgv.checked) {
+        $('eoCgv').textContent = T('Il faut accepter les conditions de vente pour commander.',
+                                   'You must accept the terms of sale to order.',
+                                   'Sie müssen die Verkaufsbedingungen akzeptieren.',
+                                   'Debe aceptar las condiciones de venta para pedir.');
+        cgv.focus({ preventScroll: true });
+        return;
+      }
+      $('eoCgv').textContent = '';
+      payer();
+    } else {
+      setOpen(false);
+    }
+  });
+
+  /* ============================================================
+     POINT D'INTEGRATION PAIEMENT
+     ------------------------------------------------------------
+     window.waouwPay(commande) est le SEUL endroit a remplacer le
+     jour ou Stripe arrive. Il recoit une commande complete et deja
+     calculee — montants en centimes, devise, port, adresse, lignes
+     — et doit renvoyer une promesse.
+
+     Avec Stripe, deux branchements possibles :
+       1. Stripe Checkout : POST de `commande` vers une fonction
+          serveur qui cree la session, puis redirection vers l'URL
+          renvoyee. C'est le chemin recommande — page de paiement,
+          conformite SCA et 3-D Secure restent chez Stripe, aucune
+          donnee de carte ne transite par cette page.
+       2. Payment Element : creer un PaymentIntent cote serveur et
+          monter le formulaire dans l'etape 3.
+     Dans les deux cas il faut un serveur : la cle secrete Stripe ne
+     peut pas vivre dans cette page. Un site 100 % statique ne peut
+     pas encaisser seul — c'est la seule piece qui manque encore.
+     ============================================================ */
+  window.waouwPay = window.waouwPay || function (commande) {
+    console.log('[WaouW] commande prête pour Stripe :', commande);
+    return new Promise(res => setTimeout(() => res({
+      ok: true,
+      ref: 'WW-' + new Date().getFullYear() + '-' + String(Math.floor(Math.random() * 90000) + 10000),
+      simule: true,
+    }), 900));
+  };
+
+  function commandeCourante() {
+    const s = state();
+    const v = id => ($(id) ? $(id).value.trim() : '');
+    const c = n => Math.round(n * 100);   // Stripe compte en centimes
+    return {
+      devise: 'eur', langue: CURLANG,
+      lignes: [
+        { ref: 'WAOUW-BOX-' + s.cap, nom: 'WaouW Box ' + s.label + ' — ' + s.colorLabel, qte: 1, prixHT: c(s.base) },
+      ].concat(s.duo ? [{ ref: 'WAOUW-BOX-DUO', nom: 'Second boîtier miroir', qte: 1, prixHT: c(DUO) }] : []),
+      livraison: {
+        destination: s.dest.code, zone: s.dest.grille,
+        mode: s.modePort ? s.modePort.id : null,
+        libelle: s.modePort ? s.modePort.nom : null,
+        poidsG: PORT.grammes(s.duo),
+        prix: c(s.port),
+      },
+      taxe: { taux: s.tva, montant: c(s.vat) },
+      totalHT: c(s.ht), totalTTC: c(s.ttc),
+      client: {
+        prenom: v('oFirst'), nom: v('oName'), societe: v('oSoc'),
+        email: v('oMail'), tel: v('oTel'),
+        adresse: v('oAdr'), complement: v('oAdr2'),
+        cp: v('oCp'), ville: v('oVille'), pays: s.dest.code,
+      },
+    };
+  }
+
+  function payer() {
+    suivant.disabled = true;
+    suivant.textContent = T('Paiement…', 'Processing…', 'Zahlung läuft…', 'Procesando…');
+    Promise.resolve(window.waouwPay(commandeCourante()))
+      .then(r => {
+        suivant.disabled = false;
+        if (!r || r.ok === false) throw new Error('refus');
+        $('cmdRef').textContent = r.ref || '—';
+        const mail = $('oMail') ? $('oMail').value.trim() : '';
+        $('cmdOkP').textContent = T(
+          'Un e-mail de confirmation part à ' + mail + '.',
+          'A confirmation e-mail is on its way to ' + mail + '.',
+          'Eine Bestätigungs-E-Mail geht an ' + mail + '.',
+          'Un correo de confirmación sale hacia ' + mail + '.');
+        va(3);
+      })
+      .catch(() => {
+        suivant.disabled = false;
+        majPied();
+        $('eoCgv').textContent = T('Le paiement n’a pas abouti. Réessayez ou écrivez-nous.',
+                                   'The payment did not go through. Try again or get in touch.',
+                                   'Die Zahlung ist fehlgeschlagen. Versuchen Sie es erneut oder schreiben Sie uns.',
+                                   'El pago no se ha completado. Inténtelo de nuevo o escríbanos.');
+      });
+  }
+
+  /* le panneau suit la langue comme le reste du site */
+  const majLangue = window.__waouwSetLang;
+  window.__waouwSetLang = function (lang) {
+    if (typeof majLangue === 'function') majLangue(lang);
+    if (typeof window.__waouwPeuplerPays === 'function') window.__waouwPeuplerPays();
+    if (isOpen) { if (etape === 1) majModes(); if (etape === 2) majRecap(); majPied(); }
+  };
+})();
+
 
 /* ============================================================
    7 — BARRE D'ACHAT MOBILE
@@ -4117,6 +5105,30 @@ set('.iabox__tags span',
   [`2× M.2 SSD slots · 2×10 TB`, `NVIDIA Jetson Orin Nano *`, `7–15 W *`, `4× M.2 SSD slots · 4×10 TB`, `NVIDIA Jetson AGX Thor T5000 *`, `40–130 W *`],
   [`2× M.2-SSD-Steckplätze · 2×10 TB`, `NVIDIA Jetson Orin Nano *`, `7–15 W *`, `4× M.2-SSD-Steckplätze · 4×10 TB`, `NVIDIA Jetson AGX Thor T5000 *`, `40–130 W *`],
   [`2 ranuras SSD M.2 · 2×10 TB`, `NVIDIA Jetson Orin Nano *`, `7–15 W *`, `4 ranuras SSD M.2 · 4×10 TB`, `NVIDIA Jetson AGX Thor T5000 *`, `40–130 W *`]);
+
+set('.iabox__specs dt',
+  [`GPU architecture`, `Memory (RAM)`, `AI compute power`, `GPU architecture`, `Memory (RAM)`, `AI compute power`],
+  [`GPU-Architektur`, `Arbeitsspeicher (RAM)`, `KI-Rechenleistung`, `GPU-Architektur`, `Arbeitsspeicher (RAM)`, `KI-Rechenleistung`],
+  [`Arquitectura GPU`, `Memoria (RAM)`, `Potencia de cálculo de IA`, `Arquitectura GPU`, `Memoria (RAM)`, `Potencia de cálculo de IA`]);
+set('.iabox__specs dd',
+  [`NVIDIA Ampere with 2,048 CUDA cores and 64 Tensor cores`,
+   `32 GB / 64 GB LPDDR5 (up to 204.8 GB/s bandwidth)`,
+   `Up to 275 TOPS (INT8)`,
+   `NVIDIA Blackwell (2,560 CUDA cores, 96 Tensor cores)`,
+   `128 GB LPDDR5X (up to 275 GB/s bandwidth, inline 1-bit ECC)`,
+   `Up to 2,070 FP4 TOPS (~7.5× the AI performance of the Orin generation)`],
+  [`NVIDIA Ampere mit 2.048 CUDA-Kernen und 64 Tensor-Kernen`,
+   `32 GB / 64 GB LPDDR5 (bis zu 204,8 GB/s Bandbreite)`,
+   `Bis zu 275 TOPS (INT8)`,
+   `NVIDIA Blackwell (2.560 CUDA-Kerne, 96 Tensor-Kerne)`,
+   `128 GB LPDDR5X (bis zu 275 GB/s Bandbreite, inline 1-Bit-ECC)`,
+   `Bis zu 2.070 FP4 TOPS (~7,5× die KI-Leistung der Orin-Generation)`],
+  [`NVIDIA Ampere con 2048 núcleos CUDA y 64 núcleos Tensor`,
+   `32 GB / 64 GB LPDDR5 (hasta 204,8 GB/s de ancho de banda)`,
+   `Hasta 275 TOPS (INT8)`,
+   `NVIDIA Blackwell (2560 núcleos CUDA, 96 núcleos Tensor)`,
+   `128 GB LPDDR5X (hasta 275 GB/s de ancho de banda, corrección de errores ECC inline de 1 bit)`,
+   `Hasta 2070 TOPS FP4 (~7,5× el rendimiento de IA de la generación Orin)`]);
 set('.iabox__price', `Price <b>on request</b>`, `Preis <b>auf Anfrage</b>`, `Precio <b>a consultar</b>`);
 set('.iabox__foot a', `Talk to us`, `Uns kontaktieren`, `Consultarnos`);
 set('#ia > .wrap > p.lede[style*="s8"]', `A data center built for large-scale AI draws power at the gigawatt scale. ALPHA and OMEGA are sized for a single use: yours.`,
@@ -4200,7 +5212,7 @@ set('input[name=cap] ~ .opt__box .opt__use',
    `Agencia, varios clientes alojados en una sola caja`,
    `Mediatecas, archivos de vídeo, copias de varios equipos`]);
 set('input[name=col] ~ .opt__box .opt__cap', [`Black`, `White`], [`Schwarz`, `Weiß`], [`Negro`, `Blanco`]);
-set('.opt__flag', [`In stock`, `In stock`], [`Auf Lager`, `Auf Lager`], [`En stock`, `En stock`]);
+set('.opt__flag', [`In stock`, `Available in December`], [`Auf Lager`, `Ab Dezember verfügbar`], [`En stock`, `Disponible en diciembre`]);
 
 /* ---- détail de la capacité (parties statiques ; le texte qui suit la
    sélection est composé en JS via T(), module 6) ---- */
@@ -4251,10 +5263,61 @@ set('#bTTC', `inc. VAT`, `inkl. MwSt.`, `con IVA`);
 set('#tkVis', `Visual — white finish.`, `Abbildung — weiße Ausführung.`, `Imagen — acabado blanco.`);
 set('.tline--h span', `The breakdown, excl. tax`, `Die Aufschlüsselung, netto`, `El detalle, sin impuestos`);
 set('#lineDuoRow span', `Second mirror box`, `Zweite Spiegel-Box`, `Segunda caja espejo`);
-set('#lineShipRow span', `Tracked & insured shipping`, `Versand mit Sendungsverfolgung + Versicherung`, `Envío con seguimiento y seguro`);
-set('#lineVatRow span', `VAT 20%`, `MwSt. 20 %`, `IVA 20 %`);
 set('.tline--total > span', `Total <span id="totalMode">TTC</span>`, `Gesamt <span id="totalMode">TTC</span>`, `Total <span id="totalMode">TTC</span>`);
 set('.ticket a.btn', `Order`, `Bestellen`, `Pedir`);
+/* ---- livraison & tunnel de commande ---- */
+set('#legLivraison', `Delivery`, `Versand`, `Envío`);
+set('label[for="dPays"]', `Destination`, `Zielland`, `Destino`);
+set('label[for="dCp"]', `Postcode`, `Postleitzahl`, `Código postal`);
+
+set('#cmdOpen', `Order`, `Bestellen`, `Pedir`);
+set('#cmdTitleLab', `Your order`, `Ihre Bestellung`, `Su pedido`);
+set('#cmdSteps li', [`Address`, `Delivery`, `Payment`],
+  [`Adresse`, `Versand`, `Zahlung`], [`Dirección`, `Envío`, `Pago`]);
+
+set('#cmdH1', `Where do we deliver?`, `Wohin liefern wir?`, `¿Dónde entregamos?`);
+set('#cmdS1 .cmd__p', `Shipping is calculated on this address. Nothing is charged at this step.`,
+  `Der Versand wird auf diese Adresse berechnet. In diesem Schritt wird nichts abgebucht.`,
+  `El envío se calcula sobre esta dirección. No se cobra nada en este paso.`);
+set('label[for="oFirst"]', `First name`, `Vorname`, `Nombre`);
+set('label[for="oName"]', `Last name`, `Nachname`, `Apellido`);
+set('label[for="oSoc"]', `Company <span style="color:var(--ink-3); font-weight:400">— optional</span>`,
+  `Firma <span style="color:var(--ink-3); font-weight:400">— optional</span>`,
+  `Empresa <span style="color:var(--ink-3); font-weight:400">— opcional</span>`);
+set('label[for="oMail"]', `E-mail`, `E-Mail`, `Correo electrónico`);
+set('label[for="oTel"]', `Phone`, `Telefon`, `Teléfono`);
+set('label[for="oAdr"]', `Address`, `Adresse`, `Dirección`);
+set('label[for="oAdr2"]', `Address line 2 <span style="color:var(--ink-3); font-weight:400">— optional</span>`,
+  `Adresszusatz <span style="color:var(--ink-3); font-weight:400">— optional</span>`,
+  `Complemento <span style="color:var(--ink-3); font-weight:400">— opcional</span>`);
+set('label[for="oCp"]', `Postcode`, `Postleitzahl`, `Código postal`);
+set('label[for="oVille"]', `City`, `Stadt`, `Ciudad`);
+set('label[for="oPays"]', `Destination`, `Zielland`, `Destino`);
+
+set('#cmdH2', `How do we deliver?`, `Wie liefern wir?`, `¿Cómo entregamos?`);
+set('#cmdS2p', `Current La Poste rates, calculated on the real weight of your configuration.`,
+  `Aktuelle Tarife von La Poste, berechnet auf das tatsächliche Gewicht Ihrer Konfiguration.`,
+  `Tarifas vigentes de La Poste, calculadas sobre el peso real de su configuración.`);
+
+set('#cmdH3', `Check, then pay`, `Prüfen, dann bezahlen`, `Revise y pague`);
+set('#cmdS3 > .cmd__p', `The amount below is what will be charged. Nothing is added afterwards.`,
+  `Der untenstehende Betrag wird abgebucht. Danach kommt nichts hinzu.`,
+  `El importe siguiente es el que se cobrará. Después no se añade nada.`);
+set('#cmdEdit', `Change the address`, `Adresse ändern`, `Modificar la dirección`);
+set('#oCgv + span', `I have read and accept the <a href="cgv.html" target="_blank" rel="noopener">terms of sale</a>, and I confirm my 14-day right of withdrawal.`,
+  `Ich habe die <a href="cgv.html" target="_blank" rel="noopener">Verkaufsbedingungen</a> gelesen und akzeptiert und bestätige mein 14-tägiges Widerrufsrecht.`,
+  `He leído y acepto las <a href="cgv.html" target="_blank" rel="noopener">condiciones de venta</a>, y confirmo mi derecho de desistimiento de 14 días.`);
+set('#cmdS3 .cmd__mock', `<b>Mock-up —</b> payment is not wired. The button below calls the Stripe integration point (<code>window.waouwPay</code>), which for now simulates an accepted payment. Everything else in the flow — address, shipping grid, calculation, summary — genuinely works.`,
+  `<b>Mock-up —</b> die Zahlung ist nicht angebunden. Die Schaltfläche ruft den Stripe-Integrationspunkt auf (<code>window.waouwPay</code>), der vorerst eine akzeptierte Zahlung simuliert. Alles andere — Adresse, Versandtabelle, Berechnung, Übersicht — funktioniert wirklich.`,
+  `<b>Maqueta —</b> el pago no está conectado. El botón llama al punto de integración de Stripe (<code>window.waouwPay</code>), que por ahora simula un pago aceptado. Todo lo demás — dirección, tarifas, cálculo, resumen — funciona de verdad.`);
+
+set('#cmdH4', `Order recorded`, `Bestellung erfasst`, `Pedido registrado`);
+set('#cmdS4 .cmd__mock', `<b>Mock-up —</b> no order was actually sent and no payment was taken.`,
+  `<b>Mock-up —</b> es wurde keine Bestellung übermittelt und keine Zahlung eingezogen.`,
+  `<b>Maqueta —</b> no se ha transmitido ningún pedido ni se ha cobrado nada.`);
+set('#cmdBack', `Back`, `Zurück`, `Atrás`);
+set('#cmdRefLab', `Reference`, `Referenz`, `Referencia`);
+
 set('.assur li span',
   [`<b>2-year legal warranty</b>, on top of the commercial warranty.`,
    `Card, bank transfer or PayPal. <b>No hidden fees</b>: the amount above is what you'll pay.`],
@@ -4401,14 +5464,14 @@ set('.foot > div:first-child > p', `The server that gives you back your web. Des
   `Der Server, der Ihnen Ihr Web zurückgibt. Entworfen, montiert und versendet in Frankreich.`,
   `El servidor que le devuelve su web. Diseñado, ensamblado y enviado desde Francia.`);
 set('.foot h4', [`Product`, `Help`, `Legal`], [`Produkt`, `Hilfe`, `Rechtliches`], [`Producto`, `Ayuda`, `Legal`]);
-set('.foot > div:nth-child(2) a', [`The box`, `The box`, `Plans & pricing`, `Technical specs`],
-  [`Die Box`, `Die Box`, `Angebote & Preise`, `Technische Daten`], [`La caja`, `La caja`, `Planes y precios`, `Especificaciones técnicas`]);
-set('.foot > div:nth-child(3) a', [`FAQ`, `Tutorials`, `Warranty & returns`, `Government grants to fund the purchase`, `Finding an eco-friendly host`, `Become a distributor`, `Contact us`],
-  [`Häufige Fragen`, `Anleitungen`, `Garantie & Rücksendungen`, `Staatliche Förderungen für den Kauf`, `Ein umweltfreundliches Hosting finden`, `Vertriebspartner werden`, `Kontakt`],
-  [`Preguntas frecuentes`, `Tutoriales`, `Garantía y devoluciones`, `Ayudas del Estado para financiar la compra`, `Encontrar un alojamiento ecológico`, `Conviértase en distribuidor`, `Contactar`]);
-set('.foot > div:nth-child(4) a', [`Legal notice`, `Terms of sale`, `Terms of use`, `Manage my cookies`],
-  [`Impressum`, `AGB (Verkauf)`, `Nutzungsbedingungen`, `Cookie-Einstellungen`],
-  [`Aviso legal`, `Condiciones generales de venta`, `Condiciones de uso`, `Gestionar cookies`]);
+set('.foot > div:nth-child(2) a', [`The cost`, `How it works`, `Plans & pricing`, `Technical specs`],
+  [`Die Kosten`, `So funktioniert's`, `Angebote & Preise`, `Technische Daten`], [`El coste`, `Cómo funciona`, `Planes y precios`, `Especificaciones técnicas`]);
+set('.foot > div:nth-child(3) a', [`FAQ`, `Warranty & returns`, `Government grants to fund the purchase`, `Finding an eco-friendly host`, `Become a distributor`, `Contact us`],
+  [`Häufige Fragen`, `Garantie & Rücksendungen`, `Staatliche Förderungen für den Kauf`, `Ein umweltfreundliches Hosting finden`, `Vertriebspartner werden`, `Kontakt`],
+  [`Preguntas frecuentes`, `Garantía y devoluciones`, `Ayudas del Estado para financiar la compra`, `Encontrar un alojamiento ecológico`, `Conviértase en distribuidor`, `Contactar`]);
+set('.foot > div:nth-child(4) a', [`Legal notice`, `Terms of sale`, `Terms of use`],
+  [`Impressum`, `AGB (Verkauf)`, `Nutzungsbedingungen`],
+  [`Aviso legal`, `Condiciones generales de venta`, `Condiciones de uso`]);
 set('.foot__legal', `WAOUW TECH, a French SAS with capital of &euro;1,100,000 &middot; 101 rue des Buccins, 34470 P&eacute;rols, France &middot; SIREN 942 272 212 &middot; <a href="mentions-legales.html">Full legal notice</a><br>
   Prices shown include delivery within mainland France. 14-day right of withdrawal. 2-year legal warranty of conformity — <a href="cgv.html">see the terms of sale</a>.<br>
   &copy; 2021–2025 WaouW Tech &mdash; All rights reserved.`,
