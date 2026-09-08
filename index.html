@@ -915,14 +915,6 @@ legend{
 }
 .ticket__top{display:flex; align-items:baseline; justify-content:space-between; gap:var(--s4)}
 .ticket__title{font-size:15px; font-weight:500}
-.toggle{display:inline-flex; padding:3px; background:rgba(11,11,10,.06); border-radius:var(--r-pill)}
-.toggle button{
-  border:0; background:transparent; border-radius:var(--r-pill); padding:0 16px; cursor:pointer;
-  font:500 12.5px/1 "Instrument Sans",sans-serif; color:var(--ink-2); min-height:40px; min-width:52px;
-  transition:color var(--t-micro) var(--ease), background var(--t-micro) var(--ease);
-}
-.toggle button:hover{color:var(--ink)}
-.toggle button[aria-pressed="true"]{background:#FFF; color:var(--ink); box-shadow:0 1px 2px rgba(0,0,0,.10)}
 /* Le produit avant le prix : on voit ce qu'on achète, puis on voit ce
    qu'on paie. Le fichier a un fond dégradé (237→249), pas un blanc pur :
    posé tel quel sur la plaque il dessinerait un rectangle gris. Ses bords
@@ -2331,7 +2323,7 @@ input[type=range]:focus-visible{outline:2px solid var(--accent); outline-offset:
          arrivant : « Le boîtier » menait à la section intitulée « Le problème ».
          Ordre = ordre de la page, pour que le menu et le scroll racontent la
          même chose. « Aides » entre parce que c'est un facteur de décision
-         qu'on va chercher ; « L'histoire » reste, elle porte la crédibilité.
+         qu'on va chercher.
          « Le boîtier » regroupe désormais IA locale / Pour qui / Offres en
          sous-menu : ces trois destinations restaient listées deux fois (ici
          et sous leur propre rubrique), le sous-menu supprime la redite sans
@@ -2349,7 +2341,6 @@ input[type=range]:focus-visible{outline:2px solid var(--accent); outline-offset:
         <a href="#offres" role="menuitem">Offres</a>
       </div>
     </div>
-    <a href="#histoire">L'histoire</a>
     <a href="#aides">Aides</a>
     <a href="#faq">Questions</a>
     <a href="#distributeur">Devenir revendeur</a>
@@ -2380,7 +2371,7 @@ input[type=range]:focus-visible{outline:2px solid var(--accent); outline-offset:
          arrivant : « Le boîtier » menait à la section intitulée « Le problème ».
          Ordre = ordre de la page, pour que le menu et le scroll racontent la
          même chose. « Aides » entre parce que c'est un facteur de décision
-         qu'on va chercher ; « L'histoire » reste, elle porte la crédibilité.
+         qu'on va chercher.
          Même sous-menu que la barre desktop, en <details> natif ici : pas de
          survol au doigt, le clic/tap ouvre et le lecteur d'écran l'annonce
          sans JS dédié. -->
@@ -2397,7 +2388,6 @@ input[type=range]:focus-visible{outline:2px solid var(--accent); outline-offset:
         <a href="#offres">Offres</a>
       </div>
     </details>
-    <a href="#histoire">L'histoire</a>
     <a href="#aides">Aides</a>
     <a href="#faq">Questions</a>
     <a href="#distributeur">Devenir revendeur</a>
@@ -2408,7 +2398,7 @@ input[type=range]:focus-visible{outline:2px solid var(--accent); outline-offset:
     <button type="button" class="langsw-row__f" data-lang="de" aria-pressed="false" aria-label="Deutsch"><span class="flag flag--de" aria-hidden="true"></span></button>
     <button type="button" class="langsw-row__f" data-lang="es" aria-pressed="false" aria-label="Español"><span class="flag flag--es" aria-hidden="true"></span></button>
   </div>
-  <a href="#offres" class="btn nav__drawer-cta" data-press-target>Commander — <span class="num">755&nbsp;€</span> livré</a>
+  <a href="#offres" class="btn nav__drawer-cta" data-press-target>Commander — <span class="num">755&nbsp;€ TTC</span> livré</a>
 </div>
 
 <main id="main">
@@ -2457,7 +2447,7 @@ input[type=range]:focus-visible{outline:2px solid var(--accent); outline-offset:
 
     <div class="hero__actions">
       <div class="hero__cta" data-reveal>
-        <a href="#offres" class="btn" data-press-target>Commander — <span class="num">755&nbsp;€</span> livré</a>
+        <a href="#offres" class="btn" data-press-target>Commander — <span class="num">755&nbsp;€ TTC</span> livré</a>
         <a href="#boitier" class="btn btn--ghost" data-press-target>Comment ça marche</a>
       </div>
       <p class="hero__price" data-reveal>
@@ -2707,29 +2697,6 @@ input[type=range]:focus-visible{outline:2px solid var(--accent); outline-offset:
 </section>
 
 
-<!-- ============ LE FONDATEUR ============ -->
-<section id="histoire">
-  <div class="wrap">
-    <p class="eyebrow" data-reveal>D'où vient cette box</p>
-    <h2 data-reveal style="max-width:15ch">Il a hébergé le web d'une région.<span class="dim"> Il veut vous rendre le vôtre.</span></h2>
-
-    <div class="founder" style="margin-top:var(--s8)">
-      <div data-reveal>
-        <p class="founder__quote">Un pionnier du Cloud souverain : Fondée à Toulouse en 1997, l'entreprise est l'un des plus anciens acteurs français de l'Internet.</p>
- <p class="lede" style="margin-top:var(--s6)">Vingt-cinq ans plus tard, le même homme construit l'inverse de ce qu'il a bâti : au lieu de concentrer les sites de milliers de clients dans ses machines, il met une machine chez chaque client. <strong>Ce n'est pas une start-up qui découvre l'hébergement — c'est un hébergeur qui a changé d'avis.</strong></p>
-      </div>
-
-      <ul class="tl" data-reveal><span class="tl__rail" aria-hidden="true"><i id="tlFill"></i></span>
-        <li><b>1997</b><span>Fondation de <em>NFrance Conseil</em> à Toulouse, l'un des premiers hébergeurs français.</span></li>
-        <li><b>2001</b><span><em>65 %</em> des sites web de Midi-Pyrénées hébergés. 6<sup>e</sup> enregistreur de noms de domaine de France, environ 500 revendeurs.</span></li>
-        <li><b>2019</b><span>Le prototype de la <em>WaouW Box</em> sort des cartons. Un serveur de la taille d'une main.</span></li>
-        <li><b>2023</b><span>Lauréate finaliste du concours <em>Tech for Future</em> (La Tribune), catégorie Start, à Toulouse.</span></li>
-        <li><b>2026</b><span>La box est en vente. <em>Vous</em> devenez l'hébergeur.</span></li>
-      </ul>
-    </div>
-
-  </div>
-</section>
 
 <!-- ============ SOUVERAINETÉ DE L'IA ============ -->
 <section class="night" id="ia">
@@ -2881,7 +2848,7 @@ input[type=range]:focus-visible{outline:2px solid var(--accent); outline-offset:
               <span class="opt__box">
                 <span class="opt__cap num">128 Go</span>
                 <span class="opt__use">3 sites vitrine + 2 boîtes mail + 5 ans de sauvegardes</span>
-                <span class="opt__p num">615 €</span>
+                <span class="opt__p num">615 € HT</span>
               </span>
             </label>
             <label class="opt">
@@ -2889,7 +2856,7 @@ input[type=range]:focus-visible{outline:2px solid var(--accent); outline-offset:
               <span class="opt__box">
                 <span class="opt__cap num">256 Go</span>
                 <span class="opt__use">6 sites + boutique en ligne + 10 boîtes mail<br><span style="color:var(--accent)">Recommandé pour une TPE</span></span>
-                <span class="opt__p num">740 €</span>
+                <span class="opt__p num">740 € HT</span>
               </span>
             </label>
             <label class="opt">
@@ -2897,7 +2864,7 @@ input[type=range]:focus-visible{outline:2px solid var(--accent); outline-offset:
               <span class="opt__box">
                 <span class="opt__cap num">512 Go</span>
                 <span class="opt__use">Sites riches en photos, archives, gros volumes de mails</span>
-                <span class="opt__p num">995 €</span>
+                <span class="opt__p num">995 € HT</span>
               </span>
             </label>
             <label class="opt">
@@ -2905,7 +2872,7 @@ input[type=range]:focus-visible{outline:2px solid var(--accent); outline-offset:
               <span class="opt__box">
                 <span class="opt__cap num">1 To</span>
                 <span class="opt__use">Agence, plusieurs clients hébergés sur un seul boîtier</span>
-                <span class="opt__p num">1 270 €</span>
+                <span class="opt__p num">1 270 € HT</span>
               </span>
             </label>
             <label class="opt">
@@ -2913,7 +2880,7 @@ input[type=range]:focus-visible{outline:2px solid var(--accent); outline-offset:
               <span class="opt__box">
                 <span class="opt__cap num">2 To</span>
                 <span class="opt__use">Médiathèques, archives vidéo, sauvegardes de plusieurs postes</span>
-                <span class="opt__p num">1 390 €</span>
+                <span class="opt__p num">1 390 € HT</span>
               </span>
             </label>
           </div>
@@ -2981,7 +2948,7 @@ input[type=range]:focus-visible{outline:2px solid var(--accent); outline-offset:
               <span class="opt__box">
                 <span class="opt__cap">Duo</span>
                 <span class="opt__use">Un deuxième boîtier, synchronisé en continu. Si l'un tombe, l'autre prend le relais.</span>
-                <span class="opt__p num">+ 625 €</span>
+                <span class="opt__p num">+ 625 € HT</span>
               </span>
             </label>
           </div>
@@ -3015,10 +2982,6 @@ input[type=range]:focus-visible{outline:2px solid var(--accent); outline-offset:
       <aside class="ticket" data-reveal aria-live="polite">
         <div class="ticket__top">
           <p class="ticket__title">Votre configuration</p>
-          <div class="toggle" role="group" aria-label="Afficher les prix">
-            <button type="button" id="bHT" aria-pressed="false">HT</button>
-            <button type="button" id="bTTC" aria-pressed="true">TTC</button>
-          </div>
         </div>
 
         <!-- Quatre rendus : une box par finition, et le schéma miroir par
@@ -3034,13 +2997,13 @@ input[type=range]:focus-visible{outline:2px solid var(--accent); outline-offset:
         <p class="ticket__vis" id="tkVis" hidden>Visuel — finition blanche.</p>
 
         <p class="ticket__big num" id="bigPrice">755,40 €</p>
-        <p class="ticket__sub" id="bigSub">Tout compris, livré. Une seule fois.</p>
+        <p class="ticket__sub" id="bigSub">Tout compris, TTC, livré. Une seule fois.</p>
 
         <div class="ticket__lines">
-          <p class="tline tline--h"><span>Le détail, hors taxes</span></p>
-          <p class="tline"><span id="lineName">WaouW Box 128 Go — Noir</span><b class="num" id="lineBase">615,00 €</b></p>
-          <p class="tline" id="lineDuoRow" hidden><span>Second boîtier miroir</span><b class="num" id="lineDuo">625,00 €</b></p>
-          <p class="tline" id="lineShipRow"><span id="lineShipLab">Livraison Colissimo suivi + assurance</span><b class="num" id="lineShip">14,50 €</b></p>
+          <p class="tline tline--h"><span>Le détail</span></p>
+          <p class="tline"><span id="lineName">WaouW Box 128 Go — Noir</span><b class="num" id="lineBase">738,00 € TTC</b></p>
+          <p class="tline" id="lineDuoRow" hidden><span>Second boîtier miroir</span><b class="num" id="lineDuo">750,00 € TTC</b></p>
+          <p class="tline" id="lineShipRow"><span id="lineShipLab">Livraison Colissimo suivi + assurance</span><b class="num" id="lineShip">17,40 € TTC</b></p>
           <p class="tline" id="lineVatRow"><span id="lineVatLab">TVA 20 %</span><b class="num" id="lineVat">125,90 €</b></p>
           <p class="tline tline--total"><span>Total <span id="totalMode">TTC</span></span><b class="num" id="lineTotal">755,40 €</b></p>
         </div>
@@ -3200,7 +3163,7 @@ input[type=range]:focus-visible{outline:2px solid var(--accent); outline-offset:
     <h2 data-reveal>Vous n'achetez pas un abonnement.<span class="dim"> Vous achetez la fin d'un abonnement.</span></h2>
     <p class="lede" data-reveal>Un boîtier, une fois, chez vous. Vos sites continuent de tourner même le jour où vous cessez de payer quoi que ce soit — parce qu'il n'y a plus rien à payer.</p>
     <div class="close__cta" data-reveal>
-      <a href="#offres" class="btn" data-press-target>Commander — <span class="num">755&nbsp;€</span> livré</a>
+      <a href="#offres" class="btn" data-press-target>Commander — <span class="num">755&nbsp;€ TTC</span> livré</a>
       <a href="mailto:support@waouw.eu" class="btn btn--ghost" id="closeChat" data-press-target>Parler à quelqu'un</a>
     </div>
     <p class="close__re" data-reveal>14 jours pour changer d'avis · Garantie légale 2 ans · Expédié sous 5 jours ouvrés depuis la France</p>
@@ -3320,7 +3283,7 @@ input[type=range]:focus-visible{outline:2px solid var(--accent); outline-offset:
     </div>
 
     <p class="foot__legal">
-      WAOUW TECH, SAS au capital de 1 100 000 € · 1350 avenue Albert Einstein, Parc Millénaire, France · SIREN 942 272 212 · <a href="mentions-legales.html">Mentions légales complètes</a><br>
+      WAOUW TECH, SAS au capital de 1 291 000 € · 1350 avenue Albert Einstein, Parc Millénaire, France · SIREN 942 272 212 · <a href="mentions-legales.html">Mentions légales complètes</a><br>
       Les prix affichés incluent la livraison en France métropolitaine. Droit de rétractation de 14 jours. Garantie légale de conformité de 2 ans — <a href="cgv.html">voir les CGV</a>.<br>
       © 2021–2025 WaouW Tech — Tous droits réservés.
     </p>
@@ -3329,7 +3292,7 @@ input[type=range]:focus-visible{outline:2px solid var(--accent); outline-offset:
 
 <!-- ============ BARRE D'ACHAT MOBILE ============ -->
 <div class="buybar" id="buybar">
-  <p class="buybar__p"><span style="color:var(--ink-3)">128 Go · Noir</span><b class="num" id="barPrice">755,40 € livré</b></p>
+  <p class="buybar__p"><span style="color:var(--ink-3)">128 Go · Noir</span><b class="num" id="barPrice">755,40 € TTC livré</b></p>
   <a href="#offres" class="btn btn--sm" data-press-target>Configurer</a>
 </div>
 
@@ -3939,7 +3902,7 @@ QA|c|mo|0|Qatar`
   };
 })();
 const eur = n => n.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
-let showTTC = true, priceSpring = null, shownTotal = 755.40;
+let priceSpring = null, shownTotal = 755.40;
 
 const $ = id => document.getElementById(id);
 const form = $('cfg');
@@ -4023,7 +3986,7 @@ function state() {
 
 function render(animate = true) {
   const s = state();
-  const total = showTTC ? s.ttc : s.ht;
+  const total = s.ttc;
 
   $('lineName').textContent = `WaouW Box ${s.label} — ${s.colorLabel}`;
 
@@ -4076,12 +4039,12 @@ function render(animate = true) {
         'Die WaouW Box in der Dreiviertelansicht.',
         'La caja WaouW, vista de tres cuartos.'));
   $('tkVis').hidden = !!shot;
-  $('lineBase').textContent = eur(s.base);          // les lignes restent HT…
+  $('lineBase').textContent = eur(s.base * (1 + s.tva)) + ' TTC';   // TTC : un site marchand n'affiche que ça
   $('lineDuoRow').hidden = !s.duo;
-  $('lineDuo').textContent = eur(DUO);
+  $('lineDuo').textContent = eur(DUO * (1 + s.tva)) + ' TTC';
   /* le port porte desormais le nom du mode et de la destination :
      « 14,50 € » sans dire vers ou n'est pas un prix, c'est un chiffre */
-  $('lineShip').textContent = eur(s.port);
+  $('lineShip').textContent = eur(s.port * (1 + s.tva)) + ' TTC';
   $('lineShipLab').textContent = (s.modePort ? s.modePort.nom : T('Livraison', 'Shipping', 'Versand', 'Envío'))
     + ' — ' + PORT.nom(s.dest);
 
@@ -4092,7 +4055,7 @@ function render(animate = true) {
     $('lineVatLab').textContent = T('TVA française non applicable', 'French VAT not applicable', 'Französische MwSt. nicht anwendbar', 'IVA francés no aplicable');
     $('lineVat').textContent = '—';
   } else {
-    $('lineVatRow').hidden = !showTTC;              // …et la TVA est une ligne, pas une surprise
+    $('lineVatRow').hidden = false;                  // la TVA reste une ligne, pas une surprise
     $('lineVatLab').textContent = T('TVA 20 %', 'VAT 20%', 'MwSt. 20 %', 'IVA 20 %');
     $('lineVat').textContent = eur(s.vat);
   }
@@ -4108,7 +4071,7 @@ function render(animate = true) {
           'Precios sin impuestos: impuestos y aranceles de importación a pagar a la llegada.')
       : T('TVA 20 % incluse.', 'VAT 20% included.', 'Inkl. 20 % MwSt.', 'IVA 20 % incluido.');
     $('dNote').innerHTML = d
-      ? `<b>${d.nom} — ${eur(d.prix)}</b> · ${d.detail}. ${taxe} `
+      ? `<b>${d.nom} — ${eur(d.prix)} ${T('HT', 'excl. VAT', 'netto', 'sin IVA')}</b> · ${d.detail}. ${taxe} `
         + T('D’autres modes de livraison sont proposés à la commande.',
             'Other delivery options are offered at checkout.',
             'Weitere Versandarten stehen bei der Bestellung zur Auswahl.',
@@ -4119,13 +4082,9 @@ function render(animate = true) {
           'Este destino se gestiona caso por caso — escríbanos.');
   }
   $('lineTotal').textContent = eur(total);
-  $('totalMode').textContent = showTTC
-    ? T('TTC', 'inc. VAT', 'inkl. MwSt.', 'con IVA')
-    : T('HT', 'ex. VAT', 'exkl. MwSt.', 'sin IVA');
-  $('bigSub').textContent = showTTC
-    ? T('Tout compris, livré. Une seule fois.', 'All-inclusive, delivered. One time only.', 'Alles inklusive, geliefert. Einmalig.', 'Todo incluido, entregado. Una sola vez.')
-    : T('Hors taxes, livraison incluse. Une seule fois.', 'Excl. VAT, delivery included. One time only.', 'Zzgl. MwSt., Versand inklusive. Einmalig.', 'Sin IVA, envío incluido. Una sola vez.');
-  $('barPrice').textContent = eur(s.ttc) + ' ' + T('livré', 'delivered', 'geliefert', 'entregado');
+  $('totalMode').textContent = T('TTC', 'inc. VAT', 'inkl. MwSt.', 'con IVA');
+  $('bigSub').textContent = T('Tout compris, TTC, livré. Une seule fois.', 'All-inclusive, incl. VAT, delivered. One time only.', 'Alles inklusive, inkl. MwSt., geliefert. Einmalig.', 'Todo incluido, con IVA, entregado. Una sola vez.');
+  $('barPrice').textContent = eur(s.ttc) + ' ' + T('TTC livré', 'incl. VAT, delivered', 'inkl. MwSt., geliefert', 'con IVA, entregado');
   document.querySelector('.buybar__p span').textContent = `${s.label} · ${s.colorLabel}${s.duo ? ' · Duo' : ''}`;
 
   const paint = v => { $('bigPrice').textContent = eur(v); };
@@ -4139,13 +4098,6 @@ function render(animate = true) {
 }
 
 form.addEventListener('change', () => render(true));
-$('bHT').addEventListener('click', () => { showTTC = false; sync(); });
-$('bTTC').addEventListener('click', () => { showTTC = true; sync(); });
-function sync() {
-  $('bHT').setAttribute('aria-pressed', String(!showTTC));
-  $('bTTC').setAttribute('aria-pressed', String(showTTC));
-  render(true);
-}
 render(false);
 
 /* ============================================================
@@ -4330,7 +4282,7 @@ render(false);
       lab.className = 'mode__o';
       lab.innerHTML = '<input type="radio" name="cmdMode" value="' + m.id + '"' + (m.id === PORT.mode() ? ' checked' : '') + '>'
         + '<span class="mode__b"><span class="mode__i"><span class="mode__n"></span><span class="mode__d"></span></span>'
-        + '<span class="mode__p">' + eur(m.prix) + '</span></span>';
+        + '<span class="mode__p">' + eur(m.prix) + ' ' + T('HT', 'excl. VAT', 'netto', 'sin IVA') + '</span></span>';
       lab.querySelector('.mode__n').textContent = m.nom;
       lab.querySelector('.mode__d').textContent = m.detail;
       lab.querySelector('input').addEventListener('change', () => { PORT.setMode(m.id); render(true); majPied(); });
@@ -4354,13 +4306,13 @@ render(false);
   function majRecap() {
     const s = state();
     const l = [];
-    l.push('<p class="tline"><span>WaouW Box ' + s.label + ' — ' + s.colorLabel + '</span><b class="num">' + eur(s.base) + '</b></p>');
-    if (s.duo) l.push('<p class="tline"><span>' + T('Second boîtier miroir', 'Second mirror box', 'Zweite Spiegel-Box', 'Segunda caja espejo') + '</span><b class="num">' + eur(DUO) + '</b></p>');
-    l.push('<p class="tline"><span>' + (s.modePort ? s.modePort.nom : '') + ' — ' + PORT.nom(s.dest) + '</span><b class="num">' + eur(s.port) + '</b></p>');
+    l.push('<p class="tline"><span>WaouW Box ' + s.label + ' — ' + s.colorLabel + '</span><b class="num">' + eur(s.base * (1 + s.tva)) + ' TTC</b></p>');
+    if (s.duo) l.push('<p class="tline"><span>' + T('Second boîtier miroir', 'Second mirror box', 'Zweite Spiegel-Box', 'Segunda caja espejo') + '</span><b class="num">' + eur(DUO * (1 + s.tva)) + ' TTC</b></p>');
+    l.push('<p class="tline"><span>' + (s.modePort ? s.modePort.nom : '') + ' — ' + PORT.nom(s.dest) + '</span><b class="num">' + eur(s.port * (1 + s.tva)) + ' TTC</b></p>');
     l.push(s.tva === 0
       ? '<p class="tline"><span>' + T('TVA française non applicable', 'French VAT not applicable', 'Französische MwSt. nicht anwendbar', 'IVA francés no aplicable') + '</span><b class="num">—</b></p>'
       : '<p class="tline"><span>' + T('TVA 20 %', 'VAT 20%', 'MwSt. 20 %', 'IVA 20 %') + '</span><b class="num">' + eur(s.vat) + '</b></p>');
-    l.push('<p class="tline tline--total"><span>' + T('Total à payer', 'Total to pay', 'Zu zahlender Betrag', 'Total a pagar') + '</span><b class="num">' + eur(s.ttc) + '</b></p>');
+    l.push('<p class="tline tline--total"><span>' + T('Total à payer', 'Total to pay', 'Zu zahlender Betrag', 'Total a pagar') + '</span><b class="num">' + eur(s.ttc) + ' TTC</b></p>');
     $('cmdSum').innerHTML = l.join('');
 
     const v = id => ($(id) ? $(id).value.trim() : '');
@@ -4381,7 +4333,7 @@ render(false);
     if (etape === 3) {
       suivant.textContent = T('Fermer', 'Close', 'Schließen', 'Cerrar');
     } else if (etape === 2) {
-      suivant.textContent = T('Payer ', 'Pay ', 'Bezahlen ', 'Pagar ') + eur(s.ttc);
+      suivant.textContent = T('Payer ', 'Pay ', 'Bezahlen ', 'Pagar ') + eur(s.ttc) + ' ' + T('TTC', 'incl. VAT', 'brutto', 'con IVA');
     } else {
       suivant.textContent = T('Continuer', 'Continue', 'Weiter', 'Continuar');
     }
@@ -5502,18 +5454,18 @@ document.querySelectorAll('details').forEach(d => {
 
 /* Ordre = ordre d'apparition dans le DOM, tous niveaux confondus : depuis le
    sous-menu, les 4 destinations de « Le boîtier » (bouton, pas un <a>) sont
-   rencontrées avant « L'histoire ». Voir le sous-menu, plus bas, pour le
+   rencontrées avant « Aides ». Voir le sous-menu, plus bas, pour le
    libellé du déclencheur lui-même (.nav__drop-label, hors de ce tableau). */
 const NAV_LABELS = {
-  en: [`The cost`, `How it works`, `Local AI`, `Who it's for`, `Plans`, `The story`, `Grants`, `FAQ`, `Become a reseller`],
-  de: [`Die Kosten`, `So funktioniert's`, `Lokale KI`, `Für wen`, `Angebote`, `Die Geschichte`, `Förderungen`, `Fragen`, `Vertriebspartner werden`],
-  es: [`El coste`, `Cómo funciona`, `IA local`, `Para quién`, `Planes`, `La historia`, `Ayudas`, `Preguntas`, `Ser distribuidor`],
+  en: [`The cost`, `How it works`, `Local AI`, `Who it's for`, `Plans`, `Grants`, `FAQ`, `Become a reseller`],
+  de: [`Die Kosten`, `So funktioniert's`, `Lokale KI`, `Für wen`, `Angebote`, `Förderungen`, `Fragen`, `Vertriebspartner werden`],
+  es: [`El coste`, `Cómo funciona`, `IA local`, `Para quién`, `Planes`, `Ayudas`, `Preguntas`, `Ser distribuidor`],
 };
 
 const ORDER_BTN = {
-  en: `Order — <span class="num">755&nbsp;€</span> delivered`,
-  de: `Bestellen — <span class="num">755&nbsp;€</span> geliefert`,
-  es: `Pedir — <span class="num">755&nbsp;€</span> entregado`,
+  en: `Order — <span class="num">755&nbsp;€ incl. VAT</span> delivered`,
+  de: `Bestellen — <span class="num">755&nbsp;€ brutto</span> geliefert`,
+  es: `Pedir — <span class="num">755&nbsp;€ con IVA</span> entregado`,
 };
 
 const I18N = { en: {}, de: {}, es: {} };
@@ -5627,28 +5579,6 @@ set('.chapters__t',
   [`Einführung und physischer Anschluss`, `Erster Zugriff und SSL-Zertifikat`, `Einrichtungsassistent und Netzwerk`, `Authentifizierung und Geräteregistrierung`, `Verbindung zum Admin-Dashboard`, `Dashboard und Systemeinstellungen`, `Updates und Anzeigemodus`, `Eine WordPress-Website erstellen und veröffentlichen`, `Website-Verwaltung und Datenbanken`, `Cloud, E-Mail, Synchronisierung, Backup`, `Sicherheit, VPN und Fazit`],
   [`Introducción y conexión física`, `Primer acceso y certificado SSL`, `Asistente de configuración y red`, `Autenticación y registro del dispositivo`, `Conexión al panel de administración`, `Panel y ajustes del sistema`, `Actualizaciones y modo de visualización`, `Crear y publicar un sitio WordPress`, `Administración del sitio y bases de datos`, `Nube, correo, sincronización, copia de seguridad`, `Seguridad, VPN y cierre`]);
 
-/* ---- histoire (les citations restent en français, cf. message) ---- */
-set('#histoire .eyebrow', `Where this box comes from`, `Woher diese Box kommt`, `De dónde viene esta caja`);
-set('#histoire h2', `He hosted an entire region's web.<span class="dim"> Now he wants to give you yours back.</span>`, `Er hat das Web einer ganzen Region gehostet.<span class="dim"> Jetzt will er Ihnen Ihres zurückgeben.</span>`, `Alojó la web de toda una región.<span class="dim"> Ahora quiere devolverle la suya.</span>`);
-set('.founder .lede', `Twenty-five years later, the same man is building the opposite of what he built then: instead of concentrating thousands of clients' sites on his machines, he puts one machine at each client's home. <strong>This isn't a startup discovering hosting — it's a hosting provider who changed his mind.</strong>`,
-  `Fünfundzwanzig Jahre später baut derselbe Mann das Gegenteil von dem, was er damals gebaut hat: Statt die Websites Tausender Kunden auf seinen Maschinen zu bündeln, stellt er bei jedem Kunden eine eigene Maschine auf. <strong>Das ist kein Start-up, das Hosting entdeckt — das ist ein Hoster, der seine Meinung geändert hat.</strong>`,
-  `Veinticinco años después, el mismo hombre construye lo contrario de lo que construyó entonces: en lugar de concentrar los sitios de miles de clientes en sus máquinas, coloca una máquina en casa de cada cliente. <strong>Esto no es una startup que descubre el alojamiento — es un proveedor de hosting que ha cambiado de opinión.</strong>`);
-set('.tl li span',
-  [`<em>NFrance Conseil</em> founded in Toulouse, one of the first French hosting providers.`,
-   `<em>65%</em> of Midi-Pyrénées websites hosted. France's 6th-largest domain registrar, around 500 resellers.`,
-   `The <em>WaouW Box</em> prototype comes off the workbench. A server the size of a hand.`,
-   `Finalist at the <em>Tech for Future</em> awards (La Tribune), Start category, in Toulouse.`,
-   `The box goes on sale. <em>You</em> become the host.`],
-  [`<em>NFrance Conseil</em> wird in Toulouse gegründet, einer der ersten französischen Hoster.`,
-   `<em>65 %</em> der Websites in Midi-Pyrénées gehostet. 6.-größter Domainregistrar Frankreichs, rund 500 Wiederverkäufer.`,
-   `Der Prototyp der <em>WaouW Box</em> verlässt die Werkbank. Ein Server von der Größe einer Hand.`,
-   `Finalist beim Wettbewerb <em>Tech for Future</em> (La Tribune), Kategorie Start, in Toulouse.`,
-   `Die Box kommt in den Verkauf. <em>Sie</em> werden zum Hoster.`],
-  [`Fundación de <em>NFrance Conseil</em> en Toulouse, uno de los primeros proveedores de hosting franceses.`,
-   `<em>65 %</em> de los sitios web de Midi-Pyrénées alojados. 6.º registrador de dominios de Francia, unos 500 revendedores.`,
-   `El prototipo de la <em>WaouW Box</em> sale del taller. Un servidor del tamaño de una mano.`,
-   `Finalista del concurso <em>Tech for Future</em> (La Tribune), categoría Start, en Toulouse.`,
-   `La caja sale a la venta. <em>Usted</em> se convierte en el proveedor de hosting.`]);
 
 /* ---- IA locale (ALPHA / OMEGA) ---- */
 set('#ia .eyebrow', `AI sovereignty`, `KI-Souveränität`, `Soberanía de la IA`);
@@ -5836,10 +5766,8 @@ set('#duo ~ .opt__box .opt__use', `A second box, continuously synced. If one fai
   `Eine zweite Box, ständig synchronisiert. Fällt eine aus, übernimmt die andere.`,
   `Una segunda caja, sincronizada continuamente. Si una falla, la otra toma el relevo.`);
 set('.ticket__title', `Your configuration`, `Ihre Konfiguration`, `Su configuración`);
-set('#bHT', `ex. VAT`, `exkl. MwSt.`, `sin IVA`);
-set('#bTTC', `inc. VAT`, `inkl. MwSt.`, `con IVA`);
 set('#tkVis', `Visual — white finish.`, `Abbildung — weiße Ausführung.`, `Imagen — acabado blanco.`);
-set('.tline--h span', `The breakdown, excl. tax`, `Die Aufschlüsselung, netto`, `El detalle, sin impuestos`);
+set('.tline--h span', `The breakdown`, `Die Aufschlüsselung`, `El detalle`);
 set('#lineDuoRow span', `Second mirror box`, `Zweite Spiegel-Box`, `Segunda caja espejo`);
 set('.tline--total > span', `Total <span id="totalMode">TTC</span>`, `Gesamt <span id="totalMode">TTC</span>`, `Total <span id="totalMode">TTC</span>`);
 set('.ticket a.btn', `Order`, `Bestellen`, `Pedir`);
@@ -6056,13 +5984,13 @@ set('.cert__s', [`In progress`, `In progress`, `In progress`],
 set('.certs__n', `These three standards are currently being pursued. They are not held to date, and the logos above do not attest to any verified compliance.`,
   `Diese drei Standards werden derzeit angestrebt. Sie sind bis heute nicht erlangt, und die obigen Logos bescheinigen keine festgestellte Konformität.`,
   `Estos tres referenciales están en proceso de obtención. No están conseguidos a día de hoy, y los logotipos anteriores no acreditan ninguna conformidad constatada.`);
-set('.foot__legal', `WAOUW TECH, a French SAS with capital of &euro;1,100,000 &middot; 1350 avenue Albert Einstein, Parc Mill&eacute;naire, France &middot; SIREN 942 272 212 &middot; <a href="mentions-legales.html">Full legal notice</a><br>
+set('.foot__legal', `WAOUW TECH, a French SAS with capital of &euro;1,291,000 &middot; 1350 avenue Albert Einstein, Parc Mill&eacute;naire, France &middot; SIREN 942 272 212 &middot; <a href="mentions-legales.html">Full legal notice</a><br>
   Prices shown include delivery within mainland France. 14-day right of withdrawal. 2-year legal warranty of conformity — <a href="cgv.html">see the terms of sale</a>.<br>
   &copy; 2021–2025 WaouW Tech &mdash; All rights reserved.`,
-  `WAOUW TECH, französische SAS mit einem Kapital von 1.100.000&nbsp;€ &middot; 1350 avenue Albert Einstein, Parc Millénaire, Frankreich &middot; SIREN 942 272 212 &middot; <a href="mentions-legales.html">Vollständiges Impressum</a><br>
+  `WAOUW TECH, französische SAS mit einem Kapital von 1.291.000&nbsp;€ &middot; 1350 avenue Albert Einstein, Parc Millénaire, Frankreich &middot; SIREN 942 272 212 &middot; <a href="mentions-legales.html">Vollständiges Impressum</a><br>
   Die angezeigten Preise beinhalten den Versand innerhalb Festland-Frankreichs. 14-tägiges Widerrufsrecht. 2 Jahre gesetzliche Gewährleistung — <a href="cgv.html">AGB ansehen</a>.<br>
   &copy; 2021–2025 WaouW Tech — Alle Rechte vorbehalten.`,
-  `WAOUW TECH, SAS francesa con un capital de 1.100.000&nbsp;€ &middot; 1350 avenue Albert Einstein, Parc Millénaire, Francia &middot; SIREN 942 272 212 &middot; <a href="mentions-legales.html">Aviso legal completo</a><br>
+  `WAOUW TECH, SAS francesa con un capital de 1.291.000&nbsp;€ &middot; 1350 avenue Albert Einstein, Parc Millénaire, Francia &middot; SIREN 942 272 212 &middot; <a href="mentions-legales.html">Aviso legal completo</a><br>
   Los precios mostrados incluyen el envío dentro de la Francia continental. Derecho de desistimiento de 14 días. Garantía legal de conformidad de 2 años — <a href="cgv.html">ver condiciones de venta</a>.<br>
   &copy; 2021–2025 WaouW Tech — Todos los derechos reservados.`);
 
