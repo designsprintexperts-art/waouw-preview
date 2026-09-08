@@ -1535,7 +1535,8 @@ a.iacite__c:focus-visible{outline:2px solid var(--accent-night); outline-offset:
 .chat{
   position:fixed; z-index:96; inset-block-end:24px; inset-inline-start:24px;
   width:min(384px, calc(100vw - 32px)); max-height:min(74vh, 640px);
-  display:none; flex-direction:column; overflow:hidden;
+  display:none; flex-direction:column; overflow-y:auto; overflow-x:hidden;
+  overscroll-behavior:contain; -webkit-overflow-scrolling:touch;
   background:rgba(252,251,249,.86);
   backdrop-filter:blur(26px) saturate(180%); -webkit-backdrop-filter:blur(26px) saturate(180%);
   border-radius:18px; box-shadow:0 24px 70px rgba(0,0,0,.34), 0 0 0 1px rgba(11,11,10,.10);
@@ -1551,9 +1552,9 @@ a.iacite__c:focus-visible{outline:2px solid var(--accent-night); outline-offset:
   .chat .consent{margin:2px 0 10px; font-size:12px}
   .chat__legal{margin-top:8px}
 }
-@media (prefers-reduced-transparency:reduce){ .chat{background:var(--paper-hi); backdrop-filter:none} }
+@media (prefers-reduced-transparency:reduce){ .chat{background:var(--paper-hi); backdrop-filter:none} .chat__hd{background:var(--paper-hi); backdrop-filter:none} }
 
-.chat__hd{display:flex; align-items:center; gap:12px; padding:16px 16px 14px; border-bottom:1px solid var(--line-soft)}
+.chat__hd{display:flex; align-items:center; gap:12px; padding:16px 16px 14px; border-bottom:1px solid var(--line-soft); position:sticky; inset-block-start:0; z-index:1; background:rgba(252,251,249,.92); backdrop-filter:blur(26px) saturate(180%); -webkit-backdrop-filter:blur(26px) saturate(180%)}
 .chat__av{width:34px; height:34px; border-radius:50%; background:var(--ink); display:grid; place-items:center; flex:none}
 .chat__av svg{width:17px; height:17px; color:var(--paper-hi)}
 .chat__who{flex:1; min-width:0}
@@ -1567,7 +1568,7 @@ a.iacite__c:focus-visible{outline:2px solid var(--accent-night); outline-offset:
 }
 .chat__x:hover{background:rgba(11,11,10,.06); color:var(--ink)}
 
-.chat__body{flex:0 1 auto; min-height:118px; overflow-y:auto; overscroll-behavior:contain; padding:18px 16px; display:flex; flex-direction:column; gap:12px}
+.chat__body{flex:0 0 auto; min-height:118px; padding:18px 16px; display:flex; flex-direction:column; gap:12px}
 .bub{
   max-width:86%; padding:11px 14px; border-radius:16px; font-size:14.5px; line-height:1.5;
   background:#fff; box-shadow:0 1px 2px rgba(0,0,0,.06); align-self:flex-start;
@@ -3237,7 +3238,7 @@ input[type=range]:focus-visible{outline:2px solid var(--accent); outline-offset:
           <li><a href="https://www.francenum.gouv.fr/aides-financieres" target="_blank" rel="noopener">Aides de l'État pour financer l'achat</a></li>
           <li><a href="trouver-un-hebergement-ecologique.html">Trouver un hébergement écologique</a></li>
           <li><a href="#distributeur">Devenir distributeur</a></li>
-          <li><a href="mailto:support@waouw.eu" onclick="document.getElementById('chatOpen').click();return false" data-press-target>Nous contacter</a></li>
+          <li><a href="mailto:support@waouw.eu" onclick="document.getElementById('chatOpen').click();return false" data-press-target>Nous contacter</a> <span style="opacity:.55; font-size:12.5px">&mdash; <a href="tel:+33458280672" style="color:inherit">04 58 28 06 72</a></span></li>
         </ul>
       </div>
       <div>
@@ -3507,13 +3508,18 @@ input[type=range]:focus-visible{outline:2px solid var(--accent); outline-offset:
       <span class="err" id="eMail" role="alert"></span>
     </div>
     <div class="f">
+      <label for="cTel">Téléphone <span style="color:var(--ink-3); font-weight:400">— optionnel</span></label>
+      <input id="cTel" name="tel" type="tel" autocomplete="tel" inputmode="tel" aria-describedby="eTel">
+      <span class="err" id="eTel" role="alert"></span>
+    </div>
+    <div class="f">
       <label for="cMsg">Message</label>
       <textarea id="cMsg" name="message" aria-describedby="eMsg" placeholder="Décrivez votre besoin en quelques mots…"></textarea>
       <span class="err" id="eMsg" role="alert"></span>
     </div>
 
+    <input type="text" name="_honey" id="cHoney" style="position:absolute; left:-9999px" tabindex="-1" autocomplete="off" aria-hidden="true">
     <button class="btn chat__send" id="chatSend" type="submit" data-press-target>Envoyer</button>
-    <p class="chat__legal">Ce formulaire n'est pas encore relié à notre boîte de support.</p>
   </form>
 
   <div class="chat__support">
@@ -3527,7 +3533,7 @@ input[type=range]:focus-visible{outline:2px solid var(--accent); outline-offset:
     </ul>
     <p class="chat__contacts">
       <a href="mailto:support@waouw.eu">support@waouw.eu</a>
-      <a href="tel:0805690099">0805 690 099</a>
+      <a href="tel:+33458280672">04 58 28 06 72</a>
       <span>Visioconférence disponible si nécessaire</span>
     </p>
   </div>
@@ -4715,7 +4721,7 @@ if (mWh && !REDUCED.matches) {
 (() => {
   const open = $('chatOpen'), panel = $('chat'), close = $('chatClose');
   const body = $('chatBody'), form = $('chatForm');
-  const first = $('cFirst'), name = $('cName'), mail = $('cMail'), msg = $('cMsg'), send = $('chatSend');
+  const first = $('cFirst'), name = $('cName'), mail = $('cMail'), tel = $('cTel'), msg = $('cMsg'), send = $('chatSend');
   if (!open || !panel) return;
 
   let isOpen = false, anim = null, lastFocus = null;
@@ -4806,18 +4812,40 @@ if (mWh && !REDUCED.matches) {
     if (!ok) { const bad = form.querySelector('[aria-invalid="true"]'); if (bad) bad.focus({ preventScroll: true }); return; }
 
     send.disabled = true; send.textContent = T('Envoi…', 'Sending…', 'Wird gesendet…', 'Enviando…');
-    setTimeout(() => {
-      form.style.display = 'none';
-      const noted = T('C’est noté', 'Got it', 'Notiert', 'Anotado');
-      const replyTo = T('Nous répondons à', 'We will reply to', 'Wir antworten an', 'Le responderemos a');
-      const asap = T('rapidement.', 'as soon as possible.', 'so schnell wie möglich.', 'lo antes posible.');
-      const mock = T('Maquette : rien n’a été transmis. À brancher sur votre boîte support.',
-                      'Mock-up: nothing was actually sent. To be wired to your support inbox.',
-                      'Mock-up: Es wurde nichts tatsächlich gesendet. Muss noch mit Ihrem Support-Postfach verbunden werden.',
-                      'Maqueta: no se ha enviado nada realmente. Falta conectarlo a su bandeja de soporte.');
-      bubble(`<b>${noted}, ${first.value.trim()}.</b><br>${replyTo} <b>${mail.value.trim()}</b> ${asap}<br>
-        <span style="display:block;margin-top:8px;font-size:12.5px;color:var(--ink-3)">${mock}</span>`);
-    }, 700);
+
+    /* FormSubmit (formsubmit.co) : backend de formulaire tiers, gratuit,
+       sans compte a creer -- l'adresse de destination suffit. Premier
+       envoi vers une adresse inconnue de leur service = e-mail
+       d'activation a valider une fois sur e.loui75@gmail.com. */
+    fetch('https://formsubmit.co/ajax/e.loui75@gmail.com', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify({
+        firstname: first.value.trim(),
+        name: name.value.trim(),
+        email: mail.value.trim(),
+        phone: tel.value.trim(),
+        message: msg.value.trim(),
+        _honey: (form.querySelector('#cHoney') || {}).value || '',
+        _subject: 'WaouW — nouveau message du formulaire de contact',
+        _replyto: mail.value.trim(),
+        _template: 'table',
+      }),
+    })
+      .then(r => { if (!r.ok) throw new Error('formsubmit ' + r.status); return r.json(); })
+      .then(() => {
+        form.style.display = 'none';
+        const noted = T('C’est noté', 'Got it', 'Notiert', 'Anotado');
+        const replyTo = T('Nous répondons à', 'We will reply to', 'Wir antworten an', 'Le responderemos a');
+        const asap = T('rapidement.', 'as soon as possible.', 'so schnell wie möglich.', 'lo antes posible.');
+        bubble(`<b>${noted}, ${first.value.trim()}.</b><br>${replyTo} <b>${mail.value.trim()}</b> ${asap}`);
+      })
+      .catch(() => {
+        send.disabled = false; send.textContent = T('Envoyer', 'Send', 'Senden', 'Enviar');
+        const oops = T('Le message n’est pas parti.', 'The message could not be sent.', 'Die Nachricht konnte nicht gesendet werden.', 'El mensaje no se pudo enviar.');
+        const fallback = T('Écrivez-nous directement à', 'Write to us directly at', 'Schreiben Sie uns direkt an', 'Escríbanos directamente a');
+        bubble(`<b>${oops}</b><br>${fallback} <a href="mailto:support@waouw.eu">support@waouw.eu</a>.`);
+      });
   });
 })();
 
@@ -5972,9 +6000,9 @@ set('.foot > div:first-child > p', `The server that gives you back your web. Des
 set('.foot h4', [`Product`, `Help`, `Legal`], [`Produkt`, `Hilfe`, `Rechtliches`], [`Producto`, `Ayuda`, `Legal`]);
 set('.foot > div:nth-child(2) a', [`The cost`, `How it works`, `Plans & pricing`, `Technical specs`],
   [`Die Kosten`, `So funktioniert's`, `Angebote & Preise`, `Technische Daten`], [`El coste`, `Cómo funciona`, `Planes y precios`, `Especificaciones técnicas`]);
-set('.foot > div:nth-child(3) a', [`FAQ`, `Warranty & returns`, `Government grants to fund the purchase`, `Finding an eco-friendly host`, `Become a distributor`, `Contact us`],
-  [`Häufige Fragen`, `Garantie & Rücksendungen`, `Staatliche Förderungen für den Kauf`, `Ein umweltfreundliches Hosting finden`, `Vertriebspartner werden`, `Kontakt`],
-  [`Preguntas frecuentes`, `Garantía y devoluciones`, `Ayudas del Estado para financiar la compra`, `Encontrar un alojamiento ecológico`, `Conviértase en distribuidor`, `Contactar`]);
+set('.foot > div:nth-child(3) a', [`FAQ`, `Warranty & returns`, `Government grants to fund the purchase`, `Finding an eco-friendly host`, `Become a distributor`, `Contact us — +33 4 58 28 06 72`],
+  [`Häufige Fragen`, `Garantie & Rücksendungen`, `Staatliche Förderungen für den Kauf`, `Ein umweltfreundliches Hosting finden`, `Vertriebspartner werden`, `Kontakt — +33 4 58 28 06 72`],
+  [`Preguntas frecuentes`, `Garantía y devoluciones`, `Ayudas del Estado para financiar la compra`, `Encontrar un alojamiento ecológico`, `Conviértase en distribuidor`, `Contactar — +33 4 58 28 06 72`]);
 set('.foot > div:nth-child(4) a', [`Legal notice`, `Terms of sale`, `Terms of use`],
   [`Impressum`, `AGB (Verkauf)`, `Nutzungsbedingungen`],
   [`Aviso legal`, `Condiciones generales de venta`, `Condiciones de uso`]);
@@ -6011,9 +6039,11 @@ set('.chat__intro', `A question, a project? Fill in this form and our team will 
 set('label[for="cFirst"]', `First name`, `Vorname`, `Nombre`);
 set('label[for="cName"]', `Last name`, `Nachname`, `Apellidos`);
 set('label[for="cMail"]', `Email`, `E-Mail`, `Correo electrónico`);
+set('label[for="cTel"]', `Phone <span style="color:var(--ink-3); font-weight:400">— optional</span>`,
+  `Telefon <span style="color:var(--ink-3); font-weight:400">— optional</span>`,
+  `Teléfono <span style="color:var(--ink-3); font-weight:400">— opcional</span>`);
 set('label[for="cMsg"]', `Message`, `Nachricht`, `Mensaje`);
 set('#chatSend', `Send`, `Senden`, `Enviar`);
-set('.chat__legal', `This form is not connected to our support inbox yet.`, `Dieses Formular ist noch nicht mit unserem Support-Postfach verbunden.`, `Este formulario aún no está conectado a nuestro buzón de soporte.`);
 set('.chat__support__t', `Customer support`, `Kundensupport`, `Atención al cliente`);
 set('.chat__hours li',
   [`<span>Monday</span><span>2:00 – 6:00 PM <i>(closed in the morning)</i></span>`,
