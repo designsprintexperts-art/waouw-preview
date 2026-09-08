@@ -132,7 +132,10 @@ em,.it{font-style:italic}
    Urbanist, où l'espace ne fait déjà qu'un quart de cadratin : le retrait prévu
    pour la chasse fixe y collerait le symbole au montant. On y revient à une
    fine, dosée pour cette fonte. */
-.ticket__big, .calc__val, .ribbon__v, .close__cta .num, .btn .num{word-spacing:-.09em}
+/* .calc__big est en Urbanist, pas en chasse fixe : le word-spacing de .num,
+   calibre sur JetBrains Mono ou l'espace vaut une pleine chasse, y mangeait
+   l'espace avant le symbole — « 925EUR » colle. */
+.ticket__big, .calc__big, .calc__val, .ribbon__v, .close__cta .num, .btn .num{word-spacing:-.09em}
 
 /* ---------- layout ---------- */
 .wrap{max-width:var(--max); margin-inline:auto; padding-inline:var(--gut)}
@@ -946,7 +949,14 @@ legend{
 .ticket__big{font-family:"Urbanist",system-ui,sans-serif; font-weight:300; font-size:clamp(46px,6vw,64px); letter-spacing:-.032em; line-height:1; margin:var(--s5) 0 var(--s2)}
 .ticket__sub{font-size:14px; color:var(--ink-3); margin-bottom:var(--s5)}
 .ticket__lines{border-top:1px solid var(--line-soft); padding-top:var(--s4); margin-bottom:var(--s5)}
-.tline{display:flex; justify-content:space-between; gap:var(--s4); font-size:14.5px; padding:7px 0; color:var(--ink-2)}
+.tline{display:flex; justify-content:space-between; align-items:baseline; gap:var(--s4); font-size:14.5px; padding:7px 0; color:var(--ink-2)}
+/* Sur une ligne en flex, les deux colonnes retrecissent a egalite : sous
+   400 px, « 14,50 EUR » se coupait entre le chiffre et le symbole pendant
+   que le libelle gardait sa place. C'est l'inverse qu'il faut — un montant
+   ne se lit pas sur deux lignes, un libelle si. La colonne de droite garde
+   donc sa largeur (flex:none) et ne se casse pas (nowrap) ; le libelle
+   passe a la ligne, et les deux restent cales sur la meme ligne de base. */
+.tline b, .calc__row b{flex:none; white-space:nowrap; text-align:end}
 .tline b{color:var(--ink); font-weight:500}
 /* l'intitulé du détail était en style en dur dans le HTML : passé en classe,
    il suit le thème au lieu de le contredire si la carte change de fond. */
@@ -1955,9 +1965,7 @@ input[type=range]:focus-visible{outline:2px solid var(--accent); outline-offset:
    "description": "Concepteur et fabricant français de la WaouW Box, un serveur d'hébergement web autonome destiné aux particuliers, aux indépendants, aux associations et aux petites entreprises.",
    "address": {
     "@type": "PostalAddress",
-    "streetAddress": "101 rue des Buccins",
-    "postalCode": "34470",
-    "addressLocality": "Pérols",
+    "streetAddress": "1350 avenue Albert Einstein, Parc Millénaire",
     "addressRegion": "Occitanie",
     "addressCountry": "FR"
    },
@@ -2003,7 +2011,8 @@ input[type=range]:focus-visible{outline:2px solid var(--accent); outline-offset:
      "opens": "09:00",
      "closes": "18:00"
     }
-   ]
+   ],
+   "foundingDate": "2025-04-17"
   },
   {
    "@type": "WebSite",
@@ -3311,7 +3320,7 @@ input[type=range]:focus-visible{outline:2px solid var(--accent); outline-offset:
     </div>
 
     <p class="foot__legal">
-      WAOUW TECH, SAS au capital de 1 100 000 € · 101 rue des Buccins, 34470 Pérols, France · SIREN 942 272 212 · <a href="mentions-legales.html">Mentions légales complètes</a><br>
+      WAOUW TECH, SAS au capital de 1 100 000 € · 1350 avenue Albert Einstein, Parc Millénaire, France · SIREN 942 272 212 · <a href="mentions-legales.html">Mentions légales complètes</a><br>
       Les prix affichés incluent la livraison en France métropolitaine. Droit de rétractation de 14 jours. Garantie légale de conformité de 2 ans — <a href="cgv.html">voir les CGV</a>.<br>
       © 2021–2025 WaouW Tech — Tous droits réservés.
     </p>
@@ -6047,13 +6056,13 @@ set('.cert__s', [`In progress`, `In progress`, `In progress`],
 set('.certs__n', `These three standards are currently being pursued. They are not held to date, and the logos above do not attest to any verified compliance.`,
   `Diese drei Standards werden derzeit angestrebt. Sie sind bis heute nicht erlangt, und die obigen Logos bescheinigen keine festgestellte Konformität.`,
   `Estos tres referenciales están en proceso de obtención. No están conseguidos a día de hoy, y los logotipos anteriores no acreditan ninguna conformidad constatada.`);
-set('.foot__legal', `WAOUW TECH, a French SAS with capital of &euro;1,100,000 &middot; 101 rue des Buccins, 34470 P&eacute;rols, France &middot; SIREN 942 272 212 &middot; <a href="mentions-legales.html">Full legal notice</a><br>
+set('.foot__legal', `WAOUW TECH, a French SAS with capital of &euro;1,100,000 &middot; 1350 avenue Albert Einstein, Parc Mill&eacute;naire, France &middot; SIREN 942 272 212 &middot; <a href="mentions-legales.html">Full legal notice</a><br>
   Prices shown include delivery within mainland France. 14-day right of withdrawal. 2-year legal warranty of conformity — <a href="cgv.html">see the terms of sale</a>.<br>
   &copy; 2021–2025 WaouW Tech &mdash; All rights reserved.`,
-  `WAOUW TECH, französische SAS mit einem Kapital von 1.100.000&nbsp;€ &middot; 101 rue des Buccins, 34470 Pérols, Frankreich &middot; SIREN 942 272 212 &middot; <a href="mentions-legales.html">Vollständiges Impressum</a><br>
+  `WAOUW TECH, französische SAS mit einem Kapital von 1.100.000&nbsp;€ &middot; 1350 avenue Albert Einstein, Parc Millénaire, Frankreich &middot; SIREN 942 272 212 &middot; <a href="mentions-legales.html">Vollständiges Impressum</a><br>
   Die angezeigten Preise beinhalten den Versand innerhalb Festland-Frankreichs. 14-tägiges Widerrufsrecht. 2 Jahre gesetzliche Gewährleistung — <a href="cgv.html">AGB ansehen</a>.<br>
   &copy; 2021–2025 WaouW Tech — Alle Rechte vorbehalten.`,
-  `WAOUW TECH, SAS francesa con un capital de 1.100.000&nbsp;€ &middot; 101 rue des Buccins, 34470 Pérols, Francia &middot; SIREN 942 272 212 &middot; <a href="mentions-legales.html">Aviso legal completo</a><br>
+  `WAOUW TECH, SAS francesa con un capital de 1.100.000&nbsp;€ &middot; 1350 avenue Albert Einstein, Parc Millénaire, Francia &middot; SIREN 942 272 212 &middot; <a href="mentions-legales.html">Aviso legal completo</a><br>
   Los precios mostrados incluyen el envío dentro de la Francia continental. Derecho de desistimiento de 14 días. Garantía legal de conformidad de 2 años — <a href="cgv.html">ver condiciones de venta</a>.<br>
   &copy; 2021–2025 WaouW Tech — Todos los derechos reservados.`);
 
