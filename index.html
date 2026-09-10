@@ -1433,7 +1433,7 @@ a.press__i:focus-visible{outline:2px solid var(--accent-night); outline-offset:-
    soient les MEMES, pas deux suites de hauteurs qui se ressemblent. Caler des
    min-height ne tient pas — un libelle allemand ou espagnol passe sur deux
    lignes la ou le francais en fait une, et tout se decale. Avec subgrid, les
-   six rangees (surtitre, titre, texte, chiffre, specs, pied) appartiennent a
+   sept rangees (surtitre, titre, texte, chiffre, specs, dispo, pied) appartiennent a
    la grille parente : chaque rangee prend la hauteur de la plus haute des
    deux cartes, dans toutes les langues et a toutes les largeurs.
    L'ecart d'1 px entre colonnes reste le filet vertical ; l'ecart entre
@@ -1441,7 +1441,7 @@ a.press__i:focus-visible{outline:2px solid var(--accent-night); outline-offset:-
    Sans @supports, les navigateurs sans subgrid gardent le flex d'origine. */
 @supports (grid-template-rows: subgrid){
   @media (min-width:760px){
-    .iabox{column-gap:1px; row-gap:var(--s3); grid-template-rows:repeat(6, auto)}
+    .iabox{column-gap:1px; row-gap:var(--s3); grid-template-rows:repeat(7, auto)}
     .iabox__c{display:grid; grid-row:1 / -1; grid-template-rows:subgrid}
   }
 }
@@ -1508,7 +1508,9 @@ a.press__i:focus-visible{outline:2px solid var(--accent-night); outline-offset:-
   margin-top:auto; padding-top:var(--s5); border-top:1px solid var(--line-night);
 }
 .iabox__soon{
-  align-self:flex-start; margin:var(--s4) 0 0;
+  /* start sur les deux axes : en grille, sans justify-self la pastille
+     s'etirait sur toute la colonne et se confondait avec le pied. */
+  align-self:start; justify-self:start; margin:var(--s4) 0 0;
   font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--on-night-3);
   border:1px solid var(--line-night); border-radius:var(--r-pill); padding:4px 9px;
 }
