@@ -954,6 +954,8 @@ legend{
    il suit le thème au lieu de le contredire si la carte change de fond. */
 .tline--h{font-size:11.5px; letter-spacing:.14em; text-transform:uppercase; color:var(--ink-3); padding-top:0}
 .tline--total{border-top:1px solid var(--line-soft); margin-top:var(--s2); padding-top:var(--s4); font-size:16px; color:var(--ink)}
+/* sous-total HT : meme logique de separation que le total, en plus discret */
+.tline--sub{border-top:1px solid var(--line-soft); margin-top:var(--s2); padding-top:var(--s3); color:var(--ink)}
 .ticket .btn{width:100%}
 .assur{display:grid; gap:10px; margin-top:var(--s5); padding-top:var(--s5); border-top:1px solid var(--line-soft)}
 .assur li{display:flex; gap:10px; font-size:13.5px; color:var(--ink-2); line-height:1.45; align-items:flex-start}
@@ -1015,12 +1017,32 @@ footer{border-top:1px solid var(--line-night); padding-block:var(--s8) var(--s7)
 .foot a:hover{color:var(--on-night)}
 .foot__support{margin-top:var(--s6)}
 .foot__support__t{font:500 12px/1 "Instrument Sans",sans-serif; letter-spacing:.14em; text-transform:uppercase; color:var(--on-night-3); margin:0 0 var(--s4)}
-.foot__hours{list-style:none; margin:0 0 12px; padding:0; display:flex; flex-direction:column; gap:5px}
-.foot__hours li{display:flex; justify-content:space-between; gap:12px; font-size:12.5px; line-height:1.4}
-.foot__hours li span:first-child{color:var(--on-night-2); font-weight:500; flex:none}
-.foot__hours li span:last-child{color:var(--on-night-3); text-align:right}
-.foot__hours li i{font-style:normal; opacity:.75}
-.foot__contacts{display:flex; flex-wrap:wrap; gap:6px 14px; margin:0; font-size:12.5px}
+/* Le pied de page passe en une seule colonne sous 820px : un space-between
+   y jetait le jour a gauche et l'horaire a l'autre bout (jusqu'a 458px d'ecart
+   a 768px de large), illisible. Colonne de jour a largeur fixe, horaires cales
+   les uns sous les autres, et le bloc ne s'etire plus au-dela du lisible. */
+.foot__support{max-width:min(100%, 340px)}
+/* Grille a deux colonnes plutot qu'une largeur de jour figee : « Lundi » fait
+   45px, « Donnerstag » en fait 100. max-content laisse la langue decider, et
+   les horaires restent alignes dans les quatre. li en display:contents pour que
+   les deux span deviennent les cellules. */
+ul.foot__hours{list-style:none; margin:0 0 14px; padding:0; display:grid; grid-template-columns:max-content 1fr; column-gap:12px; row-gap:5px; font-size:12.5px; line-height:1.4}
+.foot__hours li{display:contents}
+.foot__hours li span:first-child{color:var(--on-night-2); font-weight:500}
+.foot__hours li span:last-child{color:var(--on-night-3)}
+.foot__hours li i{font-style:normal; opacity:.75; white-space:nowrap}
+/* Largeur de colonne inversee : sous 820px le pied de page est en une seule
+   colonne large, le jour et l'horaire tiennent cote a cote. A partir de 820px
+   il passe en 4 colonnes etroites (~215-285px) ou cette meme ligne cassait en
+   deux a chaque rangee : on empile l'horaire sous le jour. */
+@media (min-width:820px){
+  ul.foot__hours{display:flex; flex-direction:column; gap:5px}
+  .foot__hours li{display:flex; flex-direction:column; gap:1px}
+}
+/* align-items:center : les liens portent min-height:40px (cible tactile) que le
+   span de la visio n'a pas — sans ca son texte se calait en haut d'une boite de
+   40px et flottait au-dessus de la ligne mail/telephone. */
+.foot__contacts{display:flex; flex-wrap:wrap; align-items:center; gap:2px 14px; margin:0; font-size:12.5px}
 .foot__contacts a{color:var(--on-night); font-weight:500; text-decoration:none}
 .foot__contacts a:hover{text-decoration:underline}
 .foot__contacts span{color:var(--on-night-3)}
@@ -2439,7 +2461,7 @@ input[type=range]:focus-visible{outline:2px solid var(--accent); outline-offset:
     <button type="button" class="langsw-row__f" data-lang="de" aria-pressed="false" aria-label="Deutsch"><span class="flag flag--de" aria-hidden="true"></span></button>
     <button type="button" class="langsw-row__f" data-lang="es" aria-pressed="false" aria-label="Español"><span class="flag flag--es" aria-hidden="true"></span></button>
   </div>
-  <a href="#offres" class="btn nav__drawer-cta" data-press-target>Commander — <span class="num">755&nbsp;€ TTC</span> livré</a>
+  <a href="#offres" class="btn nav__drawer-cta" data-press-target>Commander — <span class="num">629,50&nbsp;€ HT</span> livré</a>
 </div>
 
 <main id="main">
@@ -2488,13 +2510,13 @@ input[type=range]:focus-visible{outline:2px solid var(--accent); outline-offset:
 
     <div class="hero__actions">
       <div class="hero__cta" data-reveal>
-        <a href="#offres" class="btn" data-press-target>Commander — <span class="num">755&nbsp;€ TTC</span> livré</a>
+        <a href="#offres" class="btn" data-press-target>Commander — <span class="num">629,50&nbsp;€ HT</span> livré</a>
         <a href="#boitier" class="btn btn--ghost" data-press-target>Comment ça marche</a>
       </div>
       <p class="hero__price" data-reveal>
-        <span><b class="num">615&nbsp;€ HT</b><span style="opacity:.45; margin:0 8px">/</span><span class="num">738&nbsp;€ TTC</span></span>
-        <span>+ <span class="num">14,50&nbsp;€</span> de port</span>
-        <span><b class="num">755,40&nbsp;€</b> tout compris, une seule fois</span>
+        <span><b class="num">615&nbsp;€ HT</b> le boîtier</span>
+        <span>+ <span class="num">14,50&nbsp;€ HT</span> de port</span>
+        <span>= <b class="num">629,50&nbsp;€ HT</b><span style="opacity:.45; margin:0 8px">·</span><span class="num">755,40&nbsp;€ TTC</span>, une seule fois</span>
       </p>
 
     </div>
@@ -3045,6 +3067,7 @@ input[type=range]:focus-visible{outline:2px solid var(--accent); outline-offset:
           <p class="tline"><span id="lineName">WaouW Box 128 Go — Noir</span><b class="num" id="lineBase">738,00 € TTC</b></p>
           <p class="tline" id="lineDuoRow" hidden><span>Second boîtier miroir</span><b class="num" id="lineDuo">750,00 € TTC</b></p>
           <p class="tline" id="lineShipRow"><span id="lineShipLab">Livraison Colissimo suivi + assurance</span><b class="num" id="lineShip">17,40 € TTC</b></p>
+          <p class="tline tline--sub" id="lineHtRow"><span id="lineHtLab">Total HT</span><b class="num" id="lineHt">754,50 €</b></p>
           <p class="tline" id="lineVatRow"><span id="lineVatLab">TVA 20 %</span><b class="num" id="lineVat">125,90 €</b></p>
           <p class="tline tline--total"><span>Total <span id="totalMode">TTC</span></span><b class="num" id="lineTotal">755,40 €</b></p>
         </div>
@@ -3204,7 +3227,7 @@ input[type=range]:focus-visible{outline:2px solid var(--accent); outline-offset:
     <h2 data-reveal>Vous n'achetez pas un abonnement.<span class="dim"> Vous achetez la fin d'un abonnement.</span></h2>
     <p class="lede" data-reveal>Un boîtier, une fois, chez vous. Vos sites continuent de tourner même le jour où vous cessez de payer quoi que ce soit — parce qu'il n'y a plus rien à payer.</p>
     <div class="close__cta" data-reveal>
-      <a href="#offres" class="btn" data-press-target>Commander — <span class="num">755&nbsp;€ TTC</span> livré</a>
+      <a href="#offres" class="btn" data-press-target>Commander — <span class="num">629,50&nbsp;€ HT</span> livré</a>
       <a href="mailto:support@waouw.eu" class="btn btn--ghost" id="closeChat" data-press-target>Parler à quelqu'un</a>
     </div>
     <p class="close__re" data-reveal>14 jours pour changer d'avis · Garantie légale 2 ans · Expédié sous 5 jours ouvrés depuis la France</p>
@@ -4101,12 +4124,20 @@ function render(animate = true) {
         'Die WaouW Box in der Dreiviertelansicht.',
         'La caja WaouW, vista de tres cuartos.'));
   $('tkVis').hidden = !!shot;
-  $('lineBase').textContent = eur(s.base * (1 + s.tva)) + ' TTC';   // TTC : un site marchand n'affiche que ça
+  /* Clientele majoritairement professionnelle : le detail se lit en HT,
+     le HT se totalise, puis la TVA et le TTC ferment le compte. */
+  const HT = T('HT', 'excl. VAT', 'netto', 'sin IVA');
+  $('lineBase').textContent = eur(s.base) + ' ' + HT;   // le detail est HT, le total reste TTC : ça
   $('lineDuoRow').hidden = !s.duo;
-  $('lineDuo').textContent = eur(DUO * (1 + s.tva)) + ' TTC';
+  $('lineDuo').textContent = eur(DUO) + ' ' + HT;
   /* le port porte desormais le nom du mode et de la destination :
      « 14,50 € » sans dire vers ou n'est pas un prix, c'est un chiffre */
-  $('lineShip').textContent = eur(s.port * (1 + s.tva)) + ' TTC';
+  $('lineShip').textContent = eur(s.port) + ' ' + HT;
+  /* hors TVA francaise, un Total HT ferait doublon avec le total final :
+     on ne l'affiche que quand il y a vraiment une taxe a ajouter. */
+  $('lineHtRow').hidden = (s.tva === 0);
+  $('lineHtLab').textContent = T('Total HT', 'Total excl. VAT', 'Summe netto', 'Total sin IVA');
+  $('lineHt').textContent = eur(s.ht);
   $('lineShipLab').textContent = (s.modePort ? s.modePort.nom : T('Livraison', 'Shipping', 'Versand', 'Envío'))
     + ' — ' + PORT.nom(s.dest);
 
@@ -4368,9 +4399,12 @@ render(false);
   function majRecap() {
     const s = state();
     const l = [];
-    l.push('<p class="tline"><span>WaouW Box ' + s.label + ' — ' + s.colorLabel + '</span><b class="num">' + eur(s.base * (1 + s.tva)) + ' TTC</b></p>');
-    if (s.duo) l.push('<p class="tline"><span>' + T('Second boîtier miroir', 'Second mirror box', 'Zweite Spiegel-Box', 'Segunda caja espejo') + '</span><b class="num">' + eur(DUO * (1 + s.tva)) + ' TTC</b></p>');
-    l.push('<p class="tline"><span>' + (s.modePort ? s.modePort.nom : '') + ' — ' + PORT.nom(s.dest) + '</span><b class="num">' + eur(s.port * (1 + s.tva)) + ' TTC</b></p>');
+    l.push('<p class="tline"><span>WaouW Box ' + s.label + ' — ' + s.colorLabel + '</span><b class="num">' + eur(s.base) + ' ' + T('HT', 'excl. VAT', 'netto', 'sin IVA') + '</b></p>');
+    if (s.duo) l.push('<p class="tline"><span>' + T('Second boîtier miroir', 'Second mirror box', 'Zweite Spiegel-Box', 'Segunda caja espejo') + '</span><b class="num">' + eur(DUO) + ' ' + T('HT', 'excl. VAT', 'netto', 'sin IVA') + '</b></p>');
+    l.push('<p class="tline"><span>' + (s.modePort ? s.modePort.nom : '') + ' — ' + PORT.nom(s.dest) + '</span><b class="num">' + eur(s.port) + ' ' + T('HT', 'excl. VAT', 'netto', 'sin IVA') + '</b></p>');
+    if (s.tva !== 0) l.push('<p class="tline tline--sub"><span>'
+      + T('Total HT', 'Total excl. VAT', 'Summe netto', 'Total sin IVA')
+      + '</span><b class="num">' + eur(s.ht) + '</b></p>');
     l.push(s.tva === 0
       ? '<p class="tline"><span>' + T('TVA française non applicable', 'French VAT not applicable', 'Französische MwSt. nicht anwendbar', 'IVA francés no aplicable') + '</span><b class="num">—</b></p>'
       : '<p class="tline"><span>' + T('TVA 20 %', 'VAT 20%', 'MwSt. 20 %', 'IVA 20 %') + '</span><b class="num">' + eur(s.vat) + '</b></p>');
@@ -5547,9 +5581,9 @@ const NAV_LABELS = {
 };
 
 const ORDER_BTN = {
-  en: `Order — <span class="num">755&nbsp;€ incl. VAT</span> delivered`,
-  de: `Bestellen — <span class="num">755&nbsp;€ brutto</span> geliefert`,
-  es: `Pedir — <span class="num">755&nbsp;€ con IVA</span> entregado`,
+  en: `Order — <span class="num">629,50&nbsp;€ excl. VAT</span> delivered`,
+  de: `Bestellen — <span class="num">629,50&nbsp;€ netto</span> geliefert`,
+  es: `Pedir — <span class="num">629,50&nbsp;€ sin IVA</span> entregado`,
 };
 
 const I18N = { en: {}, de: {}, es: {} };
@@ -5579,9 +5613,10 @@ set('.hero__cta a.btn:not(.btn--ghost)', ORDER_BTN.en, ORDER_BTN.de, ORDER_BTN.e
 /* Meme libelle que l'entree de menu qui mene au meme endroit : deux mots
    differents pour une seule destination obligent le visiteur a verifier. */
 set('.hero__cta a.btn--ghost', `How it works`, `So funktioniert's`, `Cómo funciona`);
-set('.hero__price', `<span><b class="num">615&nbsp;€ excl. VAT</b><span style="opacity:.45; margin:0 8px">/</span><span class="num">738&nbsp;€ incl. VAT</span></span><span>+ <span class="num">14,50&nbsp;€</span> shipping</span><span><b class="num">755,40&nbsp;€</b> all-inclusive, one time only</span>`,
-  `<span><b class="num">615&nbsp;€ netto</b><span style="opacity:.45; margin:0 8px">/</span><span class="num">738&nbsp;€ brutto</span></span><span>+ <span class="num">14,50&nbsp;€</span> Versand</span><span><b class="num">755,40&nbsp;€</b> alles inklusive, einmalig</span>`,
-  `<span><b class="num">615&nbsp;€ sin IVA</b><span style="opacity:.45; margin:0 8px">/</span><span class="num">738&nbsp;€ con IVA</span></span><span>+ <span class="num">14,50&nbsp;€</span> de envío</span><span><b class="num">755,40&nbsp;€</b> todo incluido, pago único</span>`);
+set('.hero__price',
+  `<span><b class="num">615&nbsp;€ excl. VAT</b> the box</span><span>+ <span class="num">14,50&nbsp;€ excl. VAT</span> shipping</span><span>= <b class="num">629,50&nbsp;€ excl. VAT</b><span style="opacity:.45; margin:0 8px">·</span><span class="num">755,40&nbsp;€ incl. VAT</span>, one time only</span>`,
+  `<span><b class="num">615&nbsp;€ netto</b> die Box</span><span>+ <span class="num">14,50&nbsp;€ netto</span> Versand</span><span>= <b class="num">629,50&nbsp;€ netto</b><span style="opacity:.45; margin:0 8px">·</span><span class="num">755,40&nbsp;€ brutto</span>, einmalig</span>`,
+  `<span><b class="num">615&nbsp;€ sin IVA</b> la caja</span><span>+ <span class="num">14,50&nbsp;€ sin IVA</span> de envío</span><span>= <b class="num">629,50&nbsp;€ sin IVA</b><span style="opacity:.45; margin:0 8px">·</span><span class="num">755,40&nbsp;€ con IVA</span>, pago único</span>`);
 set('.scrollcue', `<span></span>Scroll`, `<span></span>Scrollen`, `<span></span>Desplázate`);
 
 /* ---- presse ---- */
