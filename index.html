@@ -728,9 +728,16 @@ section{padding-block:clamp(72px,10vw,var(--s10))}
 }
 .prep__l b{color:var(--ink); font-weight:500}
 .prep__f{margin:var(--s5) 0 0; font-size:13.5px; line-height:1.5; color:var(--ink-3); max-width:70ch}
+/* Sous 820px la grille passe a 2 colonnes, mais les cellules sont des freres
+   sans regroupement par ligne : les triplets (libelle, classique, WaouW) se
+   decalaient d'une case a chaque rangee, et le tableau devenait illisible.
+   Un element sur trois est un libelle — on lui rend toute la largeur, les deux
+   valeurs se rangent dessous, cote a cote, dans l'ordre des en-tetes. */
 @media (max-width:819px){
   .compare{grid-template-columns:1fr 1fr}
-  .compare .compare__h:first-child{grid-column:1 / -1}
+  .compare > *{padding:var(--s4)}   /* colonnes etroites : on rend la largeur au texte */
+  .compare > *:nth-child(3n+1){grid-column:1 / -1; padding-block:var(--s4) var(--s2); background:var(--paper)}
+  .compare > *:nth-child(3n+1) b{font-weight:500}
 }
 
 /* ============================================================
@@ -938,6 +945,9 @@ legend{
   content:""; flex:none; width:9px; height:9px; border-radius:50%;
   background:#F2F2EE; box-shadow:0 0 0 1px var(--line);
 }
+/* le HT vit dans un <small> a part : le compteur anime ne touche qu'au
+   nombre, en textContent, sans reconstruire de HTML a chaque image */
+.ticket__big small{font-size:.30em; letter-spacing:.04em; color:var(--ink-3); font-family:"Instrument Sans",sans-serif; font-weight:400; margin-inline-start:.35em}
 .ticket__big{font-family:"Urbanist",system-ui,sans-serif; font-weight:300; font-size:clamp(46px,6vw,64px); letter-spacing:-.032em; line-height:1; margin:var(--s5) 0 var(--s2)}
 .ticket__sub{font-size:14px; color:var(--ink-3); margin-bottom:var(--s5)}
 .ticket__lines{border-top:1px solid var(--line-soft); padding-top:var(--s4); margin-bottom:var(--s5)}
@@ -953,9 +963,11 @@ legend{
 /* l'intitulé du détail était en style en dur dans le HTML : passé en classe,
    il suit le thème au lieu de le contredire si la carte change de fond. */
 .tline--h{font-size:11.5px; letter-spacing:.14em; text-transform:uppercase; color:var(--ink-3); padding-top:0}
-.tline--total{border-top:1px solid var(--line-soft); margin-top:var(--s2); padding-top:var(--s4); font-size:16px; color:var(--ink)}
-/* sous-total HT : meme logique de separation que le total, en plus discret */
-.tline--sub{border-top:1px solid var(--line-soft); margin-top:var(--s2); padding-top:var(--s3); color:var(--ink)}
+/* C'est le HT qui porte, pas le TTC : le Total HT prend le traitement fort
+   (filet, taille), le Total TTC redescend en ligne d'appoint. */
+.tline--sum{border-top:1px solid var(--line-soft); margin-top:var(--s2); padding-top:var(--s4); font-size:16px; color:var(--ink)}
+.tline--total{padding-top:2px; font-size:13px; color:var(--ink-3)}
+.tline--total b{color:var(--ink-2); font-weight:400}
 .ticket .btn{width:100%}
 .assur{display:grid; gap:10px; margin-top:var(--s5); padding-top:var(--s5); border-top:1px solid var(--line-soft)}
 .assur li{display:flex; gap:10px; font-size:13.5px; color:var(--ink-2); line-height:1.45; align-items:flex-start}
@@ -1495,6 +1507,11 @@ a.press__i:focus-visible{outline:2px solid var(--accent-night); outline-offset:-
   display:flex; align-items:center; justify-content:space-between; gap:var(--s4);
   margin-top:auto; padding-top:var(--s5); border-top:1px solid var(--line-night);
 }
+.iabox__soon{
+  align-self:flex-start; margin:var(--s4) 0 0;
+  font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--on-night-3);
+  border:1px solid var(--line-night); border-radius:var(--r-pill); padding:4px 9px;
+}
 .iabox__price{font-size:13px; color:var(--on-night-3)}
 .iabox__price b{color:var(--on-night); font-weight:500}
 
@@ -1952,7 +1969,7 @@ input[type=range]:focus-visible{outline:2px solid var(--accent); outline-offset:
 /* recapitulatif : memes lignes que le ticket du configurateur */
 .cmd__sum{border:1px solid var(--line); border-radius:var(--r); background:var(--paper-hi); padding:14px 16px; margin:0 0 16px}
 .cmd__sum .tline{padding:6px 0}
-.cmd__sum .tline--total{margin-top:6px; padding-top:10px; border-top:1px solid var(--line)}
+.cmd__sum .tline--sum{margin-top:6px; padding-top:10px; border-top:1px solid var(--line)}
 .cmd__adr{font-size:13px; line-height:1.6; color:var(--ink-2); margin:0}
 .cmd__adr b{color:var(--ink); font-weight:500}
 .cmd__edit{
@@ -2669,11 +2686,11 @@ input[type=range]:focus-visible{outline:2px solid var(--accent); outline-offset:
         <p class="calc__sc"><span class="num">5 €</span><span class="num">80 €</span></p>
       </div>
       <div class="calc__out" aria-live="polite">
-        <p class="calc__row"><span>Sur 7 ans, chez votre hébergeur</span><b class="num" id="calc7">1 680 €</b></p>
-        <p class="calc__row"><span>La même chose avec une WaouW Box</span><b class="num">755 €</b></p>
+        <p class="calc__row"><span>Sur 7 ans, chez votre hébergeur</span><b class="num" id="calc7">1 680 € HT</b></p>
+        <p class="calc__row"><span>La même chose avec une WaouW Box</span><b class="num" id="calcBox">629,50 € HT</b></p>
         <p class="calc__row" style="border-top:1px solid var(--line-soft); margin-top:var(--s3); padding-top:var(--s4)">
-          <span>Ce que vous gardez</span><b class="calc__big num" id="calcE">925 €</b></p>
-        <p class="calc__note">Rentabilisé en <b class="num" id="calcMo">38</b> mois. Après quoi l'hébergement ne vous coûte plus que l'électricité — environ <span class="num">9 €</span> par an.</p>
+          <span>Ce que vous gardez</span><b class="calc__big num" id="calcE">1 050,50 € HT</b></p>
+        <p class="calc__note">Rentabilisé en <b class="num" id="calcMo">32</b> mois. Après quoi l'hébergement ne vous coûte plus que l'électricité — environ <span class="num">9 €</span> par an.</p>
       </div>
     </div>
 
@@ -2688,14 +2705,14 @@ input[type=range]:focus-visible{outline:2px solid var(--accent); outline-offset:
 
       <div><b>Ce que vous payez</b></div>
       <div>Un abonnement, tous les mois</div>
-      <div><b class="good">Une fois, <span class="num">755,40&nbsp;€</span></b></div>
+      <div><b class="good">Une fois, <span class="num">629,50&nbsp;€ HT</span></b></div>
 
       <div><b>Ce que ça coûte au total</b></div>
       <!-- un seul enfant par cellule : la cellule est un conteneur flex, et un
            flex container supprime les blancs entre ses éléments — deux spans
            frères se retrouveraient collés (« 1 680 €à20 € »). -->
-      <div><span><span class="num">1&nbsp;680&nbsp;€</span>, soit <span class="num">20&nbsp;€</span> par mois</span></div>
-      <div><b class="good"><span class="num">755&nbsp;€</span> + <span class="num">9&nbsp;€</span> d'électricité par an</b></div>
+      <div><span><span class="num">1&nbsp;680&nbsp;€ HT</span>, soit <span class="num">20&nbsp;€</span> par mois</span></div>
+      <div><b class="good"><span class="num">629,50&nbsp;€ HT</span> + <span class="num">9&nbsp;€</span> d'électricité par an</b></div>
 
       <div><b>Ce qui vous appartient à la fin</b></div>
       <div>Rien. Vous avez loué</div>
@@ -2784,6 +2801,7 @@ input[type=range]:focus-visible{outline:2px solid var(--accent); outline-offset:
           <div><dt>Stockage</dt><dd>2× 10 To<span>2 lignes SSD M.2</span></dd></div>
           <div><dt>Consommation</dt><dd>7–15 W</dd></div>
         </dl>
+        <p class="iabox__soon">Disponible à partir de décembre</p>
         <div class="iabox__foot">
           <span class="iabox__price">Prix <b>sur devis</b></span>
           <a href="mailto:support@waouw.eu" class="btn btn--sm" onclick="document.getElementById('chatOpen').click();return false" data-press-target>Nous consulter</a>
@@ -2804,6 +2822,7 @@ input[type=range]:focus-visible{outline:2px solid var(--accent); outline-offset:
           <div><dt>Stockage</dt><dd>4× 10 To<span>4 lignes SSD M.2</span></dd></div>
           <div><dt>Consommation</dt><dd>40–130 W</dd></div>
         </dl>
+        <p class="iabox__soon">Disponible à partir de décembre</p>
         <div class="iabox__foot">
           <span class="iabox__price">Prix <b>sur devis</b></span>
           <a href="mailto:support@waouw.eu" class="btn btn--sm" onclick="document.getElementById('chatOpen').click();return false" data-press-target>Nous consulter</a>
@@ -2862,7 +2881,7 @@ input[type=range]:focus-visible{outline:2px solid var(--accent); outline-offset:
       <button type="button" class="who__c" data-reveal data-pick="duo">
         <p class="who__k">Association · Collectivité</p>
         <h3>Des données d'adhérents à protéger</h3>
-        <p>Budget annuel serré, obligations RGPD réelles. Un achat unique passe en investissement ; l'abonnement, lui, revient tous les ans.</p>
+        <p>Budget annuel serré, obligations RGPD réelles. Un achat unique passe en investissement.</p>
         <p class="who__tags"><span>Données d'adhérents</span><span>Conformité RGPD</span><span>Copie miroir</span></p>
         <p class="who__p"><b>Duo</b> — copie miroir, aucune coupure</p>
         <span class="who__go">Configurer <span class="who__go__ic"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true"><path d="M2 6h8M6.5 2.5L10 6l-3.5 3.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span></span>
@@ -3011,7 +3030,7 @@ input[type=range]:focus-visible{outline:2px solid var(--accent); outline-offset:
               <span class="opt__box">
                 <span class="opt__cap">Duo</span>
                 <span class="opt__use">Un deuxième boîtier, synchronisé en continu. Si l'un tombe, l'autre prend le relais.</span>
-                <span class="opt__p num">+ 625 € HT</span>
+                <span class="opt__p num" id="duoPrice">+ 615 € HT</span>
               </span>
             </label>
           </div>
@@ -3059,7 +3078,7 @@ input[type=range]:focus-visible{outline:2px solid var(--accent); outline-offset:
         </div>
         <p class="ticket__vis" id="tkVis" hidden>Visuel — finition blanche.</p>
 
-        <p class="ticket__big num" id="bigPrice">755,40 €</p>
+        <p class="ticket__big num"><span id="bigPrice">629,50 €</span><small id="bigHt">HT</small></p>
         <p class="ticket__sub" id="bigSub">Tout compris, TTC, livré. Une seule fois.</p>
 
         <div class="ticket__lines">
@@ -3067,7 +3086,7 @@ input[type=range]:focus-visible{outline:2px solid var(--accent); outline-offset:
           <p class="tline"><span id="lineName">WaouW Box 128 Go — Noir</span><b class="num" id="lineBase">738,00 € TTC</b></p>
           <p class="tline" id="lineDuoRow" hidden><span>Second boîtier miroir</span><b class="num" id="lineDuo">750,00 € TTC</b></p>
           <p class="tline" id="lineShipRow"><span id="lineShipLab">Livraison Colissimo suivi + assurance</span><b class="num" id="lineShip">17,40 € TTC</b></p>
-          <p class="tline tline--sub" id="lineHtRow"><span id="lineHtLab">Total HT</span><b class="num" id="lineHt">754,50 €</b></p>
+          <p class="tline tline--sum" id="lineHtRow"><span id="lineHtLab">Total HT</span><b class="num" id="lineHt">754,50 €</b></p>
           <p class="tline" id="lineVatRow"><span id="lineVatLab">TVA 20 %</span><b class="num" id="lineVat">125,90 €</b></p>
           <p class="tline tline--total"><span>Total <span id="totalMode">TTC</span></span><b class="num" id="lineTotal">755,40 €</b></p>
         </div>
@@ -3076,7 +3095,7 @@ input[type=range]:focus-visible{outline:2px solid var(--accent); outline-offset:
 
         <ul class="assur">
           <li><svg width="15" height="15" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M2 8.6l4 4L14 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span><b>Garantie légale de conformité 2 ans</b>, en plus de la garantie commerciale.</span></li>
-          <li><svg width="15" height="15" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M2 8.6l4 4L14 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Carte bancaire, virement ou PayPal. <b>Aucun frais caché</b> : le montant ci-dessus est celui que vous paierez.</span></li>
+          <li><svg width="15" height="15" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M2 8.6l4 4L14 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Carte bancaire, virement ou PayPal. <b>Aucun frais caché</b> : le Total TTC est celui que vous paierez, sans supplément à l'arrivée.</span></li>
         </ul>
       </aside>
     </div>
@@ -3372,7 +3391,7 @@ input[type=range]:focus-visible{outline:2px solid var(--accent); outline-offset:
 
 <!-- ============ BARRE D'ACHAT MOBILE ============ -->
 <div class="buybar" id="buybar">
-  <p class="buybar__p"><span style="color:var(--ink-3)">128 Go · Noir</span><b class="num" id="barPrice">755,40 € TTC livré</b></p>
+  <p class="buybar__p"><span style="color:var(--ink-3)">128 Go · Noir</span><b class="num" id="barPrice">629,50 € HT livré</b></p>
   <a href="#offres" class="btn btn--sm" data-press-target>Configurer</a>
 </div>
 
@@ -3777,7 +3796,8 @@ document.querySelectorAll('[data-press-target], .btn').forEach(b => {
    Le prix est la vérité du site : il s'anime, il ne saute pas.
    Tout est annoncé — base, port, TVA, total.
    ============================================================ */
-const DUO = 625;
+/* Le second boitier est identique au premier : son prix est celui de la
+   capacite choisie, pas un forfait. Cocher Duo double donc la box. */
 
 /* ============================================================
    6 bis — LE PORT N'EST PLUS UN FORFAIT, IL SE CALCULE
@@ -4052,7 +4072,8 @@ function state() {
   const cap = form.querySelector('input[name=cap]:checked');
   const col = form.querySelector('input[name=col]:checked');
   const duo = $('duo').checked;
-  const base = +cap.dataset.p + (duo ? DUO : 0);
+  const capP = +cap.dataset.p;
+  const base = capP * (duo ? 2 : 1);
   const dest = PORT.dest();
   const modePort = PORT.modeCourant(duo);
   const port = modePort ? modePort.prix : 0;
@@ -4063,7 +4084,7 @@ function state() {
     label: unitLabel(cap.value),
     color: colorKey,                    // clé interne (FR) — sert à SHOTS[s.color]
     colorLabel: colorLabel(colorKey),    // ce qui s'affiche, dans la langue courante
-    duo, base: +cap.dataset.p,
+    duo, base: capP,
     dest, modePort, port, tva: dest.tva,
     ht, vat: ht * dest.tva, ttc: ht * (1 + dest.tva)
   };
@@ -4071,7 +4092,9 @@ function state() {
 
 function render(animate = true) {
   const s = state();
-  const total = s.ttc;
+  /* Le chiffre mis en avant est le HT : la clientele est majoritairement
+     professionnelle. Le TTC reste lisible dans le detail et sur le bouton. */
+  const total = s.ht;
 
   $('lineName').textContent = `WaouW Box ${s.label} — ${s.colorLabel}`;
 
@@ -4129,7 +4152,7 @@ function render(animate = true) {
   const HT = T('HT', 'excl. VAT', 'netto', 'sin IVA');
   $('lineBase').textContent = eur(s.base) + ' ' + HT;   // le detail est HT, le total reste TTC : ça
   $('lineDuoRow').hidden = !s.duo;
-  $('lineDuo').textContent = eur(DUO) + ' ' + HT;
+  $('lineDuo').textContent = eur(s.base) + ' ' + HT;
   /* le port porte desormais le nom du mode et de la destination :
      « 14,50 € » sans dire vers ou n'est pas un prix, c'est un chiffre */
   $('lineShip').textContent = eur(s.port) + ' ' + HT;
@@ -4174,13 +4197,15 @@ function render(animate = true) {
           'Dieses Ziel wird individuell behandelt — schreiben Sie uns.',
           'Este destino se gestiona caso por caso — escríbanos.');
   }
-  $('lineTotal').textContent = eur(total);
+  $('lineTotal').textContent = eur(s.ttc);   // la ligne finale reste le TTC, meme si le gros chiffre est le HT
+  if ($('duoPrice')) $('duoPrice').textContent = '+ ' + eur(s.base) + ' ' + HT;
   $('totalMode').textContent = T('TTC', 'inc. VAT', 'inkl. MwSt.', 'con IVA');
-  $('bigSub').textContent = T('Tout compris, TTC, livré. Une seule fois.', 'All-inclusive, incl. VAT, delivered. One time only.', 'Alles inklusive, inkl. MwSt., geliefert. Einmalig.', 'Todo incluido, con IVA, entregado. Una sola vez.');
-  $('barPrice').textContent = eur(s.ttc) + ' ' + T('TTC livré', 'incl. VAT, delivered', 'inkl. MwSt., geliefert', 'con IVA, entregado');
+  if ($('bigHt')) $('bigHt').textContent = HT;
+  $('bigSub').textContent = T('Tout compris, HT, livré. Une seule fois.', 'All-inclusive, excl. VAT, delivered. One time only.', 'Alles inklusive, netto, geliefert. Einmalig.', 'Todo incluido, sin IVA, entregado. Una sola vez.');
+  $('barPrice').textContent = eur(s.ht) + ' ' + T('HT livré', 'excl. VAT, delivered', 'netto, geliefert', 'sin IVA, entregado');
   document.querySelector('.buybar__p span').textContent = `${s.label} · ${s.colorLabel}${s.duo ? ' · Duo' : ''}`;
 
-  const paint = v => { $('bigPrice').textContent = eur(v); };
+  const paint = v => { $('bigPrice').textContent = eur(v); };   // le gros chiffre est le HT
   if (!animate || REDUCED.matches) { shownTotal = total; paint(total); return; }
   if (priceSpring) priceSpring.stop();
   priceSpring = spring({
@@ -4400,9 +4425,9 @@ render(false);
     const s = state();
     const l = [];
     l.push('<p class="tline"><span>WaouW Box ' + s.label + ' — ' + s.colorLabel + '</span><b class="num">' + eur(s.base) + ' ' + T('HT', 'excl. VAT', 'netto', 'sin IVA') + '</b></p>');
-    if (s.duo) l.push('<p class="tline"><span>' + T('Second boîtier miroir', 'Second mirror box', 'Zweite Spiegel-Box', 'Segunda caja espejo') + '</span><b class="num">' + eur(DUO) + ' ' + T('HT', 'excl. VAT', 'netto', 'sin IVA') + '</b></p>');
+    if (s.duo) l.push('<p class="tline"><span>' + T('Second boîtier miroir', 'Second mirror box', 'Zweite Spiegel-Box', 'Segunda caja espejo') + '</span><b class="num">' + eur(s.base) + ' ' + T('HT', 'excl. VAT', 'netto', 'sin IVA') + '</b></p>');
     l.push('<p class="tline"><span>' + (s.modePort ? s.modePort.nom : '') + ' — ' + PORT.nom(s.dest) + '</span><b class="num">' + eur(s.port) + ' ' + T('HT', 'excl. VAT', 'netto', 'sin IVA') + '</b></p>');
-    if (s.tva !== 0) l.push('<p class="tline tline--sub"><span>'
+    if (s.tva !== 0) l.push('<p class="tline tline--sum"><span>'
       + T('Total HT', 'Total excl. VAT', 'Summe netto', 'Total sin IVA')
       + '</span><b class="num">' + eur(s.ht) + '</b></p>');
     l.push(s.tva === 0
@@ -4576,7 +4601,7 @@ render(false);
       devise: 'eur', langue: CURLANG,
       lignes: [
         { ref: 'WAOUW-BOX-' + s.cap, nom: 'WaouW Box ' + s.label + ' — ' + s.colorLabel, qte: 1, prixHT: c(s.base) },
-      ].concat(s.duo ? [{ ref: 'WAOUW-BOX-DUO', nom: 'Second boîtier miroir', qte: 1, prixHT: c(DUO) }] : []),
+      ].concat(s.duo ? [{ ref: 'WAOUW-BOX-DUO', nom: 'Second boîtier miroir', qte: 1, prixHT: c(s.base) }] : []),
       livraison: {
         destination: s.dest.code, zone: s.dest.grille,
         mode: s.modePort ? s.modePort.id : null,
@@ -5080,10 +5105,19 @@ document.querySelectorAll('details').forEach(d => {
    ============================================================ */
 (() => {
   const r = $('calcR'); if (!r) return;
-  const mo = $('calcM'), c7 = $('calc7'), ce = $('calcE'), cm = $('calcMo');
-  const BOX = 755.40, YEARS = 7;
-  const fmt = n => Math.round(n).toLocaleString('fr-FR') + ' €';
-  let s7 = null, sE = null, sM = null, shown = { t: 1680, e: 925, m: 38 };
+  const mo = $('calcM'), c7 = $('calc7'), ce = $('calcE'), cb = $('calcBox');
+  /* #calcMo vit dans .calc__note, dont l'i18n reecrit le innerHTML au
+     chargement : garder la reference capturee ici ecrivait dans un noeud
+     detache, et le nombre de mois restait fige sur sa valeur en dur.
+     On le relit a chaque peinture. */
+  const cmNow = () => $('calcMo');
+  /* Le curseur est en euros HT par mois : la box doit l'etre aussi, sinon on
+     soustrait du TTC a du HT. 629,50 = 615 de boitier + 14,50 de port. */
+  const BOX = 629.50, YEARS = 7;
+  const ht = () => T('HT', 'excl. VAT', 'netto', 'sin IVA');
+  const fmt = n => Math.round(n).toLocaleString('fr-FR') + ' € ' + ht();
+  const fmt2 = n => n.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' € ' + ht();
+  let s7 = null, sE = null, sM = null, shown = { t: 1680, e: 1050.5, m: 32 };
 
   const drive = (ref, key, to, paint) => {
     if (REDUCED.matches) { shown[key] = to; paint(to); return null; }
@@ -5101,9 +5135,14 @@ document.querySelectorAll('details').forEach(d => {
     r.style.setProperty('--fill', ((m - r.min) / (r.max - r.min) * 100).toFixed(1) + '%');
     r.setAttribute('aria-valuetext', m + ' ' + T('euros par mois', 'euros per month', 'Euro pro Monat', 'euros al mes'));
     mo.textContent = m;
+    if (cb) cb.textContent = fmt2(BOX);
     s7 = drive(s7, 't', total, v => c7.textContent = fmt(v));
-    sE = drive(sE, 'e', eco,   v => ce.textContent = (v >= 0 ? '' : '−') + fmt(Math.abs(v)));
-    sM = drive(sM, 'm', months, v => cm.textContent = Math.max(1, Math.round(v)));
+    /* le montant garde se lit au centime : c'est une soustraction exacte,
+       pas une estimation — 1 680 − 629,50 doit tomber juste a l'ecran */
+    sE = drive(sE, 'e', eco,   v => ce.textContent = (v >= 0 ? '' : '−') + fmt2(Math.abs(v)));
+    /* au mois superieur : a 31 mois on a paye 620 €, on n'a pas encore
+       rembourse 629,50 — arrondir a l'inferieur annoncerait un seuil non atteint */
+    sM = drive(sM, 'm', months, v => { const el = cmNow(); if (el) el.textContent = Math.max(1, Math.ceil(v - 1e-9)); });
   };
   r.addEventListener('input', render);
   render();
@@ -5648,25 +5687,25 @@ set('.calc__val small', `€ excl. VAT / mo`, `€ netto / Monat`, `€ sin IVA 
 set('.calc__row > span', [`Over 7 years, with your current host`, `The same, with a WaouW Box`, `What you keep`],
   [`Über 7 Jahre, bei Ihrem jetzigen Hoster`, `Dasselbe mit einer WaouW Box`, `Was Sie behalten`],
   [`En 7 años, con su proveedor actual`, `Lo mismo con una WaouW Box`, `Lo que se queda usted`]);
-set('.calc__note', `Paid back in <b class="num" id="calcMo">38</b> months. After that, hosting only costs you the electricity — about <span class="num">9&nbsp;€</span> a year.`,
-  `Amortisiert nach <b class="num" id="calcMo">38</b> Monaten. Danach kostet das Hosting nur noch den Strom — etwa <span class="num">9&nbsp;€</span> im Jahr.`,
-  `Amortizado en <b class="num" id="calcMo">38</b> meses. A partir de ahí, el alojamiento solo le cuesta la electricidad — unos <span class="num">9&nbsp;€</span> al año.`);
+set('.calc__note', `Paid back in <b class="num" id="calcMo">32</b> months. After that, hosting only costs you the electricity — about <span class="num">9&nbsp;€</span> a year.`,
+  `Amortisiert nach <b class="num" id="calcMo">32</b> Monaten. Danach kostet das Hosting nur noch den Strom — etwa <span class="num">9&nbsp;€</span> im Jahr.`,
+  `Amortizado en <b class="num" id="calcMo">32</b> meses. A partir de ahí, el alojamiento solo le cuesta la electricidad — unos <span class="num">9&nbsp;€</span> al año.`);
 set('.compare__h', [`Over 7 years`, `Classic hosting`, `WaouW`], [`Über 7 Jahre`, `Klassisches Hosting`, `WaouW`], [`En 7 años`, `Alojamiento clásico`, `WaouW`]);
 set('.compare > div',
-  [`<b>What you pay</b>`, `A subscription, every month`, `<b class="good">Once, <span class="num">755,40&nbsp;€</span></b>`,
-   `<b>What it costs in total</b>`, `<span><span class="num">1&nbsp;680&nbsp;€</span>, i.e. <span class="num">20&nbsp;€</span> a month</span>`, `<b class="good"><span class="num">755&nbsp;€</span> + <span class="num">9&nbsp;€</span> of electricity a year</b>`,
+  [`<b>What you pay</b>`, `A subscription, every month`, `<b class="good">Once, <span class="num">629,50&nbsp;€ excl. VAT</span></b>`,
+   `<b>What it costs in total</b>`, `<span><span class="num">1&nbsp;680&nbsp;€ excl. VAT</span>, i.e. <span class="num">20&nbsp;€</span> a month</span>`, `<b class="good"><span class="num">629,50&nbsp;€ excl. VAT</span> + <span class="num">9&nbsp;€</span> of electricity a year</b>`,
    `<b>What's yours at the end</b>`, `Nothing. You were renting`, `<b class="good">The server</b>`,
    `<b>Where your data lives</b>`, `In a third-party data center`, `<b class="good">At your place</b>`,
    `<b>Who can access it</b>`, `You, the host, its subcontractors`, `<b class="good">You</b>`,
    `<b>If you stop paying</b>`, `The site goes dark`, `<b class="good">It keeps running</b>`],
-  [`<b>Was Sie zahlen</b>`, `Ein Abonnement, jeden Monat`, `<b class="good">Einmalig, <span class="num">755,40&nbsp;€</span></b>`,
-   `<b>Was es insgesamt kostet</b>`, `<span><span class="num">1&nbsp;680&nbsp;€</span>, also <span class="num">20&nbsp;€</span> pro Monat</span>`, `<b class="good"><span class="num">755&nbsp;€</span> + <span class="num">9&nbsp;€</span> Strom im Jahr</b>`,
+  [`<b>Was Sie zahlen</b>`, `Ein Abonnement, jeden Monat`, `<b class="good">Einmalig, <span class="num">629,50&nbsp;€ netto</span></b>`,
+   `<b>Was es insgesamt kostet</b>`, `<span><span class="num">1&nbsp;680&nbsp;€ netto</span>, also <span class="num">20&nbsp;€</span> pro Monat</span>`, `<b class="good"><span class="num">629,50&nbsp;€ netto</span> + <span class="num">9&nbsp;€</span> Strom im Jahr</b>`,
    `<b>Was Ihnen am Ende gehört</b>`, `Nichts. Sie haben gemietet`, `<b class="good">Der Server</b>`,
    `<b>Wo Ihre Daten liegen</b>`, `In einem fremden Rechenzentrum`, `<b class="good">Bei Ihnen</b>`,
    `<b>Wer darauf zugreifen kann</b>`, `Sie, der Hoster, seine Dienstleister`, `<b class="good">Sie</b>`,
    `<b>Wenn Sie aufhören zu zahlen</b>`, `Die Website erlischt`, `<b class="good">Sie läuft weiter</b>`],
-  [`<b>Lo que paga</b>`, `Una suscripción, cada mes`, `<b class="good">Una vez, <span class="num">755,40&nbsp;€</span></b>`,
-   `<b>Lo que cuesta en total</b>`, `<span><span class="num">1&nbsp;680&nbsp;€</span>, es decir <span class="num">20&nbsp;€</span> al mes</span>`, `<b class="good"><span class="num">755&nbsp;€</span> + <span class="num">9&nbsp;€</span> de electricidad al año</b>`,
+  [`<b>Lo que paga</b>`, `Una suscripción, cada mes`, `<b class="good">Una vez, <span class="num">629,50&nbsp;€ sin IVA</span></b>`,
+   `<b>Lo que cuesta en total</b>`, `<span><span class="num">1&nbsp;680&nbsp;€ sin IVA</span>, es decir <span class="num">20&nbsp;€</span> al mes</span>`, `<b class="good"><span class="num">629,50&nbsp;€ sin IVA</span> + <span class="num">9&nbsp;€</span> de electricidad al año</b>`,
    `<b>Lo que le pertenece al final</b>`, `Nada. Estaba alquilando`, `<b class="good">El servidor</b>`,
    `<b>Dónde están sus datos</b>`, `En un centro de datos ajeno`, `<b class="good">En su casa</b>`,
    `<b>Quién puede acceder</b>`, `Usted, el proveedor, sus subcontratistas`, `<b class="good">Usted</b>`,
@@ -5762,6 +5801,7 @@ set('.iabox__specs dd',
    `128 GB LPDDR5X<span>hasta 275 GB/s · ECC inline de 1 bit</span>`,
    `4× 10 TB<span>4 ranuras SSD M.2</span>`,
    `40–130 W`]);
+set('.iabox__soon', `Available from December`, `Ab Dezember verfügbar`, `Disponible a partir de diciembre`);
 set('.iabox__price', `Price <b>on request</b>`, `Preis <b>auf Anfrage</b>`, `Precio <b>a consultar</b>`);
 set('.iabox__foot a', `Talk to us`, `Uns kontaktieren`, `Consultarnos`);
 set('#ia > .wrap > p.lede[style*="s8"]', `A data center built for large-scale AI draws power at the gigawatt scale. ALPHA and OMEGA are sized for a single use: yours.`,
@@ -5791,19 +5831,23 @@ set('.who__c h3',
   [`One showcase site and two mailboxes`, `One site, one shop, ten employees`, `Several client sites to host`, `Members' data to protect`],
   [`Eine Website und zwei Postfächer`, `Eine Website, ein Shop, zehn Mitarbeitende`, `Mehrere Kundenwebsites zu hosten`, `Mitgliederdaten zu schützen`],
   [`Un sitio de presentación y dos correos`, `Un sitio, una tienda, diez empleados`, `Varios sitios de clientes que alojar`, `Datos de socios que proteger`]);
-set('.who__c > p:not(.who__tags):not(.who__p)',
+/* :not(.who__k) — sans lui le selecteur prenait aussi les surtitres, et le
+   tableau de 4 traductions se deversait dans les 4 premiers elements : le
+   surtitre de la carte 1 affichait une description, et les cartes 3 et 4
+   restaient en francais. */
+set('.who__c > p:not(.who__k):not(.who__tags):not(.who__p)',
   [`You've been paying 15 to 25 € a month for years for three pages and one email address. Over seven years, that's more than the box.`,
    `Your quotes, client files and mail sit with a provider whose offices you've never seen. They come home.`,
    `You re-bill hosting every month. One box, several sites: the margin stops leaving for a third party.`,
-   `Tight annual budget, real GDPR obligations. A one-off purchase becomes an investment; a subscription comes back every year.`],
+   `Tight annual budget, real GDPR obligations. A one-off purchase becomes an investment.`],
   [`Sie zahlen seit Jahren 15 bis 25 € im Monat für drei Seiten und eine E-Mail-Adresse. Über sieben Jahre ist das teurer als die Box.`,
    `Ihre Angebote, Kundendateien und E-Mails liegen bei einem Anbieter, dessen Räumlichkeiten Sie nie gesehen haben. Sie kommen zu Ihnen nach Hause.`,
    `Sie stellen das Hosting jeden Monat weiter in Rechnung. Eine Box, mehrere Websites: die Marge wandert nicht mehr zu einem Dritten ab.`,
-   `Knappes Jahresbudget, echte DSGVO-Pflichten. Ein einmaliger Kauf wird zur Investition; ein Abo kommt dagegen jedes Jahr wieder.`],
+   `Knappes Jahresbudget, echte DSGVO-Pflichten. Ein einmaliger Kauf wird zur Investition.`],
   [`Lleva años pagando de 15 a 25 € al mes por tres páginas y una dirección de correo. En siete años, sale más caro que la caja.`,
    `Sus presupuestos, ficheros de clientes y correos están en un proveedor cuyas oficinas nunca ha visitado. Vuelven a su casa.`,
    `Refactura el alojamiento cada mes. Una caja, varios sitios: el margen deja de irse a un tercero.`,
-   `Presupuesto anual ajustado, obligaciones reales de RGPD. Una compra única se convierte en inversión; la suscripción, en cambio, vuelve cada año.`]);
+   `Presupuesto anual ajustado, obligaciones reales de RGPD. Una compra única se convierte en inversión.`]);
 set('.who__tags span',
   [`Showcase site`, `Mailboxes`, `Backups`, `Site + shop`, `10 employees`, `Client files`, `Multiple sites`, `Hosting billing`, `Reporting`, `Members' data`, `GDPR compliance`, `Mirror copy`],
   [`Website`, `Postfächer`, `Backups`, `Website + Shop`, `10 Mitarbeitende`, `Kundendateien`, `Mehrere Websites`, `Hosting-Abrechnung`, `Reporting`, `Mitgliederdaten`, `DSGVO-Konformität`, `Spiegelkopie`],
@@ -5945,11 +5989,11 @@ set('#cmdRefLab', `Reference`, `Referenz`, `Referencia`);
 
 set('.assur li span',
   [`<b>2-year legal warranty</b>, on top of the commercial warranty.`,
-   `Card, bank transfer or PayPal. <b>No hidden fees</b>: the amount above is what you'll pay.`],
+   `Card, bank transfer or PayPal. <b>No hidden fees</b>: the Total incl. VAT is what you'll pay, nothing added on arrival.`],
   [`<b>2 Jahre gesetzliche Gewährleistung</b>, zusätzlich zur Herstellergarantie.`,
-   `Kreditkarte, Überweisung oder PayPal. <b>Keine versteckten Kosten</b>: der oben genannte Betrag ist der, den Sie zahlen.`],
+   `Kreditkarte, Überweisung oder PayPal. <b>Keine versteckten Kosten</b>: die Summe brutto ist der Betrag, den Sie zahlen — ohne Zuschlag bei Lieferung.`],
   [`<b>Garantía legal de conformidad de 2 años</b>, además de la garantía comercial.`,
-   `Tarjeta, transferencia o PayPal. <b>Sin costes ocultos</b>: el importe indicado arriba es el que pagará.`]);
+   `Tarjeta, transferencia o PayPal. <b>Sin costes ocultos</b>: el Total con IVA es el que pagará, sin recargos a la entrega.`]);
 
 /* ---- aides ---- */
 set('#aides .eyebrow', `Public grants`, `Öffentliche Förderungen`, `Ayudas públicas`);
